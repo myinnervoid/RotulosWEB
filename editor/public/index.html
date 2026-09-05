@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="app_title">Estudio Visual Memexicanísimos · Editor GrapesJS Pro v3.1</title>
+  
+  <!-- Estilos de GrapesJS -->
+  <link rel="stylesheet" href="/vendor/grapesjs/css/grapes.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Estilos Principales del Editor (Minificado con Fallback) -->
+  <link rel="stylesheet" href="/style.min.css" onerror="this.onerror=null;this.href='/style.css';">
+</head>
+<body>
+
+  <!-- BARRA DE HERRAMIENTAS SUPERIOR (ZONA 1) -->
+  <header class="top-toolbar">
+    <!-- IZQUIERDA: HAMBURGUESA Y BRANDING -->
+    <div class="brand-title">
+      <button class="btn-hamburger" id="btn-hamburger" aria-label="Abrir Menú de Herramientas" title="Herramientas y Preferencias (Menú Hamburguesa)">
+        <i class="fas fa-bars"></i>
+      </button>
+      <span class="brand-emoji">🎨</span>
+      <span class="brand-name" data-i18n="app_title">Rótulos Web</span>
+      <div class="badge-editor" data-i18n="badge_editor">v3.3</div>
+    </div>
+
+    <!-- CENTRO: EDICIÓN & DISPOSITIVOS -->
+    <div class="toolbar-center">
+      <!-- SELECTOR DE PANTALLA -->
+      <div class="device-switcher" role="group" aria-label="Selector de pantalla">
+        <button class="btn-device active" id="btn-dev-desktop" title="Vista Escritorio (100%)">
+          <i class="fas fa-desktop"></i> PC
+        </button>
+        <button class="btn-device" id="btn-dev-tablet" title="Vista Tablet (768px)">
+          <i class="fas fa-tablet-alt"></i> Tablet
+        </button>
+        <button class="btn-device" id="btn-dev-mobile" title="Vista Celular (390px)">
+          <i class="fas fa-mobile-alt"></i> Celular
+        </button>
+      </div>
+
+      <!-- HISTORIAL DE EDICIÓN -->
+      <div class="history-controls">
+        <button class="btn-icon-tool" id="btn-undo" data-i18n-title="btn_undo" title="Deshacer (Ctrl+Z)">
+          <i class="fas fa-undo"></i>
+        </button>
+        <button class="btn-icon-tool" id="btn-redo" data-i18n-title="btn_redo" title="Rehacer (Ctrl+Y)">
+          <i class="fas fa-redo"></i>
+        </button>
+        <button class="btn-icon-tool" id="btn-delete-item" data-i18n-title="btn_delete" title="Eliminar elemento seleccionado">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- DERECHA: ACCIONES CRÍTICAS (SIEMPRE VISIBLES) -->
+    <div class="toolbar-actions">
+      <!-- VISTA PREVIA -->
+      <button class="btn-action btn-preview-toggle" id="btn-preview" data-i18n-title="btn_preview" title="Probar enlaces e interactuar sin marcos de edición">
+        <i class="fas fa-eye"></i> <span data-i18n="btn_preview">Vista Previa</span>
+      </button>
+
+      <!-- PUBLICAR -->
+      <button class="btn-action btn-publish" id="btn-publish" data-i18n-title="btn_publish" title="Publicar cambios en repositorio GitHub">
+        <i class="fas fa-rocket"></i> <span data-i18n="btn_publish">Publicar</span>
+      </button>
+
+      <!-- GUARDAR -->
+      <button class="btn-action btn-save" id="btn-save-disk" data-i18n-title="btn_save" title="Guardar cambios con respaldo automático en index.html">
+        <i class="fas fa-save"></i> <span data-i18n="btn_save">Guardar en index.html</span>
+      </button>
+
+      <!-- TOGGLE PANEL DERECHO -->
+      <button class="btn-action btn-sidebar-toggle" id="btn-toggle-sidebar" data-i18n-title="btn_panel" title="Ocultar / Mostrar Panel Derecho de Estilos">
+        <i class="fas fa-columns"></i>
+      </button>
+
+      <!-- APAGAR SERVIDOR -->
+      <button class="btn-action btn-shutdown" id="btn-shutdown" data-i18n-title="btn_shutdown" title="Detener el servidor local y liberar el puerto 5050">
+        <i class="fas fa-power-off"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- DRAWER / MENÚ HAMBURGUESA (ZONA 2) -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <aside class="drawer-menu" id="drawer-menu" aria-label="Menú de Herramientas y Preferencias">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i class="fas fa-sliders-h"></i> <span data-i18n="drawer_title">Herramientas & Preferencias</span>
+      </div>
+      <button class="drawer-close-btn" id="btn-close-drawer" aria-label="Cerrar menú">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+      <!-- SECCIÓN 0: PROYECTOS Y ESPACIOS DE TRABAJO (UNIVERSAL) -->
+      <div class="drawer-section" id="projects-section">
+        <div class="drawer-section-title">
+          <i class="fas fa-folder-tree"></i> <span>Proyectos & Espacios</span>
+        </div>
+        <div class="active-project-card" id="active-project-card" title="Directorio que se está editando actualmente">
+          <small class="project-tag">PROYECTO ACTIVO</small>
+          <div class="active-project-name" id="active-project-name">Cargando...</div>
+        </div>
+        <button class="drawer-tool-btn btn-open-project" id="btn-open-project" title="Seleccionar otra carpeta local con index.html">
+          <i class="fas fa-folder-open" style="color: #F5C542;"></i>
+          <div class="tool-btn-info">
+            <strong>Abrir Carpeta...</strong>
+            <small>Cargar otro sitio web</small>
+          </div>
+        </button>
+        <div class="recent-projects-heading">
+          <i class="fas fa-history"></i> Proyectos Recientes:
+        </div>
+        <div id="recent-projects" class="drawer-recent">
+          <!-- Se llenará dinámicamente desde ~/.talachas/recent.json -->
+        </div>
+      </div>
+
+      <!-- SECCIÓN 1: DIAGNÓSTICO Y SALUD -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">
+          <i class="fas fa-stethoscope"></i> <span data-i18n="drawer_diagnostics">Diagnóstico y Salud</span>
+        </div>
+        <div class="drawer-tools-grid">
+          <button class="drawer-tool-btn" id="btn-diagnostics" title="Ejecutar autodiagnóstico E2E, SEO y Accesibilidad WCAG">
+            <i class="fas fa-heartbeat" style="color: #55EBB2;"></i>
+            <div class="tool-btn-info">
+              <strong>Autodiagnóstico</strong>
+              <small>E2E & WCAG 2.2</small>
+            </div>
+          </button>
+          <button class="drawer-tool-btn" id="btn-screenshot" title="Generar captura de pantalla HD en Chrome local">
+            <i class="fas fa-camera" style="color: #64B5F6;"></i>
+            <div class="tool-btn-info">
+              <strong>Captura HD</strong>
+              <small>Render Chrome</small>
+            </div>
+          </button>
+          <button class="drawer-tool-btn" id="btn-stats" title="Ver Estadísticas del Servidor y Respaldos">
+            <i class="fas fa-chart-pie" style="color: #F5C542;"></i>
+            <div class="tool-btn-info">
+              <strong>Estadísticas</strong>
+              <small>Stats & Backups</small>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: PREFERENCIAS DEL EDITOR -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">
+          <i class="fas fa-palette"></i> <span data-i18n="drawer_preferences">Preferencias Visuales</span>
+        </div>
+        <div class="drawer-options-list">
+          <div class="drawer-option-row">
+            <label for="theme-selector"><i class="fas fa-brush"></i> Tema Visual:</label>
+            <select class="select-picker" id="theme-selector" title="Selector de Tema Visual">
+              <option value="patria" data-i18n="theme_patria">🇲🇽 Patria</option>
+              <option value="oscuro" data-i18n="theme_oscuro">🌙 Oscuro</option>
+              <option value="claro" data-i18n="theme_claro">☀️ Claro</option>
+            </select>
+          </div>
+
+          <div class="drawer-option-row">
+            <label for="lang-selector"><i class="fas fa-globe"></i> Idioma:</label>
+            <select class="select-picker" id="lang-selector" title="Selector de Idioma">
+              <option value="es">🇲🇽 Español</option>
+              <option value="en">🇺🇸 English</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 3: RECURSOS Y CÓDIGO -->
+      <div class="drawer-section">
+        <div class="drawer-section-title">
+          <i class="fas fa-code"></i> <span data-i18n="drawer_resources">Recursos y Código</span>
+        </div>
+        <div class="drawer-tools-grid">
+          <button class="drawer-tool-btn" id="btn-open-assets" title="Abrir Galería de Imágenes">
+            <i class="fas fa-images" style="color: #D4AF37;"></i>
+            <div class="tool-btn-info">
+              <strong>Galería Assets</strong>
+              <small>Imágenes locales</small>
+            </div>
+          </button>
+          <button class="drawer-tool-btn" id="btn-view-code" title="Ver Código Fuente Limpio">
+            <i class="fas fa-file-code" style="color: #A7B8B0;"></i>
+            <div class="tool-btn-info">
+              <strong>Código Fuente</strong>
+              <small>HTML sanitizado</small>
+            </div>
+          </button>
+          <button class="drawer-tool-btn" id="btn-open-docs" title="Abrir Guía de Uso, Atajos y Documentación">
+            <i class="fas fa-book-open" style="color: #55EBB2;"></i>
+            <div class="tool-btn-info">
+              <strong>Guía de Uso & DOCS</strong>
+              <small>Tutorial interactivo</small>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4: INFORMACIÓN SOBERANA -->
+      <div class="drawer-footer-info">
+        <div class="info-tag">🌮 Software Soberano Mexicano</div>
+        <p>Rótulos Web v3.3<br>Diseñado para independencia tecnológica local.</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- LAYOUT PRINCIPAL -->
+  <main class="editor-layout">
+    <!-- DOCK LATERAL IZQUIERDO DE SECCIONES (ZONA 3) -->
+    <nav class="left-dock" id="left-dock" aria-label="Navegador de Secciones de la Web">
+      <div class="dock-top-row">
+        <span class="dock-heading" data-i18n="dock_sections">Secciones</span>
+        <button class="btn-dock-toggle" id="btn-dock-toggle" title="Colapsar / Expandir Navegador">
+          <i class="fas fa-chevron-left" id="dock-toggle-icon"></i>
+        </button>
+      </div>
+
+      <div class="dock-items-wrapper">
+        <button class="dock-btn active" data-section="noticias-news" title="Noticias & Humor (#noticias-news)">
+          <span class="dock-btn-icon">📰</span>
+          <span class="dock-btn-text" data-i18n="dock_noticias">Noticias & Humor</span>
+        </button>
+        <button class="dock-btn" data-section="perfiles" title="Suite de Apps .io (#perfiles)">
+          <span class="dock-btn-icon">🛠️</span>
+          <span class="dock-btn-text" data-i18n="dock_apps">Suite de Apps</span>
+        </button>
+        <button class="dock-btn" data-section="redes-sociales" title="Redes & Live (#redes-sociales)">
+          <span class="dock-btn-icon">📱</span>
+          <span class="dock-btn-text" data-i18n="dock_redes">Redes & Live</span>
+        </button>
+        <button class="dock-btn" data-section="nosotros-apoyo" title="Nosotros & Apoyo (#nosotros-apoyo)">
+          <span class="dock-btn-icon">🌮</span>
+          <span class="dock-btn-text" data-i18n="dock_nosotros">Nosotros & Apoyo</span>
+        </button>
+        <button class="dock-btn" data-section="creador-contacto" title="Creador & Contacto (#creador-contacto)">
+          <span class="dock-btn-icon">🤠</span>
+          <span class="dock-btn-text" data-i18n="dock_creador">Creador & Contacto</span>
+        </button>
+        <div class="dock-separator"></div>
+        <button class="dock-btn dock-btn-all" data-section="all" title="Ver Todo el Sitio (Modo Edición Continua)">
+          <span class="dock-btn-icon">👁️</span>
+          <span class="dock-btn-text" data-i18n="dock_all">Ver Todo</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- LIENZO DE EDICIÓN (ZONA 4) -->
+    <div id="gjs-container"></div>
+
+    <!-- BARRA LATERAL DE HERRAMIENTAS (SIDEBAR) -->
+    <aside class="editor-sidebar" id="editor-sidebar">
+      <!-- TIRADOR PARA REDIMENSIONAR EL SIDEBAR -->
+      <div class="sidebar-resizer" id="sidebar-resizer" title="Arrastra hacia la izquierda para ampliar el panel"></div>
+
+      <!-- PESTAÑAS -->
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab-btn active" data-tab="blocks" data-i18n-title="tab_blocks" title="Arrastrar bloques y componentes">
+          <i class="fas fa-th-large"></i>
+          <span data-i18n="tab_blocks">Bloques</span>
+        </button>
+        <button class="sidebar-tab-btn" data-tab="styles" data-i18n-title="tab_styles" title="Editar estilos CSS (color, fuentes, márgenes)">
+          <i class="fas fa-palette"></i>
+          <span data-i18n="tab_styles">Estilos</span>
+        </button>
+        <button class="sidebar-tab-btn" data-tab="layers" data-i18n-title="tab_layers" title="Contexto y jerarquía de elementos">
+          <i class="fas fa-sitemap"></i>
+          <span data-i18n="tab_layers">Capas</span>
+        </button>
+        <button class="sidebar-tab-btn" data-tab="traits" data-i18n-title="tab_traits" title="Atributos del elemento (enlaces, ID, clases)">
+          <i class="fas fa-sliders-h"></i>
+          <span data-i18n="tab_traits">Propiedades</span>
+        </button>
+        <button class="sidebar-tab-btn btn-wide-toggle" id="btn-toggle-sidebar-w" title="Alternar ancho cómodo / compacto">
+          <i class="fas fa-arrows-alt-h"></i>
+        </button>
+      </div>
+
+      <!-- CONTENIDO DE PESTAÑAS -->
+      <div class="sidebar-content">
+        <!-- 1. BLOQUES -->
+        <div class="sidebar-pane active" id="pane-blocks">
+          <div class="pane-header">
+            <span class="pane-title"><i class="fas fa-th-large"></i> <span data-i18n="blocks_title">Bloques de Construcción</span></span>
+          </div>
+          <p class="pane-desc" data-i18n="blocks_desc">Arrastra y suelta elementos directamente en el lienzo.</p>
+          <div id="blocks-container"></div>
+        </div>
+
+        <!-- 2. ESTILOS -->
+        <div class="sidebar-pane" id="pane-styles">
+          <div class="pane-header">
+            <span class="pane-title"><i class="fas fa-palette"></i> <span data-i18n="styles_title">Gestor de Estilos</span></span>
+          </div>
+          <p class="pane-desc" data-i18n="styles_desc">Ajusta tipografía, colores, dimensiones y disposición visual.</p>
+          <div id="styles-container"></div>
+        </div>
+
+        <!-- 3. CAPAS & CONTEXTO OPERATIVO -->
+        <div class="sidebar-pane" id="pane-layers">
+          <div class="pane-header" style="justify-content: space-between;">
+            <span class="pane-title"><i class="fas fa-sitemap"></i> <span>Contexto & Hermanos</span></span>
+            <button class="btn-pane-toggle" id="btn-toggle-tree-view" title="Alternar entre Vista Contextual Plana y Árbol Completo">
+              <i class="fas fa-exchange-alt"></i> <span id="toggle-tree-label" style="font-size:0.7rem; margin-left:4px;">Ver Árbol</span>
+            </button>
+          </div>
+          <p class="pane-desc" id="layers-desc-text">Navegación contextual plana: elemento actual, contenedor padre y hermanos inmediatos.</p>
+
+          <!-- VISTA 1: CONTEXTUAL OPERATIVA (PREDETERMINADA) -->
+          <div id="talachas-context-container" class="talachas-context-container">
+            <div id="talachas-context-content">
+              <p style="color:var(--texto-sec); font-size:0.85rem; padding:10px 0;">Selecciona un elemento en el lienzo para ver su contexto y hermanos.</p>
+            </div>
+          </div>
+
+          <!-- VISTA 2: ÁRBOL COMPLETO (OPCIONAL/ALTERNABLE) -->
+          <div id="layers-container" style="display:none;"></div>
+        </div>
+
+        <!-- 4. ATRIBUTOS / PROPIEDADES -->
+        <div class="sidebar-pane" id="pane-traits">
+          <div class="pane-header">
+            <span class="pane-title"><i class="fas fa-sliders-h"></i> <span data-i18n="traits_title">Atributos & Enlaces</span></span>
+          </div>
+          <p class="pane-desc" data-i18n="traits_desc">Configura a dónde apuntan los enlaces (href), títulos, identificadores y textos alternativos.</p>
+          <div id="traits-container"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- BARRA DE MIGAS (BREADCRUMBS) OPERATIVA -->
+    <div id="breadcrumbs-bar" class="breadcrumbs-bar" role="navigation" aria-label="Ruta del elemento seleccionado">
+      <span class="breadcrumb-label">📍</span>
+      <div id="breadcrumb-items" class="breadcrumb-items">
+        <span class="breadcrumb-empty">Haz clic en cualquier elemento para inspeccionar su ruta</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL DE ESTADÍSTICAS (DASHBOARD - FASE 3) -->
+  <div class="modal-backdrop" id="stats-modal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-chart-pie"></i> <span data-i18n="stats_title">Estadísticas del Editor</span>
+        </div>
+        <button class="btn-icon-tool" id="btn-close-stats" title="Cerrar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="stats-content">
+        Cargando métricas...
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action" id="btn-close-stats-footer" data-i18n="btn_close">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CÓDIGO FUENTE LIMPIO -->
+  <div class="modal-backdrop" id="code-modal">
+    <div class="modal-window" style="max-width: 900px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-code"></i> <span data-i18n="code_inspector_title">Inspector de Código Fuente HTML Limpio</span>
+        </div>
+        <button class="btn-icon-tool" id="btn-close-code" title="Cerrar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <textarea class="code-textarea" id="code-content" readonly></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action" id="btn-copy-code">
+          <i class="fas fa-copy"></i> <span data-i18n="btn_copy">Copiar Código</span>
+        </button>
+        <button class="btn-action" id="btn-close-code-footer" data-i18n="btn_close">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DEL CENTRO DE SALUD, SEO & ACCESIBILIDAD (FASE A & B) -->
+  <div class="modal-backdrop" id="diag-modal">
+    <div class="modal-window" style="max-width: 800px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-heartbeat"></i> <span data-i18n="diag_title">Centro de Salud, SEO & Accesibilidad</span>
+        </div>
+        <button class="btn-icon-tool" id="btn-close-diag" title="Cerrar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- BARRA RESUMEN SCORE -->
+        <div class="diag-header-bar">
+          <div class="diag-score-badge">
+            <div class="score-circle" id="diag-score-num">--</div>
+            <div>
+              <strong style="font-size: 1rem; color: var(--blanco-hueso);">Calificación Global de Salud</strong>
+              <div style="font-size: 0.78rem; color: var(--texto-sec);" id="diag-summary-text">Ejecuta las pruebas para calcular la métrica.</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-action" id="btn-rerun-diag" style="border-color: var(--oro-charro); color: var(--oro-charro);">
+              <i class="fas fa-sync-alt"></i> Re-evaluar
+            </button>
+            <button class="btn-action" id="btn-export-diag" data-i18n="btn_export_json">
+              <i class="fas fa-download"></i> Descargar JSON
+            </button>
+          </div>
+        </div>
+
+        <!-- PESTAÑAS DE DIAGNÓSTICO -->
+        <div class="diag-tabs">
+          <button class="diag-tab-btn active" data-tab="integrity" data-i18n="diag_tab_integrity">🧪 Autodiagnóstico E2E</button>
+          <button class="diag-tab-btn" data-tab="a11y" data-i18n="diag_tab_a11y">♿ Accesibilidad WCAG</button>
+          <button class="diag-tab-btn" data-tab="seo" data-i18n="diag_tab_seo">🔍 SEO & Metadatos</button>
+        </div>
+
+        <!-- CONTENIDO DE TABLAS -->
+        <div id="diag-content-box" style="max-height: 380px; overflow-y: auto;">
+          <div style="text-align: center; padding: 25px; color: var(--texto-sec);">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p style="margin-top: 10px;">Iniciando análisis semántico y validación de contratos...</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action" id="btn-close-diag-footer" data-i18n="btn_close">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GENERADOR DE CAPTURA HD (FASE C) -->
+  <div class="modal-backdrop" id="screenshot-modal">
+    <div class="modal-window" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-camera"></i> <span data-i18n="screenshot_modal_title">Generador de Captura HD (Chrome Local)</span>
+        </div>
+        <button class="btn-icon-tool" id="btn-close-screenshot" title="Cerrar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.82rem; color: var(--texto-sec); margin-bottom: 12px;">
+          Renderiza tu página web usando el navegador Chrome de tu sistema sin consumir memoria de virtualización.
+        </p>
+
+        <!-- SELECTOR DE RESOLUCIONES -->
+        <div class="screenshot-options">
+          <div class="btn-res-option active" data-device="desktop">
+            <i class="fas fa-desktop" style="font-size: 1.2rem; margin-bottom: 4px;"></i>
+            <span class="res-name">Escritorio</span>
+            <span class="res-dims">1920 × 1080 (HD)</span>
+          </div>
+          <div class="btn-res-option" data-device="tablet">
+            <i class="fas fa-tablet-alt" style="font-size: 1.2rem; margin-bottom: 4px;"></i>
+            <span class="res-name">Tablet</span>
+            <span class="res-dims">768 × 1024</span>
+          </div>
+          <div class="btn-res-option" data-device="mobile">
+            <i class="fas fa-mobile-alt" style="font-size: 1.2rem; margin-bottom: 4px;"></i>
+            <span class="res-name">Celular</span>
+            <span class="res-dims">390 × 844</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+          <input type="checkbox" id="chk-fullpage" style="cursor: pointer;">
+          <label for="chk-fullpage" style="font-size: 0.85rem; color: var(--blanco-hueso); cursor: pointer;">
+            📜 Capturar página completa con scroll (Full Page)
+          </label>
+        </div>
+
+        <button class="btn-action btn-publish" id="btn-execute-screenshot" style="width: 100%; justify-content: center; padding: 10px;">
+          <i class="fas fa-camera"></i> <span data-i18n="screenshot_take_btn">Generar Captura Ahora</span>
+        </button>
+
+        <div id="screenshot-result-area" style="display: none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action" id="btn-close-screenshot-footer" data-i18n="btn_close">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICACIÓN TOAST -->
+  <div id="toast" class="toast-notice">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-msg">¡Operación completada!</span>
+  </div>
+
+  <!-- SCRIPTS DE GRAPESJS Y PLUGINS -->
+  <script src="/vendor/grapesjs/grapes.min.js"></script>
+  <script src="/vendor/grapesjs-blocks-basic/index.js"></script>
+
+  <!-- MOTOR DE AUDITORÍA AXE-CORE Y DIAGNÓSTICOS -->
+  <script src="/vendor/axe.min.js"></script>
+  <script src="/diagnostics.js"></script>
+
+  <!-- LÓGICA DEL EDITOR (Minificado con Fallback a app.js) -->
+  <script src="/app.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='/app.js';document.body.appendChild(s);"></script>
+
+  <!-- REGISTRO DE SERVICE WORKER (FASE 2) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('[SW] Service Worker registrado:', reg.scope))
+          .catch(err => console.warn('[SW] Service Worker no registrado (modo desarrollo):', err.message));
+      });
+    }
+  </script>
+</body>
+</html>

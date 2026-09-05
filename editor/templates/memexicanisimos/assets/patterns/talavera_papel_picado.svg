@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <style>
+      .t-fili { stroke: #D4AF37; stroke-width: 1.2; fill: none; opacity: 0.3; }
+      .t-cut { fill: #006847; opacity: 0.18; }
+      .t-chile { fill: #CE1126; opacity: 0.28; }
+    </style>
+  </defs>
+  <!-- Centro Floral Papel Picado -->
+  <circle cx="64" cy="64" r="16" class="t-fili" />
+  <circle cx="64" cy="64" r="8" class="t-cut" />
+  
+  <!-- Pétalos y Volutas Centrales -->
+  <path d="M 64,48 C 56,36 72,36 64,48 Z" class="t-chile" />
+  <path d="M 64,80 C 56,92 72,92 64,80 Z" class="t-chile" />
+  <path d="M 48,64 C 36,56 36,72 48,64 Z" class="t-cut" />
+  <path d="M 80,64 C 92,56 92,72 80,64 Z" class="t-cut" />
+
+  <!-- Esquinas Conectables Seamless -->
+  <path d="M 0,0 Q 24,12 24,24 Q 12,24 0,0 Z" class="t-fili" />
+  <path d="M 128,0 Q 104,12 104,24 Q 116,24 128,0 Z" class="t-fili" />
+  <path d="M 0,128 Q 24,116 24,104 Q 12,104 0,128 Z" class="t-fili" />
+  <path d="M 128,128 Q 104,116 104,104 Q 116,104 128,128 Z" class="t-fili" />
+  
+  <!-- Marcos de festón picado -->
+  <path d="M 0,64 Q 16,56 32,64 Q 16,72 0,64" class="t-fili" />
+  <path d="M 128,64 Q 112,56 96,64 Q 112,72 128,64" class="t-fili" />
+  <path d="M 64,0 Q 56,16 64,32 Q 72,16 64,0" class="t-fili" />
+  <path d="M 64,128 Q 56,112 64,96 Q 72,112 64,128" class="t-fili" />
+</svg>

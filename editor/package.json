@@ -1,0 +1,40 @@
+{
+  "name": "talachas-editor",
+  "version": "3.3.0",
+  "description": "Talachas y Rótulos Web – Editor Visual Universal Soberano",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "cleancss -o public/style.min.css public/style.css",
+    "build:js": "terser public/app.js -c -m -o public/app.min.js",
+    "pkg": "pkg . --targets node18-linux-x64 --output dist/talachas-editor-linux",
+    "pkg:all": "pkg . --targets node18-linux-x64,node18-win-x64,node18-macos-x64 --output dist/talachas-editor",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "dependencies": {
+    "axe-core": "^4.13.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
+    "express": "^5.2.1",
+    "grapesjs": "^0.23.6",
+    "grapesjs-blocks-basic": "^1.0.2",
+    "open": "^11.0.2",
+    "puppeteer-core": "^25.10.0",
+    "simple-git": "^3.27.0"
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.22.0",
+    "clean-css-cli": "^5.6.3",
+    "terser": "^5.39.0"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*",
+      "locales/**/*"
+    ]
+  }
+}

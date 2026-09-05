@@ -1,0 +1,23 @@
+# Dependencias
+node_modules/
+package-lock.json
+
+# Entorno y credenciales
+.env
+*.pem
+
+# Archivos de respaldo locales
+backups/
+*.bak
+
+# Clones de referencia externa
+grapesjs/
+webstudio/
+
+# Multimedia pesada de pruebas
+*.mkv
+*.mp4
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
