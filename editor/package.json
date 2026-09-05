@@ -1,7 +1,7 @@
 {
-  "name": "talachas-editor",
+  "name": "rotulos-web",
   "version": "3.3.0",
-  "description": "Talachas y Rótulos Web – Editor Visual Universal Soberano",
+  "description": "Rótulos Web – Editor Visual Universal Soberano",
   "main": "server.js",
   "bin": "server.js",
   "scripts": {
@@ -9,8 +9,8 @@
     "build": "npm run build:css && npm run build:js",
     "build:css": "cleancss -o public/style.min.css public/style.css",
     "build:js": "terser public/app.js -c -m -o public/app.min.js",
-    "pkg": "pkg . --targets node18-linux-x64 --output dist/talachas-editor-linux",
-    "pkg:all": "pkg . --targets node18-linux-x64,node18-win-x64,node18-macos-x64 --output dist/talachas-editor",
+    "pkg": "pkg . --targets node18-linux-x64 --output dist/rotulos-web-linux",
+    "pkg:all": "pkg . --targets node18-linux-x64,node18-win-x64,node18-macos-x64 --output dist/rotulos-web",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
