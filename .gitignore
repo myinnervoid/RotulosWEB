@@ -10,9 +10,9 @@ package-lock.json
 backups/
 *.bak
 
-# Clones de referencia externa
-grapesjs/
-webstudio/
+# Clones de referencia externa en la raíz
+/grapesjs/
+/webstudio/
 
 # Multimedia pesada de pruebas
 *.mkv

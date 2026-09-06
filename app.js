@@ -2565,4 +2565,17 @@ function setupProjectSelector() {
   });
 }
 
-window.addEventListener('DOMContentLoaded', initEditor);
+function startEditorApp() {
+  if (typeof grapesjs !== 'undefined') {
+    initEditor();
+  } else {
+    console.warn('GrapesJS aún no está listo... esperando carga');
+    setTimeout(startEditorApp, 60);
+  }
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', startEditorApp);
+} else {
+  startEditorApp();
+}
