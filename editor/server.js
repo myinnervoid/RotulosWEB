@@ -6,6 +6,7 @@ const path = require('path');
 const http = require('http');
 const https = require('https');
 const simpleGit = require('simple-git');
+const { ERROR_CODES } = require('./server/error-codes');
 let openPkg;
 try {
   openPkg = require('open');
@@ -40,6 +41,16 @@ const recentFile = path.join(userConfigDir, 'recent.json');
 const legacyRecentFile = path.join(process.env.HOME || '.', '.talachas', 'recent.json');
 if (!fs.existsSync(recentFile) && fs.existsSync(legacyRecentFile)) {
   try { fs.copyFileSync(legacyRecentFile, recentFile); } catch (e) {}
+}
+
+// Restaurar el último proyecto activo de recent.json si no se especificó por CLI o ENV
+if (!process.env.PROJECT_PATH && !process.argv[2] && fs.existsSync(recentFile)) {
+  try {
+    const list = JSON.parse(fs.readFileSync(recentFile, 'utf8'));
+    if (Array.isArray(list) && list.length > 0 && fs.existsSync(list[0])) {
+      projectPath = path.resolve(list[0]);
+    }
+  } catch {}
 }
 
 function addRecentProject(p) {
@@ -85,6 +96,26 @@ function getGitInstance() {
 }
 
 // ── CONTRATO CANÓNICO ApiResponse<T> (Ley Global 5) ─────────
+
+/**
+ * Estructura del contrato canónico de respuesta de la API (Ley Global 5).
+ * @template T
+ * @typedef {Object} ApiResponse
+ * @property {boolean} success - Indica si la operación concluyó exitosamente.
+ * @property {T|null} data - Carga útil con la información solicitada o null en caso de error.
+ * @property {string|null} error_code - Código estandarizado de error (catálogo ERROR_CODES) o null si success es true.
+ * @property {string} message - Mensaje descriptivo legible en español para registro o fallback de interfaz.
+ */
+
+/**
+ * Fábrica para construir respuestas canónicas ApiResponse<T>.
+ * @template T
+ * @param {boolean} success
+ * @param {T|null} [data=null]
+ * @param {string|null} [errorCode=null]
+ * @param {string} [message='']
+ * @returns {ApiResponse<T>}
+ */
 function createApiResponse(success, data = null, errorCode = null, message = '') {
   return {
     success: Boolean(success),
@@ -124,7 +155,7 @@ app.use((req, res, next) => {
   const isLocal = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
   if (!isLocal) {
     console.warn(`[SEGURIDAD] Intento de conexión no local bloqueado desde: ${ip}`);
-    return res.status(403).json(createApiResponse(false, null, 'ACCESS_DENIED', 'Acceso denegado: este editor es estrictamente local.'));
+    return res.status(403).json(createApiResponse(false, null, ERROR_CODES.ACCESS_DENIED.code, 'Acceso denegado: este editor es estrictamente local.'));
   }
   next();
 });
@@ -136,14 +167,54 @@ app.use('/locales', express.static(path.join(__dirname, 'locales')));
 app.use('/vendor/grapesjs', express.static(path.join(__dirname, 'node_modules/grapesjs/dist')));
 app.use('/vendor/grapesjs-blocks-basic', express.static(path.join(__dirname, 'node_modules/grapesjs-blocks-basic/dist')));
 
+// Servir archivos estáticos relativos del proyecto actual (ilustraciones, imagenes, fuentes, estilos, etc.)
+app.use((req, res, next) => {
+  if (
+    req.path.startsWith('/api') ||
+    req.path.startsWith('/vendor') ||
+    req.path.startsWith('/locales') ||
+    req.path.startsWith('/screenshots')
+  ) {
+    return next();
+  }
+
+  try {
+    const decodedPath = decodeURIComponent(req.path);
+    const resolvedTarget = path.resolve(projectPath, '.' + decodedPath);
+    const resolvedProject = path.resolve(projectPath);
+
+    // Protección estricta contra Path Traversal: debe residir dentro de projectPath
+    if (resolvedTarget.startsWith(resolvedProject) && fs.existsSync(resolvedTarget)) {
+      const stat = fs.statSync(resolvedTarget);
+      if (stat.isFile()) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        return res.sendFile(resolvedTarget);
+      }
+    }
+  } catch {}
+  next();
+});
+
+// Servir la página del proyecto activo tal cual, como un sitio web publicado real
+app.get('/live', (req, res) => {
+  const indexPath = getActiveIndexPath();
+  if (fs.existsSync(indexPath)) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    return res.sendFile(indexPath);
+  }
+  res.status(404).send('No se encontró index.html en el proyecto activo');
+});
+
 // Servir assets dinámicos del proyecto actual con fallback al workspace
 app.use('/assets', (req, res, next) => {
   const projectAsset = path.join(projectPath, 'assets', req.path);
   if (fs.existsSync(projectAsset)) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     return res.sendFile(projectAsset);
   }
   const defaultAsset = path.join(path.resolve(__dirname, '../../assets'), req.path);
   if (fs.existsSync(defaultAsset)) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     return res.sendFile(defaultAsset);
   }
   next();
@@ -164,13 +235,15 @@ app.get('/api/recent-projects', (req, res) => {
   try {
     if (fs.existsSync(recentFile)) {
       const data = fs.readFileSync(recentFile, 'utf8');
-      const projects = JSON.parse(data);
+      let projects = JSON.parse(data);
+      // Guardia de esquema: debe ser Array<string>
+      if (!Array.isArray(projects)) projects = [projectPath];
       res.json(createApiResponse(true, projects, null, 'Proyectos recientes'));
     } else {
       res.json(createApiResponse(true, [projectPath], null, 'Sin proyectos recientes'));
     }
   } catch (err) {
-    res.status(500).json(createApiResponse(false, null, 'RECENT_LOAD_FAILED', err.message));
+    res.status(500).json(createApiResponse(false, null, ERROR_CODES.RECENT_LOAD_FAILED.code, err.message));
   }
 });
 
@@ -178,16 +251,17 @@ app.post('/api/recent-projects', (req, res) => {
   try {
     const { projectPath: newPath } = req.body;
     if (!newPath || !fs.existsSync(newPath)) {
-      return res.status(400).json(createApiResponse(false, null, 'INVALID_PATH', 'La ruta no existe'));
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PATH.code, 'La ruta no existe'));
     }
     addRecentProject(newPath);
     let projects = [];
     if (fs.existsSync(recentFile)) {
       projects = JSON.parse(fs.readFileSync(recentFile, 'utf8'));
+      if (!Array.isArray(projects)) projects = [];
     }
     res.json(createApiResponse(true, projects, null, 'Proyecto guardado en recientes'));
   } catch (err) {
-    res.status(500).json(createApiResponse(false, null, 'RECENT_SAVE_FAILED', err.message));
+    res.status(500).json(createApiResponse(false, null, ERROR_CODES.RECENT_SAVE_FAILED.code, err.message));
   }
 });
 
@@ -195,75 +269,111 @@ app.post('/api/switch-project', (req, res) => {
   try {
     const { newProjectPath } = req.body;
     if (!newProjectPath) {
-      return res.status(400).json(createApiResponse(false, null, 'INVALID_PATH', 'Ruta no especificada'));
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PATH.code, 'Ruta no especificada'));
     }
     const resolved = path.resolve(newProjectPath);
     if (!fs.existsSync(resolved)) {
-      return res.status(400).json(createApiResponse(false, null, 'PATH_NOT_FOUND', `La ruta "${resolved}" no existe`));
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.PATH_NOT_FOUND.code, `La ruta "${resolved}" no existe`));
     }
     projectPath = resolved;
     addRecentProject(resolved);
     console.log(`[PROYECTO] Conmutado a: ${projectPath}`);
     res.json(createApiResponse(true, { projectPath }, null, `Proyecto cambiado a ${path.basename(projectPath)}`));
   } catch (err) {
-    res.status(500).json(createApiResponse(false, null, 'SWITCH_FAILED', err.message));
+    res.status(500).json(createApiResponse(false, null, ERROR_CODES.SWITCH_FAILED.code, err.message));
   }
 });
 
 // 1. Endpoint para listar imágenes disponibles en assets del proyecto
 app.get('/api/assets', (req, res) => {
   try {
-    const projectAssetsDir = path.join(projectPath, 'assets');
     const images = [];
+    const imageExtensions = /\.(png|jpe?g|gif|svg|webp|ico|avif)$/i;
+    const ignoreDirs = new Set(['.git', 'node_modules', 'backups', 'temp', 'tmp', 'dist', 'build', '.vscode', '.idea']);
 
-    function scanDir(currentDir, relativePrefix = '') {
-      if (!fs.existsSync(currentDir)) return;
-      const entries = fs.readdirSync(currentDir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = path.join(currentDir, entry.name);
-        const relPath = path.join(relativePrefix, entry.name);
-        if (entry.isDirectory()) {
-          scanDir(fullPath, relPath);
-        } else if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(entry.name)) {
+    function scanDirectory(dir, relPrefix = '', maxDepth = 4, currentDepth = 0) {
+      if (!fs.existsSync(dir) || currentDepth > maxDepth) return;
+      try {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.isDirectory()) {
+            if (!ignoreDirs.has(entry.name) && !entry.name.startsWith('.')) {
+              scanDirectory(path.join(dir, entry.name), path.join(relPrefix, entry.name), maxDepth, currentDepth + 1);
+            }
+          } else if (imageExtensions.test(entry.name)) {
+            const relPath = path.join(relPrefix, entry.name).replace(/\\/g, '/');
+            images.push({
+              src: `/${relPath}`,
+              name: entry.name,
+              type: 'image'
+            });
+          }
+        }
+      } catch {}
+    }
+
+    // Escanear carpetas de medios prioritarias del proyecto si existen
+    const mediaCandidates = ['assets', 'ilustraciones', 'images', 'img', 'media', 'photos', 'public'];
+    for (const sub of mediaCandidates) {
+      const subDir = path.join(projectPath, sub);
+      if (fs.existsSync(subDir) && fs.statSync(subDir).isDirectory()) {
+        scanDirectory(subDir, sub, 3, 0);
+      }
+    }
+
+    // Escanear también imágenes sueltas en la raíz del proyecto
+    try {
+      const rootEntries = fs.readdirSync(projectPath, { withFileTypes: true });
+      for (const entry of rootEntries) {
+        if (!entry.isDirectory() && imageExtensions.test(entry.name)) {
           images.push({
-            src: `/assets/${relPath.replace(/\\/g, '/')}`,
+            src: `/${entry.name}`,
             name: entry.name,
             type: 'image'
           });
         }
       }
+    } catch {}
+
+    // Si aún no se encontró ninguna imagen, intentar fallback a la carpeta general de assets del workspace
+    if (images.length === 0) {
+      const fallbackDir = path.resolve(__dirname, '../../assets');
+      if (fs.existsSync(fallbackDir)) {
+        scanDirectory(fallbackDir, 'assets', 2, 0);
+      }
     }
 
-    scanDir(projectAssetsDir);
-    // Si no hay assets en projectPath/assets, buscar en el fallback
-    if (images.length === 0) {
-      scanDir(path.resolve(__dirname, '../../assets'));
-    }
     res.json(createApiResponse(true, { assets: images }, null, 'Galería de imágenes obtenida con éxito'));
   } catch (error) {
-    res.status(500).json(createApiResponse(false, null, 'ASSETS_READ_FAILED', error.message));
+    res.status(500).json(createApiResponse(false, null, ERROR_CODES.ASSETS_READ_FAILED.code, error.message));
   }
 });
 
 // 2. Endpoint para cargar el contenido actual de index.html y style.css
 app.get('/api/page', (req, res) => {
   try {
-    if (req.query.project && fs.existsSync(req.query.project)) {
-      projectPath = path.resolve(req.query.project);
-      addRecentProject(projectPath);
+    const activePath = (req.query.project && fs.existsSync(req.query.project))
+      ? path.resolve(req.query.project)
+      : projectPath;
+
+    // Si se pasa ?project= válido y difiere de projectPath actual, conmutar projectPath
+    if (req.query.project && fs.existsSync(req.query.project) && activePath !== projectPath) {
+      projectPath = activePath;
+      addRecentProject(activePath);
+      console.log(`[PROYECTO] Conmutado mediante query param a: ${projectPath}`);
     }
 
-    const indexPath = getActiveIndexPath();
-    const stylePath = getActiveStylePath();
+    const indexPath = path.join(activePath, 'index.html');
+    const stylePath = path.join(activePath, 'style.css');
 
     if (!fs.existsSync(indexPath)) {
-      return res.status(404).json(createApiResponse(false, null, 'FILE_NOT_FOUND', `No se encontró index.html en ${projectPath}`));
+      return res.status(404).json(createApiResponse(false, null, ERROR_CODES.FILE_NOT_FOUND.code, `No se encontró index.html en ${activePath}`));
     }
     const html = fs.readFileSync(indexPath, 'utf-8');
     const css = fs.existsSync(stylePath) ? fs.readFileSync(stylePath, 'utf-8') : '';
-    res.json(createApiResponse(true, { html, css, projectPath }, null, 'Página cargada exitosamente'));
+    res.json(createApiResponse(true, { html, css, projectPath: activePath }, null, 'Página cargada exitosamente'));
   } catch (error) {
-    res.status(500).json(createApiResponse(false, null, 'PAGE_READ_FAILED', error.message));
+    res.status(500).json(createApiResponse(false, null, ERROR_CODES.PAGE_READ_FAILED.code, error.message));
   }
 });
 
@@ -272,11 +382,11 @@ app.post('/api/save', (req, res) => {
   try {
     const { html, css } = req.body;
     if (!html || typeof html !== 'string' || html.trim().length < 10) {
-      return res.status(400).json(createApiResponse(false, null, 'INVALID_PAYLOAD', 'El contenido HTML es inválido o está vacío'));
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PAYLOAD.code, 'El contenido HTML es inválido o está vacío'));
     }
 
     if (!html.includes('<body') && !html.includes('<div') && !html.includes('<html') && !html.includes('<!DOCTYPE')) {
-      return res.status(400).json(createApiResponse(false, null, 'MALFORMED_HTML', 'El contenido HTML carece de estructura válida'));
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.MALFORMED_HTML.code, 'El contenido HTML carece de estructura válida'));
     }
 
     const indexPath = getActiveIndexPath();
@@ -292,19 +402,28 @@ app.post('/api/save', (req, res) => {
       rotateBackups(backupsDir);
     }
 
-    // B. Guardar en index.html
-    fs.writeFileSync(indexPath, html, 'utf-8');
+    // B. Escritura atómica: escribir a .tmp y luego renombrar (evita corrupción)
+    const tmpPath = indexPath + '.tmp';
+    fs.writeFileSync(tmpPath, html, 'utf-8');
+    fs.renameSync(tmpPath, indexPath);
 
-    // C. Si se envían estilos actualizados, guardar en style.css
+    // C. Si se envían estilos actualizados, guardar en style.css (también atómico)
     if (css && typeof css === 'string') {
-      fs.writeFileSync(stylePath, css, 'utf-8');
+      const tmpCss = stylePath + '.tmp';
+      fs.writeFileSync(tmpCss, css, 'utf-8');
+      fs.renameSync(tmpCss, stylePath);
     }
 
     console.log(`[OK] Cambios guardados en ${indexPath}. Respaldo: ${path.basename(backupFile)}`);
     res.json(createApiResponse(true, { backup: path.basename(backupFile), projectPath }, null, '¡Cambios guardados con éxito en index.html!'));
   } catch (error) {
     console.error('[ERROR] Al guardar:', error);
-    res.status(500).json(createApiResponse(false, null, 'SAVE_FAILED', error.message));
+    // Limpiar archivos .tmp residuales si el guardado falló
+    const tmpPath = getActiveIndexPath() + '.tmp';
+    const tmpCss = getActiveStylePath() + '.tmp';
+    try { if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath); } catch (_) {}
+    try { if (fs.existsSync(tmpCss)) fs.unlinkSync(tmpCss); } catch (_) {}
+    res.status(500).json(createApiResponse(false, null, ERROR_CODES.SAVE_FAILED.code, error.message));
   }
 });
 
@@ -344,7 +463,7 @@ app.get('/api/stats', (req, res) => {
 
     res.json(createApiResponse(true, stats, null, 'Estadísticas obtenidas con éxito'));
   } catch (err) {
-    res.status(500).json(createApiResponse(false, null, 'STATS_FAILED', 'Error al obtener estadísticas: ' + err.message));
+    res.status(500).json(createApiResponse(false, null, ERROR_CODES.STATS_FAILED.code, 'Error al obtener estadísticas: ' + err.message));
   }
 });
 
@@ -373,11 +492,11 @@ app.post('/api/publish', async (req, res) => {
     res.json(createApiResponse(true, { commit: commitResult.commit, files: status.files.length }, null, '¡Publicado exitosamente en GitHub!'));
   } catch (err) {
     console.error('[GIT ERROR] Al publicar:', err.message);
-    let errorCode = 'GIT_PUSH_FAILED';
+    let errorCode = ERROR_CODES.GIT_PUSH_FAILED.code;
     let message = 'Error al publicar en GitHub: ' + err.message;
 
     if (err.message.includes('authentication') || err.message.includes('Permission denied') || err.message.includes('fatal: could not read Username')) {
-      errorCode = 'GIT_AUTH_REQUIRED';
+      errorCode = ERROR_CODES.GIT_AUTH_REQUIRED.code;
       message = 'Autenticación requerida. Configura tus credenciales SSH o token en tu máquina.';
     }
 
@@ -412,10 +531,10 @@ function findSystemChrome() {
 app.post('/api/screenshot', async (req, res) => {
   const chromePath = findSystemChrome();
   if (!chromePath) {
-    return res.status(503).json(createApiResponse(false, null, 'CHROME_NOT_FOUND', 'No se encontró un navegador Chrome/Chromium en el sistema (/usr/bin/google-chrome).'));
+    return res.status(503).json(createApiResponse(false, null, ERROR_CODES.CHROME_NOT_FOUND.code, 'No se encontró un navegador Chrome/Chromium en el sistema (/usr/bin/google-chrome).'));
   }
 
-  const { device = 'desktop', customWidth, customHeight, fullPage = false, theme = 'patria' } = req.body || {};
+  const { device = 'desktop', customWidth, customHeight, fullPage = false, theme = 'patria', html, css } = req.body || {};
   const resolutions = {
     desktop: { width: 1920, height: 1080 },
     tablet: { width: 768, height: 1024 },
@@ -450,13 +569,23 @@ app.post('/api/screenshot', async (req, res) => {
     const page = await browser.newPage();
     await page.setViewport({ width, height, deviceScaleFactor: 2 });
 
-    // Cargar directamente el index.html principal del proyecto
-    const targetUrl = `file://${INDEX_HTML_PATH}`;
-    await page.goto(targetUrl, { waitUntil: 'load', timeout: 15000 });
+    if (html && typeof html === 'string') {
+      // Si se envía el HTML activo desde el cliente/lienzo
+      let pageHtml = html;
+      if (css && typeof css === 'string') {
+        pageHtml = `<style>${css}</style>\n${pageHtml}`;
+      }
+      await page.setContent(pageHtml, { waitUntil: 'load', timeout: 15000 });
+    } else {
+      // Fallback a cargar directamente el index.html principal del proyecto activo
+      const targetUrl = `file://${getActiveIndexPath()}`;
+      await page.goto(targetUrl, { waitUntil: 'load', timeout: 15000 });
+    }
 
     // Aplicar tema solicitado si corresponde
     if (theme && theme !== 'patria') {
       await page.evaluate((t) => {
+        // eslint-disable-next-line no-undef
         document.documentElement.setAttribute('data-theme', t);
       }, theme);
     }
@@ -488,7 +617,7 @@ app.post('/api/screenshot', async (req, res) => {
 
   } catch (err) {
     console.error('[SCREENSHOT ERROR]:', err.message);
-    res.status(500).json(createApiResponse(false, null, 'SCREENSHOT_FAILED', 'Error al capturar pantalla: ' + err.message));
+    res.status(500).json(createApiResponse(false, null, ERROR_CODES.SCREENSHOT_FAILED.code, 'Error al capturar pantalla: ' + err.message));
   } finally {
     if (browser) {
       try {
@@ -530,10 +659,11 @@ if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
   server = http.createServer(app);
 }
 
-server.listen(PORT, '127.0.0.1', () => {
-  const protocol = isHttps ? 'https' : 'http';
-  const url = `${protocol}://localhost:${PORT}`;
-  console.log(`
+if (require.main === module) {
+  server.listen(PORT, '127.0.0.1', () => {
+    const protocol = isHttps ? 'https' : 'http';
+    const url = `${protocol}://localhost:${PORT}`;
+    console.log(`
 ==========================================================
  🛠️ TALACHAS Y RÓTULOS WEB – EDITOR UNIVERSAL
 ==========================================================
@@ -546,9 +676,12 @@ server.listen(PORT, '127.0.0.1', () => {
 ==========================================================
 ${!isHttps ? '💡 TIP: Para activar HTTPS local con candado verde:\n   mkcert -install && mkcert localhost 127.0.0.1 ::1\n' : ''}`);
 
-  if (openPkg && process.env.NODE_ENV !== 'test' && !process.env.NO_OPEN) {
-    try {
-      openPkg(url).catch(() => {});
-    } catch (e) {}
-  }
-});
+    if (openPkg && process.env.NODE_ENV !== 'test' && !process.env.NO_OPEN) {
+      try {
+        openPkg(url).catch(() => {});
+      } catch (e) {}
+    }
+  });
+}
+
+module.exports = { app, server, createApiResponse };

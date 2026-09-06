@@ -65,6 +65,11 @@
         <i class="fas fa-eye"></i> <span data-i18n="btn_preview">Vista Previa</span>
       </button>
 
+      <!-- VER EN VIVO -->
+      <a class="btn-action" id="btn-open-live" href="/live" target="_blank" rel="noopener" title="Abrir el sitio web tal cual en pestaña nueva (con scripts y animaciones activas)" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+        <i class="fas fa-external-link-alt" style="color:var(--oro-charro);"></i> <span>Ver en Vivo</span>
+      </a>
+
       <!-- PUBLICAR -->
       <button class="btn-action btn-publish" id="btn-publish" data-i18n-title="btn_publish" title="Publicar cambios en repositorio GitHub">
         <i class="fas fa-rocket"></i> <span data-i18n="btn_publish">Publicar</span>
@@ -220,6 +225,13 @@
               <small>Tutorial interactivo</small>
             </div>
           </button>
+          <a class="drawer-tool-btn" id="drawer-btn-open-live" href="/live" target="_blank" rel="noopener" title="Ver el Sitio Web Publicado (En Vivo)" style="text-decoration: none;">
+            <i class="fas fa-globe" style="color: #F59E0B;"></i>
+            <div class="tool-btn-info">
+              <strong>Ver Sitio en Vivo</strong>
+              <small>Como publicado (100% funcional)</small>
+            </div>
+          </a>
         </div>
       </div>
 
@@ -535,8 +547,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js"></script>
   <script src="./diagnostics.js"></script>
 
-  <!-- LÓGICA DEL EDITOR -->
-  <script src="./app.js"></script>
+  <!-- LÓGICA DEL EDITOR (MODULAR — v3.4) -->
+  <!-- El monolito app.js se conserva como respaldo; la versión activa es modules/main.js -->
+  <script type="module" src="./modules/main.js"></script>
 
   <!-- REGISTRO DE SERVICE WORKER (FASE 2) -->
   <script>

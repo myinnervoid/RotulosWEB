@@ -36,7 +36,21 @@
 
 ## 🧩 3. Normas de Desarrollo en Componentes y Bloques de GrapesJS
 
-Si se te encomienda crear o modificar bloques o herramientas dentro de `editor/public/app.js`:
+Si se te encomienda crear o modificar bloques o herramientas dentro del editor, los archivos correctos son:
+
+| Módulo | Responsabilidad |
+|---|---|
+| `editor/public/modules/blocks.js` | Bloques GrapesJS (arrastrables) |
+| `editor/public/modules/color-plugin.js` | Plugin de color con paleta española |
+| `editor/public/modules/ui-panels.js` | Dock, drawer, tabs, breadcrumbs |
+| `editor/public/modules/save-publish.js` | Guardado, publicación, captura |
+| `editor/public/modules/i18n.js` | Internacionalización |
+| `editor/public/modules/toast.js` | Notificaciones y FSM de publicación |
+| `editor/public/modules/project-manager.js` | Proyectos recientes, cambio de proyecto |
+| `editor/public/modules/editor-init.js` | Orquestador de GrapesJS |
+| `editor/public/modules/main.js` | Punto de entrada |
+
+> **Nota:** El archivo `editor/public/app.js` es el **monolito original conservado como respaldo**. NO debe cargarse ni modificarse; toda edición activa debe hacerse en los módulos anteriores.
 
 1. **Evitar Recursividad Infinita en Componentes:**
    - Al extender tipos nativos de GrapesJS (como `'link'`, `'text'` o `'image'`), utiliza la directiva estándar:
@@ -75,14 +89,16 @@ Si se te encomienda crear o modificar bloques o herramientas dentro de `editor/p
 ```mermaid
 flowchart TD
     A[Usuario solicita cambio] --> B{¿Es código o maquetación?}
-    B -->|Frontend Editor| C[Revisar app.js / style.css]
-    B -->|Contenido de la Web| D[Inspeccionar index.html existente]
-    C --> E[Verificar herencia y bloques sin recursión]
-    E --> F[Compilar con npm run build]
-    D --> G[Hacer cambio QUIRÚRGICO preservando datos del usuario]
-    G --> H[Verificar que el servidor local 5050 responda]
-    F --> H
-    H --> I[Confirmar en Git con mensaje semántico]
+    B -->|Frontend Editor| C[Identificar módulo en public/modules/]
+    B -->|Backend API| D[Editar server.js o server/error-codes.js]
+    B -->|Contenido de la Web| E[Inspeccionar index.html existente]
+    C --> F[Verificar herencia y bloques sin recursión]
+    F --> G[npm run lint — verificar análisis estático]
+    G --> H[npm test — 38/38 tests deben pasar]
+    D --> H
+    E --> I[Hacer cambio QUIRÚRGICO preservando datos del usuario]
+    I --> H
+    H --> J[Confirmar en Git con mensaje semántico]
 ```
 
 Siguiendo este protocolo, garantizamos que el usuario disfrute de la máxima libertad creativa y que Rótulos Web continúe siendo una herramienta confiable, estable y soberana.

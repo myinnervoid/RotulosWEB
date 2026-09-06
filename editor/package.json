@@ -11,7 +11,11 @@
     "build:js": "terser public/app.js -c -m -o public/app.min.js",
     "pkg": "pkg . --targets node18-linux-x64 --output dist/rotulos-web-linux",
     "pkg:all": "pkg . --targets node18-linux-x64,node18-win-x64,node18-macos-x64 --output dist/rotulos-web",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint server.js server/ public/modules/ tests/",
+    "lint:fix": "eslint --fix server.js server/ public/modules/ tests/"
   },
   "keywords": [],
   "type": "commonjs",
@@ -27,14 +31,31 @@
     "simple-git": "^3.27.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@vitest/coverage-v8": "^3.2.7",
     "@yao-pkg/pkg": "^6.22.0",
     "clean-css-cli": "^5.6.3",
-    "terser": "^5.39.0"
+    "eslint": "^9.39.5",
+    "jsdom": "^25.0.1",
+    "supertest": "^7.2.2",
+    "terser": "^5.39.0",
+    "vitest": "^3.2.7"
+  },
+  "vitest": {
+    "environment": "jsdom",
+    "globals": true,
+    "include": [
+      "tests/**/*.test.js"
+    ]
   },
   "pkg": {
     "assets": [
       "public/**/*",
       "locales/**/*"
     ]
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "esbuild@0.21.5": true
   }
 }
