@@ -1,6 +1,6 @@
-# Dependencias
+# Dependencias y artefactos de pruebas
 node_modules/
-package-lock.json
+coverage/
 
 # Entorno y credenciales
 .env
@@ -17,6 +17,9 @@ backups/
 # Multimedia pesada de pruebas
 *.mkv
 *.mp4
+
+# Capturas generadas dinámicamente
+editor/public/screenshots/screenshot_*.png
 
 # Sistema operativo
 .DS_Store
