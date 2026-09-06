@@ -12,7 +12,7 @@ import {
   setupSidebarResizer, setupDeviceSelector,
   setupMobileSidebar, setupPreviewButton, setupHistoryButtons,
   setupThemeSelector, setupShutdownButton, setupDiagnosticsModal, switchPagePanel,
-  setupDocsModule, rebuildDockSections
+  setupDocsModule, rebuildDockSections, setupTemplateButton
 } from './ui-panels.js';
 import {
   setupSaveButton, setupSaveShortcut, setupPublishButton,
@@ -26,6 +26,9 @@ import { getErrorMessage } from './error-messages.js';
 
 import { eventBus } from './event-bus.js';
 import { EDITOR_EVENTS } from './editor-events.js';
+import { setupVirtualLayers } from './layers-virtual.js';
+import { debounce } from './debounce.js';
+import { initHistory } from './history.js';
 
 /** Instancia interna del editor */
 let editorInstance = null;
@@ -230,12 +233,21 @@ export async function initEditor() {
     editor.on('load', () => {
       eventBus.publish(EDITOR_EVENTS.EDITOR_READY, { editor });
     });
-    editor.on('change:changesCount', () => {
-      eventBus.publish(EDITOR_EVENTS.CONTENT_CHANGED, {
-        html: editor.getHtml(),
-        css: editor.getCss()
-      });
-    });
+    // Debounce a eventos de alta frecuencia para no saturar el EventBus ni la serialización DOM
+    const debouncedPublishContent = debounce(() => {
+      try {
+        eventBus.publish(EDITOR_EVENTS.CONTENT_CHANGED, {
+          html: editor.getHtml(),
+          css: editor.getCss()
+        });
+      } catch (err) {
+        console.warn('[EventBus] Error al serializar contenido:', err);
+      }
+    }, 300);
+
+    editor.on('change:changesCount', debouncedPublishContent);
+    editor.on('style:update', debouncedPublishContent);
+    editor.on('component:update', debouncedPublishContent);
     editor.on('component:selected', (component) => {
       eventBus.publish(EDITOR_EVENTS.COMPONENT_SELECTED, {
         componentId: component && component.getId ? component.getId() : '',
@@ -263,8 +275,10 @@ export async function initEditor() {
     // ── 6. Configurar módulos de UI ───────────────────────
     setupDock(editor);
     setupDrawer();
+    setupTemplateButton(editor);
     setupTabs(editor);
     setupTreeToggle();
+    setupVirtualLayers(editor);
     setupSidebarResizer();
     setupDeviceSelector(editor);
     setupMobileSidebar(editor);
@@ -294,6 +308,9 @@ export async function initEditor() {
       const activeNameEl = document.getElementById('active-project-name');
       if (activeNameEl) activeNameEl.textContent = savedImportedName;
     }
+
+    // Inicializar historial de versiones persistente
+    initHistory(editor, savedImportedName || queryProjectPath || 'default');
 
     // ── 10. Canvas load: fixes de scroll y sección activa ─
     editor.on('load', () => {

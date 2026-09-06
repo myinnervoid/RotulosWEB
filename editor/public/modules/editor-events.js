@@ -68,7 +68,16 @@ export const EDITOR_EVENTS = Object.freeze({
   AUDIT_COMPLETED: 'editor:audit:completed',
 
   /** Error durante la auditoría DOM */
-  AUDIT_ERROR: 'editor:audit:error'
+  AUDIT_ERROR: 'editor:audit:error',
+
+  /** Cambio en el historial de snapshots (undo/redo) */
+  HISTORY_CHANGED: 'editor:history:changed',
+
+  /** Snapshot restaurado desde el historial */
+  HISTORY_RESTORED: 'editor:history:restored',
+
+  /** Plantilla predefinida cargada en el lienzo */
+  TEMPLATE_LOADED: 'editor:template:loaded'
 });
 
 /**

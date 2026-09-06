@@ -11,6 +11,7 @@ import { showConfirmDialog } from './dialog.js';
 import { workerManager } from './worker-manager.js';
 import { eventBus } from './event-bus.js';
 import { EDITOR_EVENTS } from './editor-events.js';
+import { showTemplateSelector } from './template-selector.js';
 
 const panelIds = ['noticias-news', 'perfiles', 'redes-sociales', 'nosotros-apoyo', 'creador-contacto'];
 
@@ -323,6 +324,23 @@ export function setupDrawer() {
 
   // Permite que save-publish.js cierre el drawer sin importar ui-panels.js
   document.addEventListener('drawer:close', closeDrawer);
+}
+
+/**
+ * Configura el botón de selección de plantillas en el drawer
+ * @param {object} [editor]
+ */
+export function setupTemplateButton(editor) {
+  const btnNewTemplate = document.getElementById('btn-new-template');
+  if (!btnNewTemplate) return;
+
+  btnNewTemplate.addEventListener('click', async () => {
+    document.dispatchEvent(new Event('drawer:close'));
+    const ed = editor || _editor;
+    if (ed) {
+      await showTemplateSelector(ed);
+    }
+  });
 }
 
 // ── PESTAÑAS DE BARRA LATERAL ─────────────────────────────
@@ -744,8 +762,40 @@ export function setupHistoryButtons(editor) {
   const btnOpenAssets = document.getElementById('btn-open-assets');
   const btnDeleteItem = document.getElementById('btn-delete-item');
 
-  if (btnUndo) btnUndo.addEventListener('click', () => editor.runCommand('core:undo'));
-  if (btnRedo) btnRedo.addEventListener('click', () => editor.runCommand('core:redo'));
+  if (btnUndo) {
+    btnUndo.addEventListener('click', () => {
+      if (typeof window !== 'undefined' && typeof window.undo === 'function') {
+        window.undo();
+      } else if (editor && typeof editor.runCommand === 'function') {
+        editor.runCommand('core:undo');
+      }
+    });
+  }
+  if (btnRedo) {
+    btnRedo.addEventListener('click', () => {
+      if (typeof window !== 'undefined' && typeof window.redo === 'function') {
+        window.redo();
+      } else if (editor && typeof editor.runCommand === 'function') {
+        editor.runCommand('core:redo');
+      }
+    });
+  }
+
+  // Atajos de teclado globales Ctrl+Z y Ctrl+Y
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+      const tag = document.activeElement ? document.activeElement.tagName : '';
+      if (['INPUT', 'TEXTAREA'].includes(tag)) return;
+
+      if (e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        if (typeof window !== 'undefined' && typeof window.undo === 'function') window.undo();
+      } else if (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey)) {
+        e.preventDefault();
+        if (typeof window !== 'undefined' && typeof window.redo === 'function') window.redo();
+      }
+    }
+  });
   if (btnOpenAssets) btnOpenAssets.addEventListener('click', () => {
     document.dispatchEvent(new Event('drawer:close'));
     editor.runCommand('open-assets');

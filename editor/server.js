@@ -478,7 +478,28 @@ app.get('/api/assets', (req, res) => {
       }
     }
 
-    res.json(createApiResponse(true, { assets: images }, null, 'Galería de imágenes obtenida con éxito'));
+    const total = images.length;
+    let paginated = images;
+    let page = 1;
+    let limit = total;
+    let hasMore = false;
+
+    if (req.query.page || req.query.limit) {
+      page = Math.max(1, parseInt(req.query.page, 10) || 1);
+      limit = Math.max(1, parseInt(req.query.limit, 10) || 24);
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      paginated = images.slice(start, end);
+      hasMore = end < total;
+    }
+
+    res.json(createApiResponse(true, {
+      assets: paginated,
+      total,
+      page,
+      limit,
+      hasMore
+    }, null, 'Galería de imágenes obtenida con éxito'));
   } catch (error) {
     res.status(500).json(createApiResponse(false, null, ERROR_CODES.ASSETS_READ_FAILED.code, error.message));
   }
@@ -770,6 +791,99 @@ app.post('/api/screenshot', async (req, res) => {
         console.warn('[SCREENSHOT WARN] Error cerrando browser:', closeErr.message);
       }
     }
+  }
+});
+
+// ── 8. Catálogo de Plantillas Predefinidas (Fase 3) ────────────
+const TEMPLATES_DIR = path.join(__dirname, 'templates');
+
+app.get('/api/templates', (req, res) => {
+  try {
+    if (!fs.existsSync(TEMPLATES_DIR)) {
+      return res.json(createApiResponse(true, [], null, 'No hay directorio de plantillas'));
+    }
+    const dirs = fs.readdirSync(TEMPLATES_DIR, { withFileTypes: true })
+      .filter(item => item.isDirectory())
+      .map(item => item.name);
+
+    const descriptions = {
+      landing: 'Página de aterrizaje comercial de alta conversión con hero, grid y llamadas a la acción.',
+      blog: 'Revista editorial moderna para publicación de artículos, crónicas y contenidos.',
+      portfolio: 'Vitrina personal y portafolio interactivo para creativos y desarrolladores.',
+      memexicanisimos: 'Plantilla patria icónica oficial de Memexicanísimos con dock y secciones.'
+    };
+
+    const categories = {
+      landing: 'Negocios',
+      blog: 'Editorial',
+      portfolio: 'Personal',
+      memexicanisimos: 'Oficial'
+    };
+
+    const templates = dirs.map(id => {
+      const hasPreview = fs.existsSync(path.join(TEMPLATES_DIR, id, 'preview.png'));
+      const name = id.charAt(0).toUpperCase() + id.slice(1);
+      return {
+        id,
+        name,
+        description: descriptions[id] || `Plantilla predefinida ${name}`,
+        category: categories[id] || 'General',
+        hasPreview
+      };
+    });
+
+    res.json(createApiResponse(true, templates, null, 'Catálogo de plantillas obtenido con éxito'));
+  } catch (err) {
+    res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
+  }
+});
+
+app.get('/api/templates/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const safeId = path.basename(id);
+    const templateDir = path.join(TEMPLATES_DIR, safeId);
+
+    if (!fs.existsSync(templateDir) || !fs.statSync(templateDir).isDirectory()) {
+      return res.status(404).json(createApiResponse(false, null, 'NOT_FOUND', 'Plantilla no encontrada'));
+    }
+
+    const indexPath = path.join(templateDir, 'index.html');
+    const stylePath = path.join(templateDir, 'style.css');
+
+    let html = '';
+    let css = '';
+
+    if (fs.existsSync(indexPath)) {
+      html = fs.readFileSync(indexPath, 'utf8');
+    }
+    if (fs.existsSync(stylePath)) {
+      css = fs.readFileSync(stylePath, 'utf8');
+    }
+
+    res.json(createApiResponse(true, {
+      id: safeId,
+      html,
+      css,
+      meta: {
+        id: safeId,
+        name: safeId.charAt(0).toUpperCase() + safeId.slice(1),
+        version: '1.0'
+      }
+    }, null, `Plantilla "${safeId}" cargada con éxito`));
+  } catch (err) {
+    res.status(500).json(createApiResponse(false, null, 'TEMPLATE_READ_ERROR', err.message));
+  }
+});
+
+app.get('/api/templates/:id/preview', (req, res) => {
+  const { id } = req.params;
+  const safeId = path.basename(id);
+  const previewPath = path.join(TEMPLATES_DIR, safeId, 'preview.png');
+  if (fs.existsSync(previewPath)) {
+    res.sendFile(previewPath);
+  } else {
+    res.status(404).send('No preview available');
   }
 });
 
