@@ -160,8 +160,20 @@ app.use((req, res, next) => {
   next();
 });
 
+const MAX_JSON_SIZE = process.env.MAX_JSON_SIZE || '20mb';
 app.use(cors({ origin: ['http://localhost:5050', 'https://localhost:5050', 'http://127.0.0.1:5050', 'https://127.0.0.1:5050'] }));
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: MAX_JSON_SIZE }));
+
+// Middleware para capturar errores de express.json (e.g. 413 Payload Too Large o JSON malformado)
+app.use((err, req, res, next) => {
+  if (err.type === 'entity.too.large' || err.status === 413) {
+    return res.status(413).json(createApiResponse(false, null, ERROR_CODES.PAYLOAD_TOO_LARGE.code, `El payload excede el límite permitido de ${MAX_JSON_SIZE}`));
+  }
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PAYLOAD.code, 'JSON inválido en el cuerpo de la petición'));
+  }
+  next(err);
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/locales', express.static(path.join(__dirname, 'locales')));
 app.use('/vendor/grapesjs', express.static(path.join(__dirname, 'node_modules/grapesjs/dist')));
@@ -377,54 +389,63 @@ app.get('/api/page', (req, res) => {
   }
 });
 
+// ── MUTEX / COLA DE GUARDADO (Prevención de Race Conditions en /api/save) ──
+let saveQueuePromise = Promise.resolve();
+
 // 3. Endpoint para guardar los cambios en index.html con respaldo dinámico
 app.post('/api/save', (req, res) => {
-  try {
-    const { html, css } = req.body;
-    if (!html || typeof html !== 'string' || html.trim().length < 10) {
-      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PAYLOAD.code, 'El contenido HTML es inválido o está vacío'));
-    }
-
-    if (!html.includes('<body') && !html.includes('<div') && !html.includes('<html') && !html.includes('<!DOCTYPE')) {
-      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.MALFORMED_HTML.code, 'El contenido HTML carece de estructura válida'));
-    }
-
-    const indexPath = getActiveIndexPath();
-    const stylePath = getActiveStylePath();
-    const backupsDir = getActiveBackupsDir();
-
-    // A. Crear respaldo previo con timestamp y rotación FIFO
-    const now = new Date();
-    const timestamp = now.toISOString().replace(/[:.]/g, '-');
-    const backupFile = path.join(backupsDir, `index_backup_${timestamp}.html`);
-    if (fs.existsSync(indexPath)) {
-      fs.copyFileSync(indexPath, backupFile);
-      rotateBackups(backupsDir);
-    }
-
-    // B. Escritura atómica: escribir a .tmp y luego renombrar (evita corrupción)
-    const tmpPath = indexPath + '.tmp';
-    fs.writeFileSync(tmpPath, html, 'utf-8');
-    fs.renameSync(tmpPath, indexPath);
-
-    // C. Si se envían estilos actualizados, guardar en style.css (también atómico)
-    if (css && typeof css === 'string') {
-      const tmpCss = stylePath + '.tmp';
-      fs.writeFileSync(tmpCss, css, 'utf-8');
-      fs.renameSync(tmpCss, stylePath);
-    }
-
-    console.log(`[OK] Cambios guardados en ${indexPath}. Respaldo: ${path.basename(backupFile)}`);
-    res.json(createApiResponse(true, { backup: path.basename(backupFile), projectPath }, null, '¡Cambios guardados con éxito en index.html!'));
-  } catch (error) {
-    console.error('[ERROR] Al guardar:', error);
-    // Limpiar archivos .tmp residuales si el guardado falló
-    const tmpPath = getActiveIndexPath() + '.tmp';
-    const tmpCss = getActiveStylePath() + '.tmp';
-    try { if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath); } catch (_) {}
-    try { if (fs.existsSync(tmpCss)) fs.unlinkSync(tmpCss); } catch (_) {}
-    res.status(500).json(createApiResponse(false, null, ERROR_CODES.SAVE_FAILED.code, error.message));
+  const { html, css } = req.body || {};
+  if (!html || typeof html !== 'string' || html.trim().length < 10) {
+    return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PAYLOAD.code, 'El contenido HTML es inválido o está vacío'));
   }
+
+  if (!html.includes('<body') && !html.includes('<div') && !html.includes('<html') && !html.includes('<!DOCTYPE')) {
+    return res.status(400).json(createApiResponse(false, null, ERROR_CODES.MALFORMED_HTML.code, 'El contenido HTML carece de estructura válida'));
+  }
+
+  // Serialización estricta para evitar colisiones en rotación FIFO y escritura atómica
+  const saveOperation = async () => {
+    try {
+      const indexPath = getActiveIndexPath();
+      const stylePath = getActiveStylePath();
+      const backupsDir = getActiveBackupsDir();
+
+      // A. Crear respaldo previo con timestamp y rotación FIFO
+      const now = new Date();
+      const timestamp = now.toISOString().replace(/[:.]/g, '-');
+      const backupFile = path.join(backupsDir, `index_backup_${timestamp}.html`);
+      if (fs.existsSync(indexPath)) {
+        fs.copyFileSync(indexPath, backupFile);
+        rotateBackups(backupsDir);
+      }
+
+      // B. Escritura atómica: escribir a .tmp y luego renombrar (evita corrupción)
+      const tmpPath = indexPath + '.tmp';
+      fs.writeFileSync(tmpPath, html, 'utf-8');
+      fs.renameSync(tmpPath, indexPath);
+
+      // C. Si se envían estilos actualizados, guardar en style.css (también atómico)
+      if (css && typeof css === 'string') {
+        const tmpCss = stylePath + '.tmp';
+        fs.writeFileSync(tmpCss, css, 'utf-8');
+        fs.renameSync(tmpCss, stylePath);
+      }
+
+      console.log(`[OK] Cambios guardados en ${indexPath}. Respaldo: ${path.basename(backupFile)}`);
+      return res.json(createApiResponse(true, { backup: path.basename(backupFile), projectPath }, null, '¡Cambios guardados con éxito en index.html!'));
+    } catch (error) {
+      console.error('[ERROR] Al guardar:', error);
+      // Limpiar archivos .tmp residuales si el guardado falló
+      const tmpPath = getActiveIndexPath() + '.tmp';
+      const tmpCss = getActiveStylePath() + '.tmp';
+      try { if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath); } catch (_) {}
+      try { if (fs.existsSync(tmpCss)) fs.unlinkSync(tmpCss); } catch (_) {}
+      return res.status(500).json(createApiResponse(false, null, ERROR_CODES.SAVE_FAILED.code, error.message));
+    }
+  };
+
+  const nextTask = saveQueuePromise.then(() => saveOperation());
+  saveQueuePromise = nextTask.catch(() => {});
 });
 
 // 4. Endpoint de Estadísticas (Dashboard Ligero - Fase 3)

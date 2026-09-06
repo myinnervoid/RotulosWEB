@@ -3,7 +3,19 @@
 # 🇲🇽 GESTOR UNIFICADO DEL ESTUDIO VISUAL MEMEXICANISIMOS
 # Uso: ./editor.sh [start | stop | restart | status]
 # ==========================================================
-export PATH="/home/myinnervoid/.nvm/versions/node/v24.18.0/bin:$PATH"
+# Detección dinámica y portable de Node.js si no está en PATH
+if ! command -v node >/dev/null 2>&1; then
+  if [ -s "$HOME/.nvm/nvm.sh" ]; then
+    export NVM_DIR="$HOME/.nvm"
+    # shellcheck source=/dev/null
+    \. "$NVM_DIR/nvm.sh"
+  elif [ -d "$HOME/.nvm/versions/node" ]; then
+    LATEST_NODE=$(find "$HOME/.nvm/versions/node" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -V | tail -n 1)
+    if [ -n "$LATEST_NODE" ]; then
+      export PATH="$LATEST_NODE/bin:$PATH"
+    fi
+  fi
+fi
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EDITOR_DIR="$DIR/editor"
 PORT=5050

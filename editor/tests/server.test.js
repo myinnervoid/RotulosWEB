@@ -137,6 +137,29 @@ describe('Backend Integration Suite — Contratos canónicos ApiResponse<T>', ()
 
     expect(res.status).not.toBe(200);
   });
+
+  it('POST /api/save serializa peticiones concurrentes mediante mutex sin race conditions', async () => {
+    const validHtml = '<div><h2>Prueba de Concurrencia</h2><p>Contenido concurrente</p></div>';
+
+    // Disparar 3 peticiones de guardado paralelas simultáneas
+    const promises = [1, 2, 3].map(i =>
+      request(app)
+        .post('/api/save')
+        .set('Host', '127.0.0.1:5050')
+        .send({
+          html: `${validHtml} <!-- Paso ${i} -->`,
+          css: `p { color: ${i === 1 ? 'blue' : i === 2 ? 'green' : 'red'}; }`
+        })
+    );
+
+    const results = await Promise.all(promises);
+    for (const res of results) {
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('backup');
+    }
+  });
 });
+
 
 

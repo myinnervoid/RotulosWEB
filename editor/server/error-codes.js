@@ -81,6 +81,11 @@ const ERROR_CODES = {
     http: 500,
     description: 'Error de sistema de archivos al guardar index.html o style.css.'
   },
+  PAYLOAD_TOO_LARGE: {
+    code: 'PAYLOAD_TOO_LARGE',
+    http: 413,
+    description: 'La carga útil excede el límite máximo permitido por el servidor.'
+  },
 
   // ── Estadísticas ──────────────────────────────────────────
   STATS_FAILED: {
