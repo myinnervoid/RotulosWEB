@@ -8,6 +8,7 @@ const https = require('https');
 const os = require('os');
 const simpleGit = require('simple-git');
 const { ERROR_CODES } = require('./server/error-codes');
+const { GitHubAPI } = require('./server/github-api');
 let openPkg;
 try {
   openPkg = require('open');
@@ -1090,6 +1091,166 @@ app.post('/api/projects/delete', (req, res) => {
     res.json(createApiResponse(true, { name: path.basename(name) }, null, 'Proyecto eliminado correctamente'));
   } catch (err) {
     res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
+  }
+});
+
+// ── OAuth GitHub & Publicación a GitHub Pages (Fase 2) ──────
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || 'dummy_client_id';
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || 'dummy_client_secret';
+const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI || 'http://localhost:5050/api/auth/github/callback';
+
+let githubSession = {
+  accessToken: null,
+  user: null
+};
+
+app.get('/api/auth/github/login', (req, res) => {
+  const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(GITHUB_REDIRECT_URI)}&scope=repo,user`;
+  res.redirect(authUrl);
+});
+
+app.get('/api/auth/github/callback', async (req, res) => {
+  const { code } = req.query;
+  if (!code) {
+    return res.status(400).send('No se recibió código de autorización');
+  }
+
+  try {
+    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        client_id: GITHUB_CLIENT_ID,
+        client_secret: GITHUB_CLIENT_SECRET,
+        code,
+        redirect_uri: GITHUB_REDIRECT_URI,
+      })
+    });
+    const tokenData = await tokenResponse.json();
+
+    if (tokenData.error) {
+      throw new Error(tokenData.error_description || 'Error al obtener token');
+    }
+
+    const accessToken = tokenData.access_token;
+    githubSession.accessToken = accessToken;
+
+    let login = 'GitHub User';
+    try {
+      const userResponse = await fetch('https://api.github.com/user', {
+        headers: {
+          'Authorization': `token ${accessToken}`,
+          'Accept': 'application/json',
+          'User-Agent': 'Rotulos-Web-Studio'
+        }
+      });
+      const userData = await userResponse.json();
+      login = userData.login || 'GitHub User';
+    } catch {}
+
+    githubSession.user = login;
+
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Autenticación Exitosa</title></head>
+      <body style="font-family:sans-serif; text-align:center; padding:40px; background:#141B17; color:#fff;">
+        <script>
+          localStorage.setItem('github_token', '${accessToken}');
+          localStorage.setItem('github_user', '${login}');
+          if (window.opener) {
+            window.opener.postMessage({ type: 'github-auth-success', user: '${login}' }, '*');
+          }
+          setTimeout(() => window.close(), 600);
+        </script>
+        <h2>🎉 ¡Autenticación con GitHub exitosa!</h2>
+        <p>Usuario: <strong>${login}</strong></p>
+        <p>Puedes cerrar esta ventana.</p>
+      </body>
+      </html>
+    `);
+  } catch (error) {
+    res.status(500).send(`Error de autenticación: ${error.message}`);
+  }
+});
+
+app.get('/api/auth/github/status', (req, res) => {
+  const token = githubSession.accessToken;
+  if (token) {
+    res.json(createApiResponse(true, { authenticated: true, user: githubSession.user || 'GitHub User' }, null, 'Usuario autenticado'));
+  } else {
+    res.json(createApiResponse(true, { authenticated: false, user: null }, null, 'No autenticado'));
+  }
+});
+
+app.post('/api/auth/github/logout', (req, res) => {
+  githubSession = { accessToken: null, user: null };
+  res.json(createApiResponse(true, { authenticated: false }, null, 'Sesión cerrada correctamente'));
+});
+
+// POST /api/publish/github
+app.post('/api/publish/github', async (req, res) => {
+  try {
+    const { projectPath: reqProjectPath, repoName, token: reqToken } = req.body || {};
+    const token = reqToken || githubSession.accessToken;
+
+    if (!token) {
+      return res.status(401).json(createApiResponse(false, null, 'AUTH_REQUIRED', 'Token de autenticación de GitHub requerido'));
+    }
+
+    const targetPath = reqProjectPath ? path.resolve(reqProjectPath) : projectPath;
+    if (!fs.existsSync(targetPath) || !fs.statSync(targetPath).isDirectory()) {
+      return res.status(404).json(createApiResponse(false, null, 'PROJECT_NOT_FOUND', 'Ruta del proyecto no encontrada o inválida'));
+    }
+
+    const safeRepoName = (repoName || path.basename(targetPath) || 'mi-sitio-rotulos')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]/g, '-');
+
+    const github = new GitHubAPI(token);
+
+    // 1. Verificar si el repositorio ya existe
+    let repoExists = false;
+    try {
+      await github.getRepo(safeRepoName);
+      repoExists = true;
+    } catch {
+      repoExists = false;
+    }
+
+    // Si no existe, crearlo
+    if (!repoExists) {
+      await github.createRepo(safeRepoName, { description: 'Sitio web publicado desde Rótulos Web', private: false });
+    }
+
+    // 2. Subir archivos recursivamente
+    await github.uploadProjectDirectory(safeRepoName, targetPath);
+
+    // 3. Activar GitHub Pages
+    try {
+      await github.enablePages(safeRepoName);
+    } catch (pagesErr) {
+      console.warn('[Pages Warning]', pagesErr.message);
+    }
+
+    // 4. Obtener URL de GitHub Pages
+    const pagesInfo = await github.getPagesInfo(safeRepoName);
+    const username = await github.getUsername();
+    const pagesUrl = pagesInfo.html_url || `https://${username}.github.io/${safeRepoName}/`;
+
+    res.json(createApiResponse(true, {
+      url: pagesUrl,
+      repo: safeRepoName,
+      user: username,
+      message: '¡Publicado exitosamente en GitHub Pages!'
+    }, null, 'Publicación exitosa'));
+  } catch (err) {
+    console.error('[PUBLISH ERROR]', err);
+    res.status(500).json(createApiResponse(false, null, 'PUBLISH_FAILED', err.message));
   }
 });
 

@@ -14,6 +14,7 @@ import { getEditorInstance } from './editor-init.js';
 import { eventBus } from './event-bus.js';
 import { EDITOR_EVENTS } from './editor-events.js';
 import { workerManager } from './worker-manager.js';
+import { showPublishDialog, publishToGitHub } from './publish.js';
 
 /**
  * Limpia el HTML del editor de atributos internos de GrapesJS.
@@ -175,30 +176,36 @@ export function setupPublishButton() {
       return;
     }
 
-    const confirmed = await showConfirmDialog({
-      title: 'Publicar en GitHub',
-      message: t('publish_confirm', '¿Deseas compilar y publicar los cambios en GitHub?'),
-      confirmText: 'Publicar',
-      cancelText: 'Cancelar'
-    });
-    if (!confirmed) return;
-
-    setPublishState('PENDING');
-    updatePublishUI('PENDING');
-
+    // Obtener ruta del proyecto activo
+    let activePath = '';
     try {
-      const pubRes = await fetch('/api/publish', { method: 'POST' });
-      const pubJson = await pubRes.json();
-      if (pubJson.success) {
-        setPublishState('SUCCESS');
-        updatePublishUI('SUCCESS', pubJson.message);
-      } else {
-        setPublishState('FAULT');
-        updatePublishUI('FAULT', getErrorMessage(pubJson.error_code, pubJson.message));
+      const curRes = await fetch('/api/current-project');
+      const curJson = await curRes.json();
+      if (curJson.success && curJson.data) {
+        activePath = curJson.data.projectPath;
       }
-    } catch (err) {
-      setPublishState('FAULT');
-      updatePublishUI('FAULT', err.message);
+    } catch {}
+
+    const choice = await showPublishDialog(activePath);
+    if (!choice || choice.platform === 'reopen') return;
+
+    if (choice.platform === 'github') {
+      setPublishState('PENDING');
+      updatePublishUI('PENDING');
+
+      try {
+        const result = await publishToGitHub(activePath, choice.repoName);
+        setPublishState('SUCCESS');
+        updatePublishUI('SUCCESS', `¡Publicado! ${result.url}`);
+      } catch (err) {
+        setPublishState('FAULT');
+        updatePublishUI('FAULT', err.message);
+      }
+    } else if (choice.platform === 'netlify') {
+      const zipBtn = document.getElementById('btn-export-zip');
+      if (zipBtn) zipBtn.click();
+      window.open('https://app.netlify.com/drop', '_blank');
+      showToast('⚡ Descargando ZIP... Arrástralo a Netlify Drop para publicar al instante.');
     }
   });
 

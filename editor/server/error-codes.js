@@ -153,6 +153,21 @@ const ERROR_CODES = {
     code: 'SERVER_ERROR',
     http: 500,
     description: 'Error interno del servidor.'
+  },
+  PUBLISH_FAILED: {
+    code: 'PUBLISH_FAILED',
+    http: 500,
+    description: 'Error al publicar el proyecto en la plataforma remota (GitHub Pages / Netlify).'
+  },
+  AUTH_FAILED: {
+    code: 'AUTH_FAILED',
+    http: 401,
+    description: 'Fallo en el proceso de autenticación OAuth o token inválido.'
+  },
+  AUTH_REQUIRED: {
+    code: 'AUTH_REQUIRED',
+    http: 401,
+    description: 'Se requiere autenticación para realizar la operación.'
   }
 };
 

@@ -86,8 +86,26 @@ export const EDITOR_EVENTS = Object.freeze({
   PROJECT_CREATED: 'editor:project:created',
 
   /** Proyecto eliminado de disco */
-  PROJECT_DELETED: 'editor:project:deleted'
+  PROJECT_DELETED: 'editor:project:deleted',
+
+  /** Estado de autenticación de GitHub modificado */
+  GITHUB_AUTH_CHANGED: 'editor:github:auth:changed',
+
+  /** Inicio de publicación en hosting remoto */
+  PUBLISH_STARTED: 'editor:publish:started',
+
+  /** Progreso de publicación */
+  PUBLISH_PROGRESS: 'editor:publish:progress',
+
+  /** Publicación completada con éxito */
+  PUBLISH_COMPLETED: 'editor:publish:completed',
+
+  /** Error durante la publicación */
+  PUBLISH_ERROR: 'editor:publish:error'
 });
+
+/** Alias canónico para compatibilidad */
+export const EVENTS = EDITOR_EVENTS;
 
 /**
  * @typedef {Object} ContentChangedPayload
