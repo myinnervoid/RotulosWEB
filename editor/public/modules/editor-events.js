@@ -77,7 +77,16 @@ export const EDITOR_EVENTS = Object.freeze({
   HISTORY_RESTORED: 'editor:history:restored',
 
   /** Plantilla predefinida cargada en el lienzo */
-  TEMPLATE_LOADED: 'editor:template:loaded'
+  TEMPLATE_LOADED: 'editor:template:loaded',
+
+  /** Lista de proyectos favoritos actualizada */
+  FAVORITES_UPDATED: 'editor:favorites:updated',
+
+  /** Nuevo proyecto creado en disco */
+  PROJECT_CREATED: 'editor:project:created',
+
+  /** Proyecto eliminado de disco */
+  PROJECT_DELETED: 'editor:project:deleted'
 });
 
 /**

@@ -60,6 +60,11 @@
 
     <!-- DERECHA: ACCIONES CRÍTICAS (SIEMPRE VISIBLES) -->
     <div class="toolbar-actions">
+      <!-- MIS PROYECTOS (SELECTOR RÁPIDO) -->
+      <button class="btn-action btn-projects-quick" id="btn-quick-projects" data-i18n-title="my_projects" title="Administrar proyectos locales (crear, duplicar, favoritos)">
+        <i class="fas fa-boxes-stacked" style="color:var(--oro-charro);"></i> <span data-i18n="my_projects">Proyectos</span>
+      </button>
+
       <!-- VISTA PREVIA -->
       <button class="btn-action btn-preview-toggle" id="btn-preview" data-i18n-title="btn_preview" title="Probar enlaces e interactuar sin marcos de edición">
         <i class="fas fa-eye"></i> <span data-i18n="btn_preview">Vista Previa</span>
@@ -114,6 +119,13 @@
           <small class="project-tag">PROYECTO ACTIVO</small>
           <div class="active-project-name" id="active-project-name">Cargando...</div>
         </div>
+        <button class="drawer-tool-btn btn-projects" id="btn-projects" title="Administrar proyectos locales (crear, duplicar, renombrar, favoritos)">
+          <i class="fas fa-boxes-stacked" style="color: #F5C542;"></i>
+          <div class="tool-btn-info">
+            <strong>Mis Proyectos...</strong>
+            <small>Crear, duplicar, renombrar y favoritos</small>
+          </div>
+        </button>
         <button class="drawer-tool-btn btn-import-html" id="btn-import-html" title="Subir y editar tu propio archivo index.html (desde tu PC o celular)">
           <i class="fas fa-file-code" style="color: #55EBB2;"></i>
           <div class="tool-btn-info">

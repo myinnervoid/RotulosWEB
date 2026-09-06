@@ -27,7 +27,7 @@ const categoryIcons = {
  * @param {object} editor - Instancia de GrapesJS
  * @returns {Promise<string|null>} ID de la plantilla cargada o null si se cancela
  */
-export async function showTemplateSelector(editor) {
+export async function showTemplateSelector(editor, { applyToEditor = true } = {}) {
   if (typeof document === 'undefined') return null;
 
   try {
@@ -259,7 +259,7 @@ export async function showTemplateSelector(editor) {
             if (templateJson.success && templateJson.data) {
               const { html, css } = templateJson.data;
 
-              if (editor) {
+              if (applyToEditor && editor) {
                 if (typeof editor.setComponents === 'function') {
                   editor.setComponents(html);
                 } else if (typeof editor.setHtml === 'function') {
@@ -273,10 +273,9 @@ export async function showTemplateSelector(editor) {
                   }
                 }
                 rebuildDockSections(editor);
+                eventBus.publish(EDITOR_EVENTS.TEMPLATE_LOADED, { templateId: id, data: templateJson.data });
+                showToast(`🎉 ¡Plantilla "${id}" cargada exitosamente!`);
               }
-
-              eventBus.publish(EDITOR_EVENTS.TEMPLATE_LOADED, { templateId: id, data: templateJson.data });
-              showToast(`🎉 ¡Plantilla "${id}" cargada exitosamente!`);
               closeModal(id);
             } else {
               showToast('Error al cargar plantilla: ' + (templateJson.message || 'Desconocido'), true);

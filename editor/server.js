@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const https = require('https');
+const os = require('os');
 const simpleGit = require('simple-git');
 const { ERROR_CODES } = require('./server/error-codes');
 let openPkg;
@@ -884,6 +885,211 @@ app.get('/api/templates/:id/preview', (req, res) => {
     res.sendFile(previewPath);
   } else {
     res.status(404).send('No preview available');
+  }
+});
+
+// ── 9. Gestión de Proyectos en Disco (v5.0 Fase 1) ────────────
+const PROJECTS_BASE = process.env.ROTULOS_PROJECTS_DIR || path.join(os.homedir(), 'RotulosProjects');
+
+if (!fs.existsSync(PROJECTS_BASE)) {
+  try {
+    fs.mkdirSync(PROJECTS_BASE, { recursive: true });
+  } catch (err) {
+    console.warn('[PROJECTS] Error creando PROJECTS_BASE:', err.message);
+  }
+}
+
+function getSafeProjectPath(projectName) {
+  const safeName = path.basename(projectName || '');
+  return path.join(PROJECTS_BASE, safeName);
+}
+
+function validateProject(projectName) {
+  const pPath = getSafeProjectPath(projectName);
+  if (!fs.existsSync(pPath) || !fs.statSync(pPath).isDirectory()) {
+    return null;
+  }
+  return pPath;
+}
+
+function getDirectorySize(dirPath) {
+  let size = 0;
+  if (!fs.existsSync(dirPath)) return 0;
+  try {
+    const files = fs.readdirSync(dirPath);
+    for (const file of files) {
+      const fullPath = path.join(dirPath, file);
+      try {
+        const stats = fs.statSync(fullPath);
+        if (stats.isDirectory()) {
+          size += getDirectorySize(fullPath);
+        } else {
+          size += stats.size;
+        }
+      } catch {}
+    }
+  } catch {}
+  return size;
+}
+
+function copyDirectory(src, dest) {
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
+  }
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDirectory(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+function copyTemplate(templateDir, targetProjectPath) {
+  copyDirectory(templateDir, targetProjectPath);
+}
+
+app.get('/api/projects/list', (req, res) => {
+  try {
+    if (!fs.existsSync(PROJECTS_BASE)) {
+      return res.json(createApiResponse(true, [], null, 'No hay directorio de proyectos'));
+    }
+    const dirs = fs.readdirSync(PROJECTS_BASE).filter(item => {
+      const fullPath = path.join(PROJECTS_BASE, item);
+      try {
+        return fs.statSync(fullPath).isDirectory() &&
+               fs.existsSync(path.join(fullPath, 'index.html'));
+      } catch {
+        return false;
+      }
+    });
+
+    const projects = dirs.map(name => {
+      const fullPath = path.join(PROJECTS_BASE, name);
+      const stats = fs.statSync(fullPath);
+      const size = getDirectorySize(fullPath);
+      return {
+        name,
+        path: fullPath,
+        modified: stats.mtime.toISOString(),
+        size,
+        hasAssets: fs.existsSync(path.join(fullPath, 'assets'))
+      };
+    });
+
+    res.json(createApiResponse(true, projects, null, 'Listado de proyectos obtenido con éxito'));
+  } catch (err) {
+    res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
+  }
+});
+
+app.post('/api/projects/create', (req, res) => {
+  try {
+    const { name, templateId } = req.body || {};
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json(createApiResponse(false, null, 'INVALID_PARAMS', 'Nombre de proyecto requerido'));
+    }
+
+    const safeName = path.basename(name.trim());
+    const projectPath = path.join(PROJECTS_BASE, safeName);
+    if (fs.existsSync(projectPath)) {
+      return res.status(409).json(createApiResponse(false, null, 'PROJECT_EXISTS', 'El proyecto ya existe'));
+    }
+
+    fs.mkdirSync(projectPath, { recursive: true });
+
+    if (templateId) {
+      const templateDir = path.join(__dirname, 'templates', path.basename(templateId));
+      if (fs.existsSync(templateDir) && fs.statSync(templateDir).isDirectory()) {
+        copyTemplate(templateDir, projectPath);
+      } else {
+        fs.writeFileSync(path.join(projectPath, 'index.html'), '<!DOCTYPE html>\n<html lang="es">\n<head><meta charset="UTF-8"><title>' + safeName + '</title></head>\n<body><h1>' + safeName + '</h1></body></html>', 'utf8');
+      }
+    } else {
+      fs.writeFileSync(path.join(projectPath, 'index.html'), '<!DOCTYPE html>\n<html lang="es">\n<head><meta charset="UTF-8"><title>' + safeName + '</title></head>\n<body><h1>' + safeName + '</h1></body></html>', 'utf8');
+    }
+
+    addRecentProject(projectPath);
+
+    res.json(createApiResponse(true, { name: safeName, path: projectPath }, null, 'Proyecto creado exitosamente'));
+  } catch (err) {
+    res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
+  }
+});
+
+app.post('/api/projects/duplicate', (req, res) => {
+  try {
+    const { sourceName, newName } = req.body || {};
+    if (!sourceName || !newName) {
+      return res.status(400).json(createApiResponse(false, null, 'INVALID_PARAMS', 'Faltan parámetros'));
+    }
+
+    const sourcePath = validateProject(sourceName);
+    if (!sourcePath) {
+      return res.status(404).json(createApiResponse(false, null, 'PROJECT_NOT_FOUND', 'Proyecto origen no encontrado'));
+    }
+
+    const safeNewName = path.basename(newName.trim());
+    const destPath = path.join(PROJECTS_BASE, safeNewName);
+    if (fs.existsSync(destPath)) {
+      return res.status(409).json(createApiResponse(false, null, 'PROJECT_EXISTS', 'El proyecto destino ya existe'));
+    }
+
+    copyDirectory(sourcePath, destPath);
+    addRecentProject(destPath);
+
+    res.json(createApiResponse(true, { name: safeNewName, path: destPath }, null, 'Proyecto duplicado con éxito'));
+  } catch (err) {
+    res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
+  }
+});
+
+app.post('/api/projects/rename', (req, res) => {
+  try {
+    const { oldName, newName } = req.body || {};
+    if (!oldName || !newName) {
+      return res.status(400).json(createApiResponse(false, null, 'INVALID_PARAMS', 'Faltan parámetros'));
+    }
+
+    const oldPath = validateProject(oldName);
+    if (!oldPath) {
+      return res.status(404).json(createApiResponse(false, null, 'PROJECT_NOT_FOUND', 'Proyecto no encontrado'));
+    }
+
+    const safeNewName = path.basename(newName.trim());
+    const newPath = path.join(PROJECTS_BASE, safeNewName);
+    if (fs.existsSync(newPath)) {
+      return res.status(409).json(createApiResponse(false, null, 'PROJECT_EXISTS', 'Ya existe un proyecto con ese nombre'));
+    }
+
+    fs.renameSync(oldPath, newPath);
+    addRecentProject(newPath);
+
+    res.json(createApiResponse(true, { name: safeNewName, path: newPath }, null, 'Proyecto renombrado con éxito'));
+  } catch (err) {
+    res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
+  }
+});
+
+app.post('/api/projects/delete', (req, res) => {
+  try {
+    const { name } = req.body || {};
+    if (!name) {
+      return res.status(400).json(createApiResponse(false, null, 'INVALID_PARAMS', 'Nombre de proyecto requerido'));
+    }
+
+    const projectPath = validateProject(name);
+    if (!projectPath) {
+      return res.status(404).json(createApiResponse(false, null, 'PROJECT_NOT_FOUND', 'Proyecto no encontrado'));
+    }
+
+    fs.rmSync(projectPath, { recursive: true, force: true });
+    res.json(createApiResponse(true, { name: path.basename(name) }, null, 'Proyecto eliminado correctamente'));
+  } catch (err) {
+    res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
   }
 });
 

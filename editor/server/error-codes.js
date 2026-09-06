@@ -128,11 +128,31 @@ const ERROR_CODES = {
     description: 'Error de Puppeteer al navegar a la página o al capturar la pantalla.'
   },
 
-  // ── Conmutación de proyecto ───────────────────────────────
+  // ── Conmutación y Gestión de Proyectos ────────────────────
   SWITCH_FAILED: {
     code: 'SWITCH_FAILED',
     http: 500,
     description: 'Error inesperado al intentar conmutar el proyecto activo.'
+  },
+  PROJECT_EXISTS: {
+    code: 'PROJECT_EXISTS',
+    http: 409,
+    description: 'El proyecto ya existe en el directorio de proyectos.'
+  },
+  PROJECT_NOT_FOUND: {
+    code: 'PROJECT_NOT_FOUND',
+    http: 404,
+    description: 'El proyecto solicitado no existe en el sistema.'
+  },
+  INVALID_PARAMS: {
+    code: 'INVALID_PARAMS',
+    http: 400,
+    description: 'Parámetros requeridos ausentes o inválidos.'
+  },
+  SERVER_ERROR: {
+    code: 'SERVER_ERROR',
+    http: 500,
+    description: 'Error interno del servidor.'
   }
 };
 

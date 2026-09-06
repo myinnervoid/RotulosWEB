@@ -19,7 +19,7 @@ import {
   setupCodeInspector, setupStatsModal, setupScreenshotModal,
   setupZipExport
 } from './save-publish.js';
-import { loadRecentProjects, setupProjectSelector } from './project-manager.js';
+import { loadRecentProjects, setupProjectSelector, setupProjectManagerButton } from './project-manager.js';
 import { setupLangSelector } from './i18n.js';
 import { showToast } from './toast.js';
 import { getErrorMessage } from './error-messages.js';
@@ -303,6 +303,7 @@ export async function initEditor() {
 
     // ── 9. Proyectos ──────────────────────────────────────
     setupProjectSelector(editor);
+    setupProjectManagerButton(editor);
     await loadRecentProjects();
     if (savedImportedName) {
       const activeNameEl = document.getElementById('active-project-name');
