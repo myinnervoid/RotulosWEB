@@ -64,7 +64,9 @@ Rótulos Web no es solo un clon de editor; es una suite ergonómica diseñada pa
   - 🤠 **Creador & Contacto** (`#creador-contacto`)
   - 👁️ **Ver Todo**: Activa el modo de edición continua con guías visuales punteadas.
 
-### 6. 🗂️ Panel de Proyectos Locales y Galería de Plantillas (v5.0)
+### 6. 🗂️ Pantalla de Bienvenida (Welcome Hub), Proyectos Locales y Plantillas (v5.1)
+- **Pantalla de Inicio Estilo Suite Creativa (Welcome Hub)**: Al estilo de Photoshop, Word o VS Code, te recibe con tus proyectos recientes, opción de continuar tu sesión y selector de plantillas. Accesible siempre desde el menú drawer o haciendo clic en el logotipo superior.
+- **Portabilidad Total en Primer Arranque**: Al clonar el repositorio o usar el editor por primera vez, se genera automáticamente el proyecto completo de referencia en `~/RotulosProjects/memexicanisimos` sin rutas absolutas ni dependencias de máquinas específicas.
 - **Gestión Local Soberana**: Crea, duplica, renombra y elimina proyectos locales en `~/RotulosProjects` sin bases de datos ni intermediarios.
 - **Galería de Plantillas en 1 Clic**: Elige entre plantillas prediseñadas (*Landing Page, Blog Editorial, Portafolio Creativo y Memexicanísimos Oficial*) o comienza desde un lienzo en blanco.
 - **Favoritos Reactivos**: Marca tus proyectos más importantes con una estrella ⭐ para acceso prioritario persistido en tu navegador.
@@ -80,10 +82,10 @@ Rótulos Web no es solo un clon de editor; es una suite ergonómica diseñada pa
 - **Navegación por Teclado y Contraste WCAG AA**: Interfaz optimizada con foco visual claro y contraste garantizado (mínimo 4.5:1).
 - **Auditoría Asíncrona en Web Worker**: Motor de **Axe-core** y reglas WCAG 2.1 integradas en segundo plano (`dom-worker.js`) sin congelar el lienzo de edición.
 
-### 9. 🛡️ Soberanía Local, Respaldos FIFO y Robustez (114 Tests)
+### 9. 🛡️ Soberanía Local, Respaldos FIFO y Robustez (121 Tests)
 - Tus archivos residen en tu computadora (`index.html` y `style.css`).
 - Cada guardado crea un respaldo fechado en `backups/` con retención rotativa (los 15 respaldos más recientes siempre seguros).
-- **Calidad y Confianza Total**: Suite de **114 pruebas automatizadas** en 15 suites de integración con Vitest y Supertest pasando al 100%.
+- **Calidad y Confianza Total**: Suite de **121 pruebas automatizadas** en 16 suites de integración con Vitest y Supertest pasando al 100%.
 
 ---
 

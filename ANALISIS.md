@@ -1,17 +1,17 @@
-# Informe Técnico y Análisis de Evolución — Rótulos Web v5.0
+# Informe Técnico y Análisis de Evolución — Rótulos Web v5.1
 
 **Estudio Visual Memexicanísimos**  
 *Fecha de actualización: 6 de septiembre de 2026*  
-*Versión de software: 5.0.0*  
-*Estado de calidad: 114/114 pruebas automatizadas aprobadas (15 suites en Vitest)*
+*Versión de software: 5.1.0*  
+*Estado de calidad: 121/121 pruebas automatizadas aprobadas (16 suites en Vitest)*
 
 ---
 
 ## 1. Resumen Ejecutivo
 
-Este documento consolida el diagnóstico técnico, la resolución de brechas y la arquitectura integral de **Rótulos Web v5.0**. 
+Este documento consolida el diagnóstico técnico, la resolución de brechas y la arquitectura integral de **Rótulos Web v5.1**. 
 
-El proyecto transitó exitosamente desde un prototipo monolítico con acoplamiento global (`window.editor`) y rutas hardcodeadas hacia una plataforma de autoría visual moderna, modular, altamente performante y soberana (offline-first). La versión 5.0 incorpora un panel completo de administración de proyectos locales, publicación simplificada en 1 clic (GitHub Pages y Netlify), soporte integral de Modo Oscuro con variables CSS semánticas y auditoría de accesibilidad WCAG 2.1 AA impulsada por `axe-core` sobre Web Workers.
+El proyecto transitó exitosamente desde un prototipo monolítico con acoplamiento global (`window.editor`) y rutas hardcodeadas hacia una plataforma de autoría visual moderna, modular, altamente performante y soberana (offline-first). La versión 5.1 incorpora la Pantalla de Inicio (*Welcome Hub*) estilo suite creativa (Word/Photoshop/VS Code), el bootstrap portable de proyectos en primer arranque (`ensureMemexProject`), catálogo de plantillas modulares con assets propios servidos de forma aislada y segura, panel completo de administración de proyectos locales, publicación simplificada en 1 clic (GitHub Pages y Netlify), soporte integral de Modo Oscuro con variables CSS semánticas y auditoría de accesibilidad WCAG 2.1 AA impulsada por `axe-core` sobre Web Workers.
 
 ---
 
@@ -19,8 +19,8 @@ El proyecto transitó exitosamente desde un prototipo monolítico con acoplamien
 
 | ID | Brecha Original Identificada | Estado | Solución Arquitectónica Implementada |
 |---|---|---|---|
-| **GAP-01** | Ausencia total de pruebas automatizadas en `package.json` | **RESUELTO** | Implementación de Vitest con Happy DOM. **114 pruebas en 15 suites** cubriendo backend, frontend, plugins, event bus, workers y storage. |
-| **GAP-02** | Monolito frontend en `app.js` (>2300 líneas) | **RESUELTO** | Refactorizado y modularizado en arquitectura ES Modules (`public/modules/`): `editor-init.js`, `event-bus.js`, `project-manager.js`, `publish.js`, `templates.js`, `theme.js`, etc. |
+| **GAP-01** | Ausencia total de pruebas automatizadas en `package.json` | **RESUELTO** | Implementación de Vitest con Happy DOM. **121 pruebas en 16 suites** cubriendo backend, frontend, plugins, event bus, workers, storage, templates assets y welcome hub. |
+| **GAP-02** | Monolito frontend en `app.js` (>2300 líneas) | **RESUELTO** | Refactorizado y modularizado en arquitectura ES Modules (`public/modules/`): `editor-init.js`, `event-bus.js`, `project-manager.js`, `publish.js`, `templates.js`, `theme.js`, `welcome-hub.js`, etc. |
 | **GAP-03** | Acoplamiento a variable global mutable `window.editor` | **RESUELTO** | Sistema Pub/Sub tipado (`event-bus.js` y `editor-events.js` con JSDoc). Desacoplamiento total de módulos de UI. |
 | **GAP-04** | Bloqueo del hilo principal en tareas pesadas (ZIP, a11y) | **RESUELTO** | Delegación de tareas a Web Workers (`zip-worker.js`, `dom-worker.js`) mediante un `worker-manager.js` basado en promesas. |
 | **GAP-05** | Rutas hardcodeadas de desarrollo y Node NVM en `editor.sh` | **RESUELTO** | Detección dinámica de Node/NVM en scripts bash y rutas relativas con validación estricta de seguridad contra path traversal. |
@@ -29,6 +29,8 @@ El proyecto transitó exitosamente desde un prototipo monolítico con acoplamien
 | **GAP-08** | Falta de gestión de múltiples proyectos locales | **RESUELTO** | Panel de proyectos (`~/RotulosProjects`) con creación, duplicación, renombrado, favoritos y conmutación en caliente de contexto. |
 | **GAP-09** | Proceso manual y engorroso de publicación web | **RESUELTO** | Flujo de despliegue automatizado con 1 clic hacia GitHub Pages (con OAuth2 efímero) y Netlify (preparación ZIP). |
 | **GAP-10** | Carencia de tema oscuro y auditorías a11y reactivas | **RESUELTO** | Motor de temas (`light`, `dark`, `system`) sincronizado en `localStorage` y auditoría en background con `axe-core`. |
+| **GAP-11** | Dependencia de rutas de desarrollo y falta de pantalla de bienvenida inicial | **RESUELTO** | `welcome-hub.js` con selector de proyectos y creación por plantillas; `ensureMemexProject()` para crear `~/RotulosProjects/memexicanisimos` en primer arranque. |
+| **GAP-12** | Plantillas sin assets empaquetados e inaccesibles desde el editor | **RESUELTO** | Empaquetado de `assets/` por plantilla, endpoint `/api/templates/:id/assets/*` anti-traversal e integración con el AssetManager de GrapesJS. |
 
 ---
 

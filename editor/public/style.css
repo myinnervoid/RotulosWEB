@@ -2719,3 +2719,22 @@ dialog.sovereign-dialog::backdrop {
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(206, 17, 38, 0.6);
 }
+
+/* ============================================================
+ * Welcome Hub — Estilos de Selección de Proyectos
+ * ============================================================ */
+.wh-project-item.selected {
+  border-color: #D4AF37 !important;
+  background: rgba(212, 175, 55, 0.1) !important;
+}
+.wh-project-item .wh-open-project,
+.wh-project-item .wh-btn-item-open {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.wh-project-item.selected .wh-open-project,
+.wh-project-item.selected .wh-btn-item-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+

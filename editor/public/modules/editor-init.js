@@ -12,7 +12,7 @@ import {
   setupSidebarResizer, setupDeviceSelector,
   setupMobileSidebar, setupPreviewButton, setupHistoryButtons,
   setupThemeSelector, setupShutdownButton, setupDiagnosticsModal, switchPagePanel,
-  setupDocsModule, rebuildDockSections, setupTemplateButton
+  setupDocsModule, rebuildDockSections, setupTemplateButton, setupWelcomeHubButton
 } from './ui-panels.js';
 import {
   setupSaveButton, setupSaveShortcut, setupPublishButton,
@@ -146,7 +146,7 @@ export async function initEditor() {
     }
 
     // ── 3. Inicializar GrapesJS ──────────────────────────
-    editor = grapesjs.init({
+    const editor = grapesjs.init({
       container: '#gjs-container',
       fromElement: false,
       height: '100%',
@@ -277,6 +277,7 @@ export async function initEditor() {
     setupDock(editor);
     setupDrawer();
     setupTemplateButton(editor);
+    setupWelcomeHubButton();
     setupTabs(editor);
     setupTreeToggle();
     setupVirtualLayers(editor);

@@ -12,6 +12,7 @@ import { workerManager } from './worker-manager.js';
 import { eventBus } from './event-bus.js';
 import { EDITOR_EVENTS } from './editor-events.js';
 import { showTemplateSelector } from './template-selector.js';
+import { showWelcomeHub } from './welcome-hub.js';
 
 const panelIds = ['noticias-news', 'perfiles', 'redes-sociales', 'nosotros-apoyo', 'creador-contacto'];
 
@@ -341,6 +342,32 @@ export function setupTemplateButton(editor) {
       await showTemplateSelector(ed);
     }
   });
+}
+
+/**
+ * Configura el botón de la Pantalla de Inicio (Welcome Hub) en el drawer y cabecera
+ */
+export function setupWelcomeHubButton() {
+  const btnWelcomeHub = document.getElementById('btn-welcome-hub');
+  if (btnWelcomeHub) {
+    btnWelcomeHub.addEventListener('click', () => {
+      document.dispatchEvent(new Event('drawer:close'));
+      showWelcomeHub({ allowClose: true });
+    });
+  }
+
+  // Permitir también abrir el Welcome Hub haciendo click en el branding de la cabecera
+  const brandTitle = document.querySelector('.brand-title');
+  if (brandTitle) {
+    brandTitle.style.cursor = 'pointer';
+    brandTitle.setAttribute('title', 'Abrir Pantalla de Inicio (Welcome Hub)');
+    brandTitle.addEventListener('click', (e) => {
+      // Si el click no fue en el botón hamburguesa
+      if (!e.target.closest('#btn-hamburger')) {
+        showWelcomeHub({ allowClose: true });
+      }
+    });
+  }
 }
 
 // ── PESTAÑAS DE BARRA LATERAL ─────────────────────────────

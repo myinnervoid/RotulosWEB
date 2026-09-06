@@ -1,6 +1,6 @@
 {
   "name": "rotulos-web",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Rótulos Web – Editor Visual Universal Soberano",
   "main": "server.js",
   "bin": "server.js",

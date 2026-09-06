@@ -25,26 +25,36 @@ function get_pid() {
 }
 
 function stop_server() {
-  local pids=$(get_pid)
-  if [ -n "$pids" ]; then
-    echo "🛑 Deteniendo Rótulos Web en puerto $PORT (PID: $pids)..."
-    for p in $pids; do
-      kill "$p" 2>/dev/null
-    done
-    sleep 1
-    for p in $pids; do
-      if kill -0 "$p" 2>/dev/null; then
-        kill -9 "$p" 2>/dev/null
-      fi
-    done
-    echo "✅ Servidor detenido y puerto $PORT liberado con éxito."
+  if [ -x "$EDITOR_DIR/cleanup.sh" ]; then
+    "$EDITOR_DIR/cleanup.sh"
   else
-    echo "ℹ️ No se detectó ningún servidor escuchando en el puerto $PORT."
+    local pids=$(get_pid)
+    if [ -n "$pids" ]; then
+      echo "🛑 Deteniendo Rótulos Web en puerto $PORT (PID: $pids)..."
+      for p in $pids; do
+        kill "$p" 2>/dev/null
+      done
+      sleep 1
+      for p in $pids; do
+        if kill -0 "$p" 2>/dev/null; then
+          kill -9 "$p" 2>/dev/null
+        fi
+      done
+      echo "✅ Servidor detenido y puerto $PORT liberado con éxito."
+    else
+      echo "ℹ️ No se detectó ningún servidor escuchando en el puerto $PORT."
+    fi
   fi
 }
 
 function start_server() {
   local target_path="${1:-}"
+
+  # Limpiar puerto antes de iniciar
+  if [ -x "$EDITOR_DIR/cleanup.sh" ]; then
+    "$EDITOR_DIR/cleanup.sh"
+  fi
+
   local pid=$(get_pid)
   if [ -n "$pid" ]; then
     echo "⚠️ Ya existe un servidor activo en puerto $PORT (PID: $pid)."

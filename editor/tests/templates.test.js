@@ -41,17 +41,36 @@ describe('Templates & Assets API Suite', () => {
     expect(res.body.success).toBe(false);
   });
 
-  it('GET /api/assets con query params de paginación debe responder con estructura paginada', async () => {
-    const res = await request(app).get('/api/assets?page=1&limit=5');
+  it('GET /api/templates/:id debe incluir la lista de assets y reescribir rutas relativas', async () => {
+    const res = await request(app).get('/api/templates/landing');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveProperty('assets');
-    expect(res.body.data).toHaveProperty('total');
-    expect(res.body.data).toHaveProperty('page');
-    expect(res.body.data).toHaveProperty('limit');
-    expect(res.body.data).toHaveProperty('hasMore');
-    expect(res.body.data.page).toBe(1);
-    expect(res.body.data.limit).toBe(5);
+    expect(Array.isArray(res.body.data.assets)).toBe(true);
+    expect(res.body.data.assets).toContain('hero-mockup.svg');
+    expect(res.body.data.html).toContain('/api/templates/landing/assets/');
+  });
+
+  it('GET /api/templates/:id/assets/* debe servir un archivo de asset existente con status 200', async () => {
+    const res = await request(app).get('/api/templates/landing/assets/hero-mockup.svg');
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/svg|xml|image/);
+  });
+
+  it('GET /api/templates/:id/assets/* debe rechazar intentos de path traversal con código 403', async () => {
+    const res = await request(app).get('/api/templates/landing/assets/%2e%2e%2f%2e%2e%2fpackage.json');
+
+    expect(res.status).toBe(403);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error_code).toBe('ACCESS_DENIED');
+  });
+
+  it('GET /api/templates/:id/assets/* debe devolver 404 para asset inexistente', async () => {
+    const res = await request(app).get('/api/templates/landing/assets/asset-que-no-existe-xyz.png');
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
   });
 });

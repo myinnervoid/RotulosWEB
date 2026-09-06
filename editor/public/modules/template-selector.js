@@ -272,6 +272,25 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
                     editor.setCss(css);
                   }
                 }
+
+                // Registrar assets de la plantilla en el AssetManager de GrapesJS
+                const assets = templateJson.data.assets;
+                if (Array.isArray(assets) && assets.length > 0 && editor.AssetManager) {
+                  assets.forEach(asset => {
+                    const assetSrc = typeof asset === 'string'
+                      ? `/api/templates/${id}/assets/${asset}`
+                      : (asset.src || asset.name);
+                    const assetName = typeof asset === 'string' ? asset : (asset.name || asset.src);
+                    try {
+                      editor.AssetManager.add({
+                        type: 'image',
+                        src: assetSrc,
+                        name: assetName
+                      });
+                    } catch {}
+                  });
+                }
+
                 rebuildDockSections(editor);
                 eventBus.publish(EDITOR_EVENTS.TEMPLATE_LOADED, { templateId: id, data: templateJson.data });
                 showToast(`🎉 ¡Plantilla "${id}" cargada exitosamente!`);

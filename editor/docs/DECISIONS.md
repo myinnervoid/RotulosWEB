@@ -263,3 +263,50 @@ Normalizar variables CSS (`--bg-primary`, `--bg-secondary`, `--text-primary`, et
 **Consecuencias Negativas:**
 - El archivo de axe-core local añade ~580 KB a `vendor/` (totalmente compensado por su disponibilidad 100% offline).
 
+---
+
+## DEC-015 — Start Screen (Welcome Hub) y Bootstrap Portable de Proyectos en Primer Arranque
+
+**Fecha:** 2026-09-06
+**Contexto / Problema:**
+Al clonar el repositorio o ejecutar el editor en una máquina nueva, no existían rutas hardcodeadas locales del desarrollador, lo que provocaba errores de carga o lienzos vacíos. Además, los usuarios esperaban una experiencia de inicio moderna (similar a Word, Photoshop o VS Code) que ofreciera elegir entre continuar la sesión, abrir un proyecto existente en `~/RotulosProjects/` o crear uno nuevo a partir de plantillas.
+
+**Decisión Adoptada:**
+1. **Bootstrap Portable en Backend (`server.js`):** Implementar `ensureMemexProject()` para crear automáticamente la carpeta `~/RotulosProjects/memexicanisimos` en el primer arranque si aún no existe, copiando los recursos completos desde el origen disponible sin depender de rutas absolutas del desarrollador.
+2. **Pantalla de Inicio Modular (`welcome-hub.js`):** Crear un modal de bienvenida que se muestra al inicio del editor de forma no invasiva sobre el canvas, con:
+   - Vista de proyectos existentes en `~/RotulosProjects/` y botón para continuar la sesión activa.
+   - Cuadrícula de plantillas prediseñadas (incluyendo Lienzo en blanco) con selector interactivo y creación con 1 clic.
+   - Opción persistente de "Mostrar al iniciar" en `localStorage` (`rotulos_show_welcome`).
+   - Acceso permanente en cualquier momento desde el Drawer (`#btn-welcome-hub`) o haciendo clic en el branding de la barra superior.
+
+**Consecuencias Positivas:**
+- Experiencia de usuario pulida y familiar estilo suite creativa profesional.
+- Portabilidad 100%: cualquier usuario nuevo arranca con el proyecto de referencia listo para trabajar.
+- 118 pruebas unitarias e integración pasando con 100% de éxito.
+
+**Consecuencias Negativas:**
+- Requiere mantener sincronizada la plantilla de referencia en caso de cambios en los assets maestros.
+
+---
+
+## DEC-016 — Plantillas Modulares con Assets Propios y Servidor de Recursos Aislado
+
+**Fecha:** 2026-09-06
+**Contexto / Problema:**
+Las plantillas prediseñadas (*Landing, Blog, Portfolio*) no cargaban imágenes o iconos de ejemplo debido a que carecían de sus propios assets locales empaquetados y el backend solo servía recursos estáticos desde la carpeta del proyecto activo en edición, impidiendo la previsualización fiel y la creación de proyectos con recursos listos para usar.
+
+**Decisión Adoptada:**
+1. **Estructura Modular de Plantillas (`editor/templates/`)**: Cada plantilla contiene su propio directorio `assets/` con ilustraciones vectoriales, logotipos y previsualizaciones empaquetadas.
+2. **Endpoint Seguro de Assets de Plantillas (`editor/server.js`)**: Implementar `GET /api/templates/:id/assets/*` mediante expresión regular compatible con Express 5 y validación estricta anti-path-traversal (HTTP 403 `ACCESS_DENIED` si se detecta escape de directorio o secuencias `..`).
+3. **Reescritura de Rutas y Catálogo (`GET /api/templates/:id`)**: El backend reescribe automáticamente los enlaces relativos `assets/...` hacia `/api/templates/:id/assets/...` y devuelve el arreglo `assets: string[]` en el contrato canónico `ApiResponse<T>`.
+4. **Integración con GrapesJS AssetManager (`template-selector.js`)**: Al cargar una plantilla en el editor, los assets se registran automáticamente en el `AssetManager` de GrapesJS para que el usuario pueda insertarlos o reutilizarlos visualmente desde el panel multimedia.
+5. **Copia Recursiva Completa al Crear Proyecto (`/api/projects/create`)**: Al instanciar un nuevo proyecto a partir de cualquier plantilla, se clona recursivamente el directorio de assets al nuevo espacio en `~/RotulosProjects/<nuevo-proyecto>/assets`.
+
+**Consecuencias Positivas:**
+- Las plantillas son completamente autocontenidas y reproducibles en cualquier entorno.
+- El proyecto oficial de Memexicanísimos y las plantillas comerciales/editoriales/personales se cargan con diseño 100% fiel y assets visibles.
+- Cobertura de pruebas ampliada a **121 pruebas pasando al 100%** en 16 suites.
+
+**Consecuencias Negativas:**
+- Mayor tamaño en disco dentro de `templates/` (compensado con el uso de formatos SVG y compresión WebP).
+

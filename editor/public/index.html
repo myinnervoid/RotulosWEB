@@ -26,7 +26,7 @@
       </button>
       <span class="brand-emoji">🎨</span>
       <span class="brand-name" data-i18n="app_title">Rótulos Web</span>
-      <div class="badge-editor" data-i18n="badge_editor">v5.0</div>
+      <div class="badge-editor" data-i18n="badge_editor">v5.1</div>
     </div>
 
     <!-- CENTRO: EDICIÓN & DISPOSITIVOS -->
@@ -124,6 +124,13 @@
           <small class="project-tag">PROYECTO ACTIVO</small>
           <div class="active-project-name" id="active-project-name">Cargando...</div>
         </div>
+        <button class="drawer-tool-btn btn-welcome-hub" id="btn-welcome-hub" title="Abrir Pantalla de Bienvenida (Start Screen)">
+          <i class="fas fa-house-chimney" style="color: #F5C542;"></i>
+          <div class="tool-btn-info">
+            <strong>Pantalla de Inicio...</strong>
+            <small>Abrir o crear proyecto (Start Screen)</small>
+          </div>
+        </button>
         <button class="drawer-tool-btn btn-projects" id="btn-projects" title="Administrar proyectos locales (crear, duplicar, renombrar, favoritos)">
           <i class="fas fa-boxes-stacked" style="color: #F5C542;"></i>
           <div class="tool-btn-info">
@@ -570,12 +577,23 @@
     <span>Herramientas</span>
   </button>
 
-  <!-- SCRIPTS DE GRAPESJS Y PLUGINS (CDN Global de Alta Disponibilidad) -->
-  <script src="https://unpkg.com/grapesjs@0.23.6/dist/grapes.min.js"></script>
-  <script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2/dist/index.js"></script>
+  <!-- SCRIPTS DE GRAPESJS Y PLUGINS (Local Primero con Fallback CDN) -->
+  <script src="./vendor/grapesjs.min.js"></script>
+  <script src="./vendor/grapesjs-blocks-basic.min.js"></script>
+  <script src="./vendor/axe.min.js"></script>
 
-  <!-- MOTOR DE AUDITORÍA AXE-CORE Y DIAGNÓSTICOS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js"></script>
+  <!-- Fallback a CDN de alta disponibilidad si la carga local no está disponible -->
+  <script>
+    if (typeof grapesjs === 'undefined') {
+      document.write('<script src="https://unpkg.com/grapesjs@0.23.6/dist/grapes.min.js"><\\/script>');
+    }
+    if (typeof grapesjsBlocksBasic === 'undefined') {
+      document.write('<script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2/dist/index.js"><\\/script>');
+    }
+    if (typeof axe === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js"><\\/script>');
+    }
+  </script>
   <script src="./diagnostics.js"></script>
 
   <!-- LÓGICA DEL EDITOR (MODULAR — v3.4) -->

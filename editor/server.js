@@ -19,11 +19,61 @@ try {
 const app = express();
 const PORT = process.env.PORT || 5050;
 
-// ── CONFIGURACIÓN DE RUTA DEL PROYECTO DINÁMICO ─────────────
-let defaultCandidate = path.resolve(__dirname, '../../Pagina web memexicanisimos');
-if (!fs.existsSync(defaultCandidate)) {
-  defaultCandidate = path.resolve(__dirname, '../../');
+// ── CONFIGURACIÓN PORTABLE DE PROYECTOS ─────────────────────
+// Directorio universal de proyectos (portable, funciona en cualquier máquina)
+const PROJECTS_BASE_EARLY = process.env.ROTULOS_PROJECTS_DIR || path.join(os.homedir(), 'RotulosProjects');
+if (!fs.existsSync(PROJECTS_BASE_EARLY)) {
+  try { fs.mkdirSync(PROJECTS_BASE_EARLY, { recursive: true }); } catch (e) {}
 }
+
+// ── BOOTSTRAP: Copiar proyecto Memexicanísimos en primer arranque ──
+// Garantiza que todo usuario nuevo (al clonar el repo o descargar el binario)
+// tenga un proyecto de referencia completo listo para editar, sin rutas hardcodeadas.
+(function ensureMemexProject() {
+  const MEMEX_NAME = 'memexicanisimos';
+  const memexTarget = path.join(PROJECTS_BASE_EARLY, MEMEX_NAME);
+  if (fs.existsSync(memexTarget)) return; // Ya existe, no sobreescribir
+
+  // Candidatos de origen (en orden de prioridad):
+  // 1. Plantilla oficial empaquetada con el editor (100% portable)
+  // 2. Carpeta externa del desarrollador (fallback)
+  const templateSource = path.join(__dirname, 'templates', MEMEX_NAME);
+  const devSource = path.resolve(__dirname, '..', 'Pagina web memexicanisimos');
+  const source = fs.existsSync(templateSource) ? templateSource :
+                 fs.existsSync(devSource) ? devSource : null;
+
+  if (!source) {
+    console.warn('⚠️ [BOOTSTRAP] No se encontró fuente para el proyecto Memexicanísimos. Se iniciará con lienzo vacío.');
+    return;
+  }
+
+  try {
+    // Copiar todo el directorio recursivamente (assets, CSS, HTML, etc.)
+    const copyDirSync = (src, dest) => {
+      if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+      for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+        // Omitir backups de desarrollo al copiar
+        if (entry.name === 'backups' || entry.name === '.git') continue;
+        if (entry.isDirectory()) copyDirSync(srcPath, destPath);
+        else fs.copyFileSync(srcPath, destPath);
+      }
+    };
+    copyDirSync(source, memexTarget);
+    console.log(`✅ [BOOTSTRAP] Proyecto Memexicanísimos creado en: ${memexTarget}`);
+  } catch (err) {
+    console.warn('⚠️ [BOOTSTRAP] Error al copiar proyecto Memexicanísimos:', err.message);
+  }
+})();
+
+// ── CONFIGURACIÓN DE RUTA DEL PROYECTO DINÁMICO ─────────────
+// Prioridad: 1) ENV/CLI  2) Último proyecto en recent.json  3) memexicanisimos en RotulosProjects  4) RotulosProjects root
+const defaultMemexProject = path.join(PROJECTS_BASE_EARLY, 'memexicanisimos');
+const defaultCandidate = fs.existsSync(defaultMemexProject)
+  ? defaultMemexProject
+  : PROJECTS_BASE_EARLY;
+
 let projectPath = process.env.PROJECT_PATH || process.argv[2] || defaultCandidate;
 if (!fs.existsSync(projectPath)) {
   console.warn(`⚠️ La ruta "${projectPath}" no existe. Usando default "${defaultCandidate}".`);
@@ -852,6 +902,7 @@ app.get('/api/templates/:id', (req, res) => {
 
     const indexPath = path.join(templateDir, 'index.html');
     const stylePath = path.join(templateDir, 'style.css');
+    const assetsPath = path.join(templateDir, 'assets');
 
     let html = '';
     let css = '';
@@ -863,10 +914,39 @@ app.get('/api/templates/:id', (req, res) => {
       css = fs.readFileSync(stylePath, 'utf8');
     }
 
+    // Reemplazar rutas relativas de assets para que apunten al endpoint de assets de la plantilla
+    html = html.replace(
+      /(src|href)=["'](?:\.\/)?assets\/([^"']+)["']/g,
+      (match, attr, file) => `${attr}="/api/templates/${safeId}/assets/${file}"`
+    );
+
+    // Listar assets disponibles en la carpeta de la plantilla
+    let assets = [];
+    if (fs.existsSync(assetsPath) && fs.statSync(assetsPath).isDirectory()) {
+      const scanAssets = (dir, relDir = '') => {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const subRel = relDir ? `${relDir}/${entry.name}` : entry.name;
+          if (entry.isDirectory()) {
+            scanAssets(path.join(dir, entry.name), subRel);
+          } else {
+            const ext = path.extname(entry.name).toLowerCase();
+            if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.ico', '.woff', '.woff2', '.ttf'].includes(ext)) {
+              assets.push(subRel);
+            }
+          }
+        }
+      };
+      try {
+        scanAssets(assetsPath);
+      } catch {}
+    }
+
     res.json(createApiResponse(true, {
       id: safeId,
       html,
       css,
+      assets,
       meta: {
         id: safeId,
         name: safeId.charAt(0).toUpperCase() + safeId.slice(1),
@@ -875,6 +955,32 @@ app.get('/api/templates/:id', (req, res) => {
     }, null, `Plantilla "${safeId}" cargada con éxito`));
   } catch (err) {
     res.status(500).json(createApiResponse(false, null, 'TEMPLATE_READ_ERROR', err.message));
+  }
+});
+
+// ── Servir assets desde plantillas con protección anti-traversal ────────
+app.get(/^\/api\/templates\/([^\/]+)\/assets\/(.+)$/, (req, res) => {
+  try {
+    const id = req.params[0];
+    const rawSubPath = req.params[1] || '';
+    const assetSubPath = decodeURIComponent(rawSubPath);
+    const safeId = path.basename(id);
+    const templateDir = path.resolve(TEMPLATES_DIR, safeId);
+    const assetsDir = path.resolve(templateDir, 'assets');
+    const resolvedPath = path.resolve(assetsDir, assetSubPath);
+
+    // Validación anti-path-traversal estricta
+    if (rawSubPath.includes('..') || assetSubPath.includes('..') || (!resolvedPath.startsWith(assetsDir + path.sep) && resolvedPath !== assetsDir)) {
+      return res.status(403).json(createApiResponse(false, null, 'ACCESS_DENIED', 'Acceso denegado: ruta fuera de assets'));
+    }
+
+    if (!fs.existsSync(resolvedPath) || fs.statSync(resolvedPath).isDirectory()) {
+      return res.status(404).json(createApiResponse(false, null, 'NOT_FOUND', 'Asset de plantilla no encontrado'));
+    }
+
+    res.sendFile(resolvedPath);
+  } catch (err) {
+    res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
   }
 });
 
