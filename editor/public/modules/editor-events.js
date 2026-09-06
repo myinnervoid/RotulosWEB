@@ -41,7 +41,16 @@ export const EDITOR_EVENTS = Object.freeze({
   AFTER_SAVE: 'editor:after:save',
 
   /** Error durante cualquier operación del editor */
-  ERROR_OCCURRED: 'editor:error'
+  ERROR_OCCURRED: 'editor:error',
+
+  /** Archivo CSS externo modificado en disco */
+  EXTERNAL_CSS_CHANGED: 'editor:external:css:changed',
+
+  /** Archivo JavaScript externo modificado en disco */
+  EXTERNAL_JS_CHANGED: 'editor:external:js:changed',
+
+  /** Archivo externo guardado desde el editor hacia el disco */
+  EXTERNAL_FILE_SAVED: 'editor:external:file:saved'
 });
 
 /**

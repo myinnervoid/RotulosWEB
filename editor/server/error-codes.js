@@ -54,6 +54,16 @@ const ERROR_CODES = {
     http: 404,
     description: 'No se encontró el archivo index.html en el directorio del proyecto activo.'
   },
+  FORBIDDEN_PATH: {
+    code: 'FORBIDDEN_PATH',
+    http: 403,
+    description: 'Acceso denegado: intento de Directory Traversal fuera del proyecto activo.'
+  },
+  INVALID_STATE: {
+    code: 'INVALID_STATE',
+    http: 400,
+    description: 'Estado del servidor o proyecto activo inválido.'
+  },
 
   // ── Lectura y escritura de página ─────────────────────────
   ASSETS_READ_FAILED: {

@@ -8,6 +8,27 @@
  */
 
 import { initEditor } from './editor-init.js';
+import { eventBus } from './event-bus.js';
+import { EDITOR_EVENTS } from './editor-events.js';
+import { startFileWatcher } from './file-watcher.js';
+
+// Conectar el watcher de sincronización continua cuando el editor esté listo
+eventBus.subscribe(EDITOR_EVENTS.EDITOR_READY, async () => {
+  try {
+    const res = await fetch('/api/current-project');
+    const json = await res.json();
+    if (json.success && json.data && json.data.projectPath) {
+      startFileWatcher(json.data.projectPath);
+    }
+  } catch (_) {}
+});
+
+// Reconectar watcher si se conmuta o carga un nuevo proyecto
+eventBus.subscribe(EDITOR_EVENTS.PROJECT_LOADED, (payload) => {
+  if (payload && payload.projectPath) {
+    startFileWatcher(payload.projectPath);
+  }
+});
 
 /**
  * Arranca el editor cuando GrapesJS esté disponible en window.

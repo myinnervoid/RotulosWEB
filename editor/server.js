@@ -232,7 +232,128 @@ app.use('/assets', (req, res, next) => {
   next();
 });
 
+// ── SSE Y MONITOREO DE CAMBIOS EN DISCO (Sincronización Bidireccional) ──
+let sseClients = [];
+let activeWatcher = null;
+let watcherDebounceTimer = null;
+
+function notifySSEClients(targetProject, file, content) {
+  const payload = JSON.stringify({
+    event: 'file-change',
+    data: { file, content }
+  });
+  sseClients.forEach(client => {
+    if (client.projectPath === targetProject) {
+      try {
+        client.res.write(`data: ${payload}\n\n`);
+      } catch (err) {
+        console.warn('[SSE] Error enviando a cliente:', err.message);
+      }
+    }
+  });
+}
+
+function startProjectWatcher(targetPath) {
+  if (activeWatcher) {
+    try { activeWatcher.close(); } catch (_) {}
+    activeWatcher = null;
+  }
+  if (!targetPath || !fs.existsSync(targetPath)) return;
+
+  try {
+    activeWatcher = fs.watch(targetPath, { recursive: true }, (eventType, filename) => {
+      if (!filename) return;
+      const normalized = filename.replace(/\\/g, '/');
+      if (normalized.includes('node_modules') || normalized.includes('.git') || normalized.includes('backups')) return;
+      const ext = path.extname(filename).toLowerCase();
+      if (!['.css', '.js'].includes(ext)) return;
+
+      const fullPath = path.join(targetPath, filename);
+      if (!fs.existsSync(fullPath)) return;
+
+      if (watcherDebounceTimer) clearTimeout(watcherDebounceTimer);
+      watcherDebounceTimer = setTimeout(() => {
+        try {
+          if (fs.existsSync(fullPath)) {
+            const content = fs.readFileSync(fullPath, 'utf8');
+            notifySSEClients(targetPath, normalized, content);
+          }
+        } catch (err) {
+          console.warn('[WATCHER] Error leyendo archivo modificado:', err.message);
+        }
+      }, 150);
+    });
+  } catch (err) {
+    console.warn('[WATCHER] No se pudo iniciar fs.watch en:', targetPath, err.message);
+  }
+}
+
+// Iniciar watcher en el proyecto activo al arrancar
+startProjectWatcher(projectPath);
+
 // ── ENDPOINTS DE LA API (ApiResponse<T>) ────────────────────
+
+// SSE: Conexión continua para recibir notificaciones de archivos modificados
+app.get('/api/watch', (req, res) => {
+  let targetPath = projectPath;
+  if (req.query.project) {
+    targetPath = path.resolve(req.query.project);
+    if (!fs.existsSync(targetPath)) {
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PATH.code, 'Ruta de proyecto inválida o inexistente'));
+    }
+  }
+
+  if (!fs.existsSync(targetPath)) {
+    return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PATH.code, 'Ruta de proyecto inválida'));
+  }
+
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive'
+  });
+
+  res.write(`data: ${JSON.stringify({ event: 'connected', project: targetPath })}\n\n`);
+
+  const clientId = Date.now() + Math.random();
+  sseClients.push({ id: clientId, res, projectPath: targetPath });
+
+  req.on('close', () => {
+    sseClients = sseClients.filter(c => c.id !== clientId);
+  });
+});
+
+// Guardado directo de archivos CSS/JS individuales con protección Path Traversal
+app.post('/api/save-file', (req, res) => {
+  try {
+    const { file, content, project } = req.body || {};
+    if (!file || typeof file !== 'string') {
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PATH.code, 'El parámetro "file" es obligatorio.'));
+    }
+    if (typeof content !== 'string') {
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PAYLOAD.code, 'El parámetro "content" debe ser texto.'));
+    }
+
+    const baseProject = (project && fs.existsSync(project)) ? path.resolve(project) : projectPath;
+    const cleanRel = file.replace(/^[/\\]+/, '').replace(/\.\./g, '');
+    const targetFile = path.resolve(baseProject, cleanRel);
+
+    const rel = path.relative(baseProject, targetFile);
+    if (rel.startsWith('..') || path.isAbsolute(rel)) {
+      return res.status(403).json(createApiResponse(false, null, ERROR_CODES.FORBIDDEN_PATH.code, 'Acceso denegado: Directory Traversal detectado.'));
+    }
+
+    const parentDir = path.dirname(targetFile);
+    if (!fs.existsSync(parentDir)) {
+      fs.mkdirSync(parentDir, { recursive: true });
+    }
+
+    fs.writeFileSync(targetFile, content, 'utf8');
+    return res.json(createApiResponse(true, { file: cleanRel, bytesWritten: Buffer.byteLength(content, 'utf8') }, null, 'Archivo guardado correctamente'));
+  } catch (err) {
+    return res.status(500).json(createApiResponse(false, null, ERROR_CODES.SAVE_FAILED.code, err.message));
+  }
+});
 
 // 0. Endpoints de Proyectos Dinámicos (Universal Editor)
 app.get('/api/current-project', (req, res) => {
@@ -289,6 +410,7 @@ app.post('/api/switch-project', (req, res) => {
     }
     projectPath = resolved;
     addRecentProject(resolved);
+    startProjectWatcher(resolved);
     console.log(`[PROYECTO] Conmutado a: ${projectPath}`);
     res.json(createApiResponse(true, { projectPath }, null, `Proyecto cambiado a ${path.basename(projectPath)}`));
   } catch (err) {
