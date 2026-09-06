@@ -139,24 +139,55 @@ describe('Backend Integration Suite — Contratos canónicos ApiResponse<T>', ()
   });
 
   it('POST /api/save serializa peticiones concurrentes mediante mutex sin race conditions', async () => {
-    const validHtml = '<div><h2>Prueba de Concurrencia</h2><p>Contenido concurrente</p></div>';
+    // 1. Obtener y respaldar la ruta del proyecto activo
+    const currentRes = await request(app).get('/api/current-project').set('Host', '127.0.0.1:5050');
+    const originalProjectPath = currentRes.body?.data?.projectPath;
 
-    // Disparar 3 peticiones de guardado paralelas simultáneas
-    const promises = [1, 2, 3].map(i =>
-      request(app)
-        .post('/api/save')
-        .set('Host', '127.0.0.1:5050')
-        .send({
-          html: `${validHtml} <!-- Paso ${i} -->`,
-          css: `p { color: ${i === 1 ? 'blue' : i === 2 ? 'green' : 'red'}; }`
-        })
-    );
+    // 2. Crear un directorio temporal aislado para la prueba
+    const fs = require('fs');
+    const path = require('path');
+    const os = require('os');
+    const testDir = path.join(os.tmpdir(), `rotulos-save-test-${Date.now()}`);
+    fs.mkdirSync(testDir, { recursive: true });
+    fs.writeFileSync(path.join(testDir, 'index.html'), '<!DOCTYPE html><html><body><h1>Test Inicial</h1></body></html>', 'utf8');
+    fs.writeFileSync(path.join(testDir, 'style.css'), 'body { margin: 0; }', 'utf8');
 
-    const results = await Promise.all(promises);
-    for (const res of results) {
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data).toHaveProperty('backup');
+    // Conmutar temporalmente el proyecto activo
+    await request(app)
+      .post('/api/switch-project')
+      .set('Host', '127.0.0.1:5050')
+      .send({ newProjectPath: testDir });
+
+    try {
+      const validHtml = '<div><h2>Prueba de Concurrencia</h2><p>Contenido concurrente</p></div>';
+
+      // Disparar 3 peticiones de guardado paralelas simultáneas
+      const promises = [1, 2, 3].map(i =>
+        request(app)
+          .post('/api/save')
+          .set('Host', '127.0.0.1:5050')
+          .send({
+            html: `${validHtml} <!-- Paso ${i} -->`,
+            css: `p { color: ${i === 1 ? 'blue' : i === 2 ? 'green' : 'red'}; }`
+          })
+      );
+
+      const results = await Promise.all(promises);
+      for (const res of results) {
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data).toHaveProperty('backup');
+      }
+    } finally {
+      // 3. Restaurar invariablemente el proyecto activo original
+      if (originalProjectPath && fs.existsSync(originalProjectPath)) {
+        await request(app)
+          .post('/api/switch-project')
+          .set('Host', '127.0.0.1:5050')
+          .send({ newProjectPath: originalProjectPath });
+      }
+      // Limpiar directorio temporal de pruebas
+      try { fs.rmSync(testDir, { recursive: true, force: true }); } catch {}
     }
   });
 });
