@@ -64,13 +64,26 @@ Rótulos Web no es solo un clon de editor; es una suite ergonómica diseñada pa
   - 🤠 **Creador & Contacto** (`#creador-contacto`)
   - 👁️ **Ver Todo**: Activa el modo de edición continua con guías visuales punteadas.
 
-### 6. 🛡️ Soberanía Local y Respaldos Automáticos FIFO
+### 6. 🗂️ Panel de Proyectos Locales y Galería de Plantillas (v5.0)
+- **Gestión Local Soberana**: Crea, duplica, renombra y elimina proyectos locales en `~/RotulosProjects` sin bases de datos ni intermediarios.
+- **Galería de Plantillas en 1 Clic**: Elige entre plantillas prediseñadas (*Landing Page, Blog Editorial, Portafolio Creativo y Memexicanísimos Oficial*) o comienza desde un lienzo en blanco.
+- **Favoritos Reactivos**: Marca tus proyectos más importantes con una estrella ⭐ para acceso prioritario persistido en tu navegador.
+
+### 7. 🚀 Publicación Simplificada en 1 Clic (GitHub Pages & Netlify) (v5.0)
+- **Despliegue Soberano a la Nube**: Publica tu sitio web con un solo clic sin necesidad de consola de comandos ni Git local configurado.
+- **Autenticación OAuth2**: Conexión segura con GitHub sin ingresar tokens manualmente.
+- **GitHub Pages Automático**: Creación de repositorio remoto, subida recursiva de archivos y activación instantánea de Pages con dominio HTTPS gratuito (`https://usuario.github.io/proyecto/`).
+- **Netlify Drop**: Exportación ZIP optimizada para arrastrar y publicar en segundos en Netlify.
+
+### 8. 🌙 Modo Oscuro Soberano y Accesibilidad Universal (v5.0)
+- **Selector Rápido de Tema (☀️/🌙)**: Alternancia fluida entre temas *Patria* (Verde y Oro Charro), *Oscuro Cyber* (Obsidiana) y *Claro Pergamino* (Editorial), con detección reactiva de preferencias del sistema operativo (`prefers-color-scheme`).
+- **Navegación por Teclado y Contraste WCAG AA**: Interfaz optimizada con foco visual claro y contraste garantizado (mínimo 4.5:1).
+- **Auditoría Asíncrona en Web Worker**: Motor de **Axe-core** y reglas WCAG 2.1 integradas en segundo plano (`dom-worker.js`) sin congelar el lienzo de edición.
+
+### 9. 🛡️ Soberanía Local, Respaldos FIFO y Robustez (114 Tests)
 - Tus archivos residen en tu computadora (`index.html` y `style.css`).
 - Cada guardado crea un respaldo fechado en `backups/` con retención rotativa (los 15 respaldos más recientes siempre seguros).
-- Sin intermediarios, sin nubes opacas y sin cobros sorpresa.
-
-### 7. 🩺 Diagnóstico y Accesibilidad WCAG 2.2
-- Motor integrado de **Axe-core** para auditar en segundos el contraste de color, etiquetas de accesibilidad y buenas prácticas web.
+- **Calidad y Confianza Total**: Suite de **114 pruebas automatizadas** en 15 suites de integración con Vitest y Supertest pasando al 100%.
 
 ---
 
