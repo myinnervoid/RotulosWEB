@@ -13,6 +13,7 @@ import { getErrorMessage } from './error-messages.js';
 import { getEditorInstance } from './editor-init.js';
 import { eventBus } from './event-bus.js';
 import { EDITOR_EVENTS } from './editor-events.js';
+import { workerManager } from './worker-manager.js';
 
 /**
  * Limpia el HTML del editor de atributos internos de GrapesJS.
@@ -464,4 +465,88 @@ export function setupScreenshotModal(editorInstance) {
       }
     });
   }
+}
+
+/**
+ * Empaqueta y descarga el proyecto completo en formato ZIP sin bloquear la UI
+ * usando un Web Worker secundario con fflate.
+ * @param {string} [projectPath] - Ruta opcional del proyecto
+ * @param {Array<{ path: string, content: string|Uint8Array }>} [customFiles] - Archivos opcionales
+ * @returns {Promise<Blob>}
+ */
+export async function downloadProjectAsZip(projectPath = '', customFiles = null) {
+  try {
+    let files = customFiles;
+
+    if (!files || !files.length) {
+      const ed = getEditorInstance();
+      const cleanHtml = ed ? getSanitizedHtml(ed.getHtml()) : '<!DOCTYPE html><html><body></body></html>';
+      const cssContent = ed ? ed.getCss() : '';
+
+      const fullHtml = `<!DOCTYPE html>\n<html lang="es">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Memexicanisimos Export</title>\n  <link rel="stylesheet" href="css/styles.css">\n</head>\n<body>\n${cleanHtml}\n</body>\n</html>`;
+
+      files = [
+        { path: 'index.html', content: fullHtml },
+        { path: 'css/styles.css', content: cssContent || '/* Estilos exportados */\n' }
+      ];
+    }
+
+    eventBus.publish(EDITOR_EVENTS.ZIP_PROGRESS, { percent: 10, message: 'Iniciando compresión en Web Worker...' });
+
+    // Instanciar Worker
+    workerManager.createWorker('zip', '/workers/zip-worker.js');
+
+    const resultBuffer = await workerManager.sendTask(
+      'zip',
+      'compress-zip',
+      { files },
+      (progress) => {
+        eventBus.publish(EDITOR_EVENTS.ZIP_PROGRESS, progress);
+      }
+    );
+
+    const blob = new Blob([resultBuffer], { type: 'application/zip' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'proyecto_memexicanisimos.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    eventBus.publish(EDITOR_EVENTS.ZIP_COMPLETED, { success: true, sizeBytes: blob.size });
+    showToast('🎉 ¡Proyecto descargado en ZIP correctamente!');
+    return blob;
+  } catch (error) {
+    eventBus.publish(EDITOR_EVENTS.ZIP_ERROR, { message: error.message });
+    showToast('Error al generar ZIP: ' + error.message, true);
+    console.error('[ZipWorker] Error en compresión:', error);
+    throw error;
+  }
+}
+
+/**
+ * Configura el botón de exportar ZIP si existe en el DOM
+ * @param {object} [editor]
+ */
+export function setupZipExport(editor) {
+  const btnExportZip = document.getElementById('btn-export-zip');
+  if (!btnExportZip) return;
+
+  btnExportZip.addEventListener('click', async () => {
+    document.dispatchEvent(new Event('drawer:close'));
+    const originalText = btnExportZip.innerHTML;
+    btnExportZip.disabled = true;
+    btnExportZip.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Comprimiendo ZIP...</span>';
+
+    try {
+      await downloadProjectAsZip();
+    } catch {
+      // Error ya manejado y reportado por evento y toast
+    } finally {
+      btnExportZip.disabled = false;
+      btnExportZip.innerHTML = originalText;
+    }
+  });
 }

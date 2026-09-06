@@ -16,7 +16,8 @@ import {
 } from './ui-panels.js';
 import {
   setupSaveButton, setupSaveShortcut, setupPublishButton,
-  setupCodeInspector, setupStatsModal, setupScreenshotModal
+  setupCodeInspector, setupStatsModal, setupScreenshotModal,
+  setupZipExport
 } from './save-publish.js';
 import { loadRecentProjects, setupProjectSelector } from './project-manager.js';
 import { setupLangSelector } from './i18n.js';
@@ -281,6 +282,7 @@ export async function initEditor() {
     setupCodeInspector(editor);
     setupStatsModal(editor);
     setupScreenshotModal(editor);
+    setupZipExport(editor);
 
     // ── 8. Idioma ─────────────────────────────────────────
     setupLangSelector();

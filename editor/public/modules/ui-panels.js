@@ -8,6 +8,9 @@
 import { showToast } from './toast.js';
 import { t } from './i18n.js';
 import { showConfirmDialog } from './dialog.js';
+import { workerManager } from './worker-manager.js';
+import { eventBus } from './event-bus.js';
+import { EDITOR_EVENTS } from './editor-events.js';
 
 const panelIds = ['noticias-news', 'perfiles', 'redes-sociales', 'nosotros-apoyo', 'creador-contacto'];
 
@@ -1033,6 +1036,25 @@ export function setupDiagnosticsModal(editor) {
       const integrity = await window.MemexDiagnostics.runIntegritySuite(editor);
       const a11ySeo = await window.MemexDiagnostics.runA11yAndSeoSuite(editor);
 
+      try {
+        const rawHtml = editor && typeof editor.getHtml === 'function' ? editor.getHtml() : '';
+        if (rawHtml && typeof Worker !== 'undefined') {
+          const workerResult = await runAccessibilityAudit(rawHtml);
+          if (workerResult && Array.isArray(workerResult.issues)) {
+            workerResult.issues.forEach(iss => {
+              a11ySeo.results.push({
+                category: iss.category || 'a11y',
+                name: `[Web Worker] ${iss.target || 'DOM'}`,
+                status: iss.severity === 'FAIL' ? 'FAIL' : (iss.severity === 'WARN' ? 'WARN' : 'PASS'),
+                message: iss.message
+              });
+            });
+          }
+        }
+      } catch (wErr) {
+        console.warn('[Diagnostics] DOM Worker opcional no disponible:', wErr.message);
+      }
+
       const combinedScore = Math.round((integrity.score * 0.4) + (a11ySeo.a11yScore * 0.3) + (a11ySeo.seoScore * 0.3));
       scoreNum.textContent = combinedScore;
 
@@ -1088,3 +1110,26 @@ export function setupDiagnosticsModal(editor) {
     });
   });
 }
+
+/**
+ * Ejecuta una auditoría sintáctica y de accesibilidad en segundo plano mediante dom-worker.js
+ * @param {string} html
+ * @returns {Promise<{ stats: object, issues: Array<object> }>}
+ */
+export async function runAccessibilityAudit(html) {
+  try {
+    eventBus.publish(EDITOR_EVENTS.AUDIT_PROGRESS, { percent: 10, message: 'Iniciando Worker de diagnóstico DOM...' });
+    workerManager.createWorker('dom', '/workers/dom-worker.js');
+
+    const result = await workerManager.sendTask('dom', 'analyze-dom', { html }, (progress) => {
+      eventBus.publish(EDITOR_EVENTS.AUDIT_PROGRESS, progress);
+    });
+
+    eventBus.publish(EDITOR_EVENTS.AUDIT_COMPLETED, result);
+    return result;
+  } catch (error) {
+    eventBus.publish(EDITOR_EVENTS.AUDIT_ERROR, { message: error.message });
+    throw error;
+  }
+}
+

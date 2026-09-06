@@ -50,7 +50,25 @@ export const EDITOR_EVENTS = Object.freeze({
   EXTERNAL_JS_CHANGED: 'editor:external:js:changed',
 
   /** Archivo externo guardado desde el editor hacia el disco */
-  EXTERNAL_FILE_SAVED: 'editor:external:file:saved'
+  EXTERNAL_FILE_SAVED: 'editor:external:file:saved',
+
+  /** Progreso en la compresión del ZIP del proyecto */
+  ZIP_PROGRESS: 'editor:zip:progress',
+
+  /** Compresión ZIP completada exitosamente */
+  ZIP_COMPLETED: 'editor:zip:completed',
+
+  /** Error durante la generación del ZIP */
+  ZIP_ERROR: 'editor:zip:error',
+
+  /** Progreso en el análisis DOM en segundo plano */
+  AUDIT_PROGRESS: 'editor:audit:progress',
+
+  /** Auditoría DOM completada exitosamente */
+  AUDIT_COMPLETED: 'editor:audit:completed',
+
+  /** Error durante la auditoría DOM */
+  AUDIT_ERROR: 'editor:audit:error'
 });
 
 /**

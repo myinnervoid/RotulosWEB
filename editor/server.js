@@ -178,6 +178,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/locales', express.static(path.join(__dirname, 'locales')));
 app.use('/vendor/grapesjs', express.static(path.join(__dirname, 'node_modules/grapesjs/dist')));
 app.use('/vendor/grapesjs-blocks-basic', express.static(path.join(__dirname, 'node_modules/grapesjs-blocks-basic/dist')));
+app.use('/vendor/fflate', express.static(path.join(__dirname, 'node_modules/fflate/umd')));
 
 // Servir archivos estáticos relativos del proyecto actual (ilustraciones, imagenes, fuentes, estilos, etc.)
 app.use((req, res, next) => {
