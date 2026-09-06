@@ -8,19 +8,65 @@
 Inspirado en la centenaria tradición gráfica de los **maestros rotulistas populares de México** —aquellos artesanos que con pincel, pulso y colores vibrantes visten las fachadas de taquerías, fondas, estéticas, bardas de baile y sonideros—, **Rótulos Web** es una herramienta de maquetación visual libre y soberana que te permite embellecer, componer y editar sitios web completos en tiempo real.
 
 ### 💡 El problema que resuelve:
-Si generaste tu sitio web con herramientas de Inteligencia Artificial (Claude, ChatGPT, v0, Cursor o Bolt) o descargaste una plantilla, muchas veces necesitas cambiar un simple texto, ajustar un encabezado o probar colores. Pedirle a la IA que modifique un texto suele cambiarte la estructura del código, y abrir un entorno de desarrollo tradicional resulta tosco y pesado. **Con Rótulos Web solo abres tu página, das un clic en el elemento y cambias el texto al instante.**
-
-Incluye como **plantilla predeterminada la web oficial de Memexicanísimos**, permitiendo a cualquier creador o desarrollador contar con un punto de partida completo, responsivo y con efectos de primer nivel, sin necesidad de comenzar desde un lienzo en blanco.
+Si generaste tu sitio web con herramientas de Inteligencia Artificial (Claude, ChatGPT, v0, Cursor, Bolt) o descargaste una plantilla, muchas veces necesitas cambiar un simple texto, ajustar un encabezado o probar colores. Pedirle a la IA que modifique un texto suele cambiarte la estructura del código, y abrir un entorno de desarrollo tradicional resulta tosco y pesado. **Con Rótulos Web solo abres tu página, das un clic en el elemento y cambias el texto al instante.**
 
 ---
 
-## ✨ Características Principales
-- 🌮 **Plantilla Oficial Memexicanísimos Integrada**: Estructura de alta gama lista para personalizar, modificar o vaciar.
-- 🎨 **Paleta de Rótulo Patrio**: Selector cromático visual con cuentagotas nativo, memoria de colores recientes y paleta rápida al estilo de los rótulos tradicionales.
-- ⚡ **Soberanía y Edición Local**: Funciona 100% en tu propia computadora; tus archivos `index.html` y `style.css` se editan y guardan directamente en tu disco sin depender de nubes de pago.
-- 🛡️ **Rotación Automática de Respaldos (FIFO)**: Cada vez que guardas, Rótulos Web crea un respaldo numerado para que nunca pierdas tu trabajo.
-- 📱 **Visualizador Multidispositivo**: Alterna en un clic entre vistas de Escritorio, Tableta y Celular.
-- 🔌 **Constructor Visual Basado en GrapesJS**: Añade secciones, botones, tipografías patrias, animaciones y modales con arrastrar y soltar.
+## 🎯 El Gran Reto Memexicanísimo: ¡Edita esta web y rómpela!
+
+> **"¿Te acuerdas de los memes clásicos de *'Arréglenme esta foto para que no se vea el señor del fondo'* y la raza terminaba haciendo obras maestras del mame? ¡Esto es exactamente lo mismo, pero a nivel página web completa!"**
+
+**Memexicanísimos** reta formalmente a diseñadores web, desarrolladores, creadores de contenido y maestros del humor digital a tomar la web oficial de Memexicanísimos y transformarla por completo usando Rótulos Web:
+
+1. **Hazla tuya:** Cambia las noticias satíricas por las de tu colonia o tu escuela, reemplaza las imágenes por los memes más pesados que tengas y dale tu toque con la paleta de colores de rótulo.
+2. **Arregla o desbarata:** Arrastra botones charros, alertas tricolores o cajas con glassmorphism; pon a prueba qué tan lejos puedes llevar el diseño sin tocar una sola línea de código.
+3. **Descarga y comparte:** Presiona *Guardar*, toma una captura o descarga tu sitio y compártelo en redes sociales etiquetando a **@memexicanisimos**.
+4. **Viralidad y Comunidad:** Los mejores rediseños y las versiones más creativas o chuscas se presentarán en nuestras redes oficiales (TikTok, YouTube y Facebook), demostrando que la comunidad mexicana tiene ingenio de sobra para el diseño web.
+
+> 🚀 **Nota de Infraestructura y Escalabilidad:**  
+> Por ahora, el proyecto y la plantilla se distribuyen y ejecutan de manera **100% gratuita y libre en GitHub**. Si la cantidad de usuarios y el tráfico viral superan lo que GitHub nos permite servir cómodamente, consideraremos habilitar una versión de servicio web en la nube con hosting compartido. Mientras tanto: ¡es tuyo, es libre y corre en tu máquina!
+
+---
+
+## ⚡ Funcionalidades Clave de Rótulos Web
+
+Rótulos Web no es solo un clon de editor; es una suite ergonómica diseñada para trabajar a velocidad relámpago:
+
+### 1. 🧱 Caja de Bloques Memexicanísimos (Arrastrar y Soltar)
+- **Componentes Listos:** Tarjetas de noticias con cabecera en vivo, vitrinas de software (.io), banners de alerta comunitaria, tablas de atajos estilo `<kbd>`, botones dorados charros y badges tricolores.
+- **Auto-selección e Inserción Limpia:** Los bloques están diseñados para nunca colapsar al soltarse; caen con espaciado óptimo, altura real y se auto-seleccionan para edición inmediata.
+
+### 2. 🎨 Inspector de Estilos con Paleta de Rótulo Rápida
+- **Paleta Popular a 1 Clic:** Colores patrios predeterminados (*Verde Bandera #006847, Oro Charro #D4AF37, Rojo Bandera #CE1126, Verde Neón #55EBB2, Blanco Hueso #F8F9FA*).
+- **Traductor de Colores en Lenguaje Natural:** Escribe palabras como `"oro"`, `"verde"`, `"azul cielo"` o `"naranja pastor"` y el editor las convierte automáticamente a su código hexadecimal.
+- **Historial de Colores Recientes:** Los tonos que vas usando se guardan en la barra inferior para reutilizarlos con un toque.
+- **Control CSS Total:** Dimensiones, márgenes, rellenos, tipografía, bordes redondeados y alineación Flexbox.
+
+### 3. 🌲 Árbol de Capas Jerárquico (DOM Tree)
+- Navegación visual multinivel para inspeccionar elementos padre, hijos y hermanos.
+- Identificación por iconos y colores semánticos (azul para contenedores, verde para botones, dorado para textos, púrpura para imágenes).
+- Ocultar o mostrar bloques temporalmente con el icono de ojo (`👁️`).
+
+### 4. 📝 Inspector de Propiedades Universales (Traits)
+- **Edición reactiva tecla por tecla:** Al seleccionar cualquier botón, enlace o título, escribe en el campo *"📝 Texto Visible"* y verás el cambio reflejarse en tiempo real en la página.
+- Configuración de URLs (`href`), comportamiento de apertura (`_self` o `_blank`) y textos flotantes de ayuda (`title`).
+
+### 5. 🧭 Navegador de Secciones (Left Dock)
+- Barra de acceso directo para saltar rápidamente entre las secciones de la página:
+  - 📰 **Noticias & Humor** (`#noticias-news`)
+  - 🛠️ **Suite de Apps** (`#perfiles`)
+  - 📱 **Redes & Live** (`#redes-sociales`)
+  - 🤝 **Nosotros & Filosofía** (`#nosotros-apoyo`)
+  - 🤠 **Creador & Contacto** (`#creador-contacto`)
+  - 👁️ **Ver Todo**: Activa el modo de edición continua con guías visuales punteadas.
+
+### 6. 🛡️ Soberanía Local y Respaldos Automáticos FIFO
+- Tus archivos residen en tu computadora (`index.html` y `style.css`).
+- Cada guardado crea un respaldo fechado en `backups/` con retención rotativa (los 15 respaldos más recientes siempre seguros).
+- Sin intermediarios, sin nubes opacas y sin cobros sorpresa.
+
+### 7. 🩺 Diagnóstico y Accesibilidad WCAG 2.2
+- Motor integrado de **Axe-core** para auditar en segundos el contraste de color, etiquetas de accesibilidad y buenas prácticas web.
 
 ---
 
@@ -48,7 +94,7 @@ http://localhost:5050
 ```
 
 ### Comandos del Gestor
-- `./editor.sh start [ruta-opcional]` : Inicia el servidor de edición.
+- `./editor.sh start [ruta-opcional]` : Inicia el servidor de edición sobre la carpeta elegida.
 - `./editor.sh stop`                 : Detiene el servidor y libera el puerto 5050.
 - `./editor.sh restart`              : Reinicia el editor aplicando los cambios más recientes.
 - `./editor.sh status`               : Muestra el estado del servidor y consumo de recursos.
