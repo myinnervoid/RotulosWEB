@@ -1582,6 +1582,7 @@ async function initEditor() {
         const linkType = editor.DomComponents.getType('link');
         if (linkType) {
           editor.DomComponents.addType('link', {
+            extend: 'link',
             model: {
               defaults: {
                 ...linkType.model.prototype.defaults,
@@ -1617,7 +1618,6 @@ async function initEditor() {
                 ]
               },
               init() {
-                linkType.model.prototype.init.apply(this, arguments);
                 this.on('change:text_content', () => {
                   const newText = this.get('text_content');
                   if (typeof newText === 'string') {

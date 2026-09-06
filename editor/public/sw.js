@@ -1,4 +1,4 @@
-const CACHE_NAME = 'memex-editor-v1';
+const CACHE_NAME = 'rotulos-editor-v3.3.2';
 const urlsToCache = [
   '/',
   '/index.html',
