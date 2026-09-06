@@ -2552,52 +2552,176 @@ async function switchProject(targetPath) {
 
 function setupProjectSelector() {
   const btnOpenProject = document.getElementById('btn-open-project');
-  if (!btnOpenProject) return;
+  const btnImportHtml = document.getElementById('btn-import-html');
+  const btnResetTemplate = document.getElementById('btn-reset-template');
 
-  btnOpenProject.addEventListener('click', async () => {
-    try {
-      if (window.showDirectoryPicker) {
-        const dirHandle = await window.showDirectoryPicker();
-        const folderName = dirHandle.name;
-        const userPath = prompt(
-          `📁 Carpeta seleccionada: "${folderName}"\n\nIngresa o confirma la ruta absoluta en tu disco:\n(Ejemplo: /home/usuario/mi-sitio-web)`,
-          folderName.startsWith('/') ? folderName : `/${folderName}`
-        );
-        if (userPath && userPath.trim()) {
-          await switchProject(userPath.trim());
-        }
-      } else {
-        throw new Error('Fallback required');
-      }
-    } catch (e) {
-      if (e.name === 'AbortError') return;
-      // Fallback: input file con webkitdirectory
+  // 1. CARGAR ARCHIVO INDEX.HTML DIRECTO (PC O CELULAR SIN CRASHEAR)
+  if (btnImportHtml) {
+    btnImportHtml.addEventListener('click', () => {
       const input = document.createElement('input');
       input.type = 'file';
-      input.webkitdirectory = true;
-      input.multiple = true;
+      input.accept = '.html,.htm';
       input.style.display = 'none';
       document.body.appendChild(input);
 
-      input.addEventListener('change', async (ev) => {
-        const files = ev.target.files;
-        if (files && files.length > 0) {
-          const sample = files[0];
-          const folderName = sample.webkitRelativePath.split('/')[0];
+      input.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const rawContent = ev.target.result;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(rawContent, 'text/html');
+
+            // Extraer estilos <style>
+            let extractedCss = '';
+            doc.querySelectorAll('style').forEach(s => {
+              extractedCss += s.textContent + '\n';
+            });
+
+            // Extraer contenido del body o crudo
+            const bodyContent = doc.body ? doc.body.innerHTML : rawContent;
+
+            if (window.editor) {
+              editor.setComponents(bodyContent);
+              if (extractedCss.trim()) {
+                editor.setStyle(extractedCss);
+              }
+              editor.refresh();
+            }
+
+            const activeNameEl = document.getElementById('active-project-name');
+            if (activeNameEl) {
+              activeNameEl.textContent = `${file.name} (Importado)`;
+            }
+
+            // Cerrar menú drawer
+            const drawerBackdrop = document.getElementById('drawer-backdrop');
+            const toolsDrawer = document.getElementById('tools-drawer');
+            if (drawerBackdrop && toolsDrawer) {
+              drawerBackdrop.classList.remove('open');
+              toolsDrawer.classList.remove('open');
+            }
+
+            showToast(`🎉 ¡${file.name} cargado en el editor! Ya puedes modificarlo y guardarlo.`);
+          } catch (err) {
+            showToast('Error al leer el archivo HTML: ' + err.message, true);
+          } finally {
+            if (input.parentNode) input.parentNode.removeChild(input);
+          }
+        };
+
+        reader.readAsText(file);
+      });
+
+      input.click();
+    });
+  }
+
+  // 2. RESTAURAR PLANTILLA OFICIAL DE MEMEXICANÍSIMOS
+  if (btnResetTemplate) {
+    btnResetTemplate.addEventListener('click', async () => {
+      if (!confirm('¿Deseas recargar la plantilla oficial de Memexicanísimos en el editor?')) return;
+      try {
+        const [tHtmlRes, tCssRes] = await Promise.all([
+          fetch('./templates/memexicanisimos/index.html'),
+          fetch('./templates/memexicanisimos/style.css')
+        ]);
+        if (tHtmlRes.ok && tCssRes.ok) {
+          const h = await tHtmlRes.text();
+          const c = await tCssRes.text();
+          if (window.editor) {
+            editor.setComponents(h);
+            editor.setStyle(c);
+            editor.refresh();
+          }
+          const activeNameEl = document.getElementById('active-project-name');
+          if (activeNameEl) {
+            activeNameEl.textContent = 'Memexicanísimos (Plantilla Oficial)';
+          }
+          const drawerBackdrop = document.getElementById('drawer-backdrop');
+          const toolsDrawer = document.getElementById('tools-drawer');
+          if (drawerBackdrop && toolsDrawer) {
+            drawerBackdrop.classList.remove('open');
+            toolsDrawer.classList.remove('open');
+          }
+          showToast('🇲🇽 ¡Plantilla oficial de Memexicanísimos restaurada!');
+        }
+      } catch (err) {
+        showToast('Error al restaurar plantilla: ' + err.message, true);
+      }
+    });
+  }
+
+  // 3. SOPORTE ARRASTRAR Y SOLTAR ARCHIVO HTML (DRAG & DROP)
+  window.addEventListener('dragover', (e) => e.preventDefault());
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const files = e.dataTransfer && e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.name.endsWith('.html') || file.name.endsWith('.htm')) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          if (window.editor) {
+            editor.setComponents(ev.target.result);
+            editor.refresh();
+          }
+          showToast(`🎉 ¡${file.name} cargado mediante arrastre!`);
+        };
+        reader.readAsText(file);
+      }
+    }
+  });
+
+  // 4. ABRIR CARPETA COMPLETA (MODO LOCAL CON NODE)
+  if (btnOpenProject) {
+    btnOpenProject.addEventListener('click', async () => {
+      try {
+        if (window.showDirectoryPicker) {
+          const dirHandle = await window.showDirectoryPicker();
+          const folderName = dirHandle.name;
           const userPath = prompt(
-            `📁 Carpeta seleccionada: "${folderName}"\n\nIngresa la ruta absoluta completa para que el servidor local pueda acceder a los archivos:\n(Ejemplo: /home/usuario/mi-sitio-web)`,
+            `📁 Carpeta seleccionada: "${folderName}"\n\nIngresa o confirma la ruta absoluta en tu disco:\n(Ejemplo: /home/usuario/mi-sitio-web)`,
             folderName.startsWith('/') ? folderName : `/${folderName}`
           );
           if (userPath && userPath.trim()) {
             await switchProject(userPath.trim());
           }
+        } else {
+          throw new Error('Fallback required');
         }
-        document.body.removeChild(input);
-      });
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.webkitdirectory = true;
+        input.multiple = true;
+        input.style.display = 'none';
+        document.body.appendChild(input);
 
-      input.click();
-    }
-  });
+        input.addEventListener('change', async (ev) => {
+          const files = ev.target.files;
+          if (files && files.length > 0) {
+            const sample = files[0];
+            const folderName = sample.webkitRelativePath.split('/')[0];
+            const userPath = prompt(
+              `📁 Carpeta seleccionada: "${folderName}"\n\nIngresa la ruta absoluta completa para que el servidor local pueda acceder a los archivos:\n(Ejemplo: /home/usuario/mi-sitio-web)`,
+              folderName.startsWith('/') ? folderName : `/${folderName}`
+            );
+            if (userPath && userPath.trim()) {
+              await switchProject(userPath.trim());
+            }
+          }
+          document.body.removeChild(input);
+        });
+
+        input.click();
+      }
+    });
+  }
 }
 
 function startEditorApp() {
