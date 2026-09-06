@@ -2140,14 +2140,49 @@ async function initEditor() {
       updatePublishUI(publishState);
     });
 
-    // 15. Toggle Sidebar
+    // 15. Toggle Sidebar & Soporte Responsivo Móvil
     const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
     const sidebar = document.getElementById('editor-sidebar');
-    btnToggleSidebar.addEventListener('click', () => {
+    const fabMobile = document.getElementById('btn-fab-mobile');
+    const btnCloseSidebarMobile = document.getElementById('btn-close-sidebar-mobile');
+
+    // En pantallas móviles (< 768px), arrancar con el panel colapsado para mostrar el lienzo completo
+    if (window.innerWidth <= 768) {
+      sidebar.classList.add('collapsed');
+      if (fabMobile) fabMobile.style.display = 'flex';
+    }
+
+    const toggleSidebarState = () => {
       sidebar.classList.toggle('collapsed');
-      btnToggleSidebar.classList.toggle('active');
-      editor.refresh();
-    });
+      const isCollapsed = sidebar.classList.contains('collapsed');
+      btnToggleSidebar.classList.toggle('active', !isCollapsed);
+      if (fabMobile && window.innerWidth <= 768) {
+        fabMobile.style.display = isCollapsed ? 'flex' : 'none';
+      }
+      setTimeout(() => editor.refresh(), 100);
+    };
+
+    btnToggleSidebar.addEventListener('click', toggleSidebarState);
+
+    if (fabMobile) {
+      fabMobile.addEventListener('click', () => {
+        sidebar.classList.remove('collapsed');
+        btnToggleSidebar.classList.add('active');
+        fabMobile.style.display = 'none';
+        setTimeout(() => editor.refresh(), 100);
+      });
+    }
+
+    if (btnCloseSidebarMobile) {
+      btnCloseSidebarMobile.addEventListener('click', () => {
+        sidebar.classList.add('collapsed');
+        btnToggleSidebar.classList.remove('active');
+        if (fabMobile && window.innerWidth <= 768) {
+          fabMobile.style.display = 'flex';
+        }
+        setTimeout(() => editor.refresh(), 100);
+      });
+    }
 
     // 16. Modo Vista Previa
     const btnPreview = document.getElementById('btn-preview');

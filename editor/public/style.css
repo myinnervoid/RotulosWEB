@@ -2305,5 +2305,228 @@ body {
   background: repeating-conic-gradient(#666 0% 25%, #222 0% 50%) 50% / 6px 6px !important;
 }
 
+/* ==========================================================
+   📱 ADAPTACIÓN RESPONSIVA MÓVIL & TABLET (Rótulos Web)
+   ========================================================== */
+
+/* Botón Flotante Móvil (FAB) */
+.btn-fab-mobile {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 99;
+  background: linear-gradient(135deg, var(--oro-charro), var(--oro-brillante));
+  color: #111;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5), 0 2px 8px rgba(0,0,0,0.8);
+  cursor: pointer;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-fab-mobile:active {
+  transform: scale(0.94);
+}
+
+.btn-close-sidebar-mobile {
+  display: none;
+  margin-left: auto;
+  color: #EF4444 !important;
+  font-size: 1rem;
+}
+
+/* ── TABLETS (769px a 1024px) ── */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-w: 290px;
+    --dock-width: 52px;
+  }
+
+  .top-toolbar {
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .btn-save span,
+  .btn-publish span,
+  .btn-preview-toggle span {
+    display: none;
+  }
+
+  .btn-save, .btn-publish, .btn-preview-toggle {
+    padding: 7px 12px !important;
+  }
+}
+
+/* ── MÓVILES (Menos de 768px) ── */
+@media (max-width: 768px) {
+  .btn-fab-mobile {
+    display: flex;
+  }
+
+  .btn-close-sidebar-mobile {
+    display: inline-flex;
+  }
+
+  /* Barra Superior Compacta */
+  .top-toolbar {
+    height: 48px;
+    padding: 0 8px;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .top-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .badge-editor {
+    display: none;
+  }
+
+  .brand-name {
+    font-size: 0.88rem;
+  }
+
+  /* Ocultar selector de dispositivos en móvil para no saturar */
+  .device-switcher {
+    display: none !important;
+  }
+
+  .history-controls {
+    gap: 2px;
+  }
+
+  .btn-icon-tool {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  /* Acciones de la barra */
+  .toolbar-actions {
+    gap: 5px;
+  }
+
+  .btn-action {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .btn-preview-toggle span,
+  .btn-publish span {
+    display: none;
+  }
+
+  .btn-save {
+    padding: 6px 12px !important;
+  }
+  .btn-save span {
+    font-size: 0.75rem;
+  }
+
+  /* Ocultar botón de shutdown local en móvil */
+  .btn-shutdown {
+    display: none !important;
+  }
+
+  /* Layout principal en móvil */
+  .editor-layout {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 48px);
+    overflow: hidden;
+  }
+
+  /* Lienzo a pantalla completa */
+  #gjs-container {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  /* Dock Izquierdo flotante/colapsado */
+  .left-dock {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 90;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.8);
+    transition: transform 0.25s ease;
+  }
+
+  .left-dock.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Sidebar Derecho: Drawer Flotante Deslizable */
+  .editor-sidebar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 92vw !important;
+    max-width: 360px !important;
+    min-width: 0 !important;
+    z-index: 120;
+    box-shadow: -8px 0 35px rgba(0, 0, 0, 0.85);
+    background: var(--bg-surface);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .editor-sidebar.collapsed {
+    transform: translateX(100%) !important;
+    width: 92vw !important;
+    display: flex !important;
+  }
+
+  .sidebar-resizer {
+    display: none; /* No redimensionar arrastrando en táctil */
+  }
+
+  /* Pestañas del sidebar */
+  .sidebar-tabs {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .sidebar-tab-btn {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+
+  .btn-wide-toggle {
+    display: none; /* No necesario en móvil */
+  }
+
+  /* Bloques en 2 columnas táctiles */
+  .gjs-blocks-c {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+
+  .gjs-block {
+    width: 100% !important;
+    min-height: 75px !important;
+    margin: 0 !important;
+    padding: 10px 6px !important;
+  }
+
+  .gjs-block-label {
+    font-size: 0.72rem !important;
+  }
+}
+
+
 
 
