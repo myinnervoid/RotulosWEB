@@ -596,6 +596,116 @@ async function initEditor() {
 
     // 4. Bloques Oficiales de Rótulos Web (Memexicanísimos)
     const bm = editor.BlockManager;
+
+    // Garantizar que la categoría "Estructura & Básicos" SIEMPRE esté presente
+    const catBasicos = { id: 'basicos', label: 'Estructura & Básicos', open: true };
+    if (!bm.get('column1')) {
+      bm.add('column1', {
+        label: '1 Columna',
+        category: catBasicos,
+        select: true,
+        activate: true,
+        media: '<i class="fas fa-square" style="font-size:18px; color:var(--texto-sec);"></i>',
+        content: '<section style="padding:40px 20px; max-width:1200px; margin:0 auto; min-height:80px; box-sizing:border-box;"><div>Contenido de 1 columna</div></section>'
+      });
+    }
+    if (!bm.get('column2')) {
+      bm.add('column2', {
+        label: '2 Columnas',
+        category: catBasicos,
+        select: true,
+        activate: true,
+        media: '<i class="fas fa-columns" style="font-size:18px; color:var(--texto-sec);"></i>',
+        content: `
+          <div style="display:flex; flex-wrap:wrap; gap:20px; padding:20px 0; box-sizing:border-box;">
+            <div style="flex:1 1 300px; min-height:80px; padding:15px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.15); border-radius:8px;">Columna Izquierda</div>
+            <div style="flex:1 1 300px; min-height:80px; padding:15px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.15); border-radius:8px;">Columna Derecha</div>
+          </div>
+        `
+      });
+    }
+    if (!bm.get('column3')) {
+      bm.add('column3', {
+        label: '3 Columnas',
+        category: catBasicos,
+        select: true,
+        activate: true,
+        media: '<i class="fas fa-th-large" style="font-size:18px; color:var(--texto-sec);"></i>',
+        content: `
+          <div style="display:flex; flex-wrap:wrap; gap:20px; padding:20px 0; box-sizing:border-box;">
+            <div style="flex:1 1 240px; min-height:80px; padding:15px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.15); border-radius:8px;">Columna 1</div>
+            <div style="flex:1 1 240px; min-height:80px; padding:15px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.15); border-radius:8px;">Columna 2</div>
+            <div style="flex:1 1 240px; min-height:80px; padding:15px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.15); border-radius:8px;">Columna 3</div>
+          </div>
+        `
+      });
+    }
+    if (!bm.get('column3-7')) {
+      bm.add('column3-7', {
+        label: '2 Cols (30/70)',
+        category: catBasicos,
+        select: true,
+        activate: true,
+        media: '<i class="fas fa-grip-vertical" style="font-size:18px; color:var(--texto-sec);"></i>',
+        content: `
+          <div style="display:flex; flex-wrap:wrap; gap:20px; padding:20px 0; box-sizing:border-box;">
+            <div style="flex:0 0 30%; min-height:80px; padding:15px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.15); border-radius:8px;">Lateral (30%)</div>
+            <div style="flex:1 1 65%; min-height:80px; padding:15px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.15); border-radius:8px;">Principal (70%)</div>
+          </div>
+        `
+      });
+    }
+    if (!bm.get('text')) {
+      bm.add('text', {
+        label: 'Texto',
+        category: catBasicos,
+        select: true,
+        activate: true,
+        media: '<i class="fas fa-font" style="font-size:18px; color:var(--texto-sec);"></i>',
+        content: '<p style="font-size:1rem; line-height:1.6; color:#F8F9FA;">Inserta aquí tu texto o descripción de párrafo.</p>'
+      });
+    }
+    if (!bm.get('link')) {
+      bm.add('link', {
+        label: 'Enlace',
+        category: catBasicos,
+        select: true,
+        activate: true,
+        media: '<i class="fas fa-link" style="font-size:18px; color:var(--texto-sec);"></i>',
+        content: '<a href="#" style="color:#55EBB2; text-decoration:underline;">Enlace personalizado</a>'
+      });
+    }
+    if (!bm.get('image')) {
+      bm.add('image', {
+        label: 'Imagen',
+        category: catBasicos,
+        select: true,
+        activate: true,
+        media: '<i class="fas fa-image" style="font-size:18px; color:var(--texto-sec);"></i>',
+        content: { type: 'image', style: { width: '100%', 'max-width': '400px', 'border-radius': '10px' } }
+      });
+    }
+    if (!bm.get('video')) {
+      bm.add('video', {
+        label: 'Video',
+        category: catBasicos,
+        select: true,
+        activate: true,
+        media: '<i class="fas fa-video" style="font-size:18px; color:var(--texto-sec);"></i>',
+        content: { type: 'video', src: 'https://www.youtube.com/embed/xODtWcCktYw', style: { width: '100%', height: '350px' } }
+      });
+    }
+    if (!bm.get('map')) {
+      bm.add('map', {
+        label: 'Mapa',
+        category: catBasicos,
+        select: true,
+        activate: true,
+        media: '<i class="fas fa-map-marked-alt" style="font-size:18px; color:var(--texto-sec);"></i>',
+        content: { type: 'map', style: { height: '350px', width: '100%' } }
+      });
+    }
+
     const catMemex = { id: 'rotulos_web', label: '🎨 Rótulos Web', open: true };
 
     bm.add('card-noticia', {

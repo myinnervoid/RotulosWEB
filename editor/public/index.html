@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title data-i18n="app_title">Estudio Visual Memexicanísimos · Editor GrapesJS Pro v3.1</title>
   
-  <!-- Estilos de GrapesJS y Fuentes (Soporte Universal Local & GitHub Pages) -->
-  <link rel="stylesheet" href="https://unpkg.com/grapesjs@0.23.6/dist/css/grapes.min.css">
+  <!-- Estilos de GrapesJS y Fuentes (Local con Fallback a CDN) -->
+  <link rel="stylesheet" href="./vendor/grapesjs/css/grapes.min.css" onerror="this.onerror=null;this.href='https://unpkg.com/grapesjs@0.23.6/dist/css/grapes.min.css';">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -504,12 +504,12 @@
     <span id="toast-msg">¡Operación completada!</span>
   </div>
 
-  <!-- SCRIPTS DE GRAPESJS Y PLUGINS (CDN para soporte universal) -->
-  <script src="https://unpkg.com/grapesjs@0.23.6/dist/grapes.min.js"></script>
-  <script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2/dist/grapesjs-blocks-basic.min.js"></script>
+  <!-- SCRIPTS DE GRAPESJS Y PLUGINS (Local con Fallback a CDN) -->
+  <script src="./vendor/grapesjs/grapes.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/grapesjs@0.23.6/dist/grapes.min.js';"></script>
+  <script src="./vendor/grapesjs-blocks-basic/index.js" onerror="this.onerror=null;this.src='https://unpkg.com/grapesjs-blocks-basic@1.0.2/dist/index.js';"></script>
 
   <!-- MOTOR DE AUDITORÍA AXE-CORE Y DIAGNÓSTICOS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js"></script>
+  <script src="./vendor/axe.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js';"></script>
   <script src="./diagnostics.js"></script>
 
   <!-- LÓGICA DEL EDITOR -->
