@@ -2,6 +2,8 @@
 > **El Estudio Visual y Maquetador Web con Identidad y Orgullo Mexicano.**  
 > Diseñado para soberanía tecnológica, edición visual intuitiva y cero dependencia de suscripciones en la nube.
 
+![Talachas y Rótulos Web - Editor Visual en Acción](screenshot.png)
+
 ---
 
 ## 🇲🇽 ¿Qué es Rótulos Web?
@@ -17,6 +19,8 @@ Si generaste tu sitio web con herramientas de Inteligencia Artificial (Claude, C
 > **"¿Te acuerdas de los memes clásicos de *'Arréglenme esta foto para que no se vea el señor del fondo'* y la raza terminaba haciendo obras maestras del mame? ¡Esto es exactamente lo mismo, pero a nivel página web completa!"**
 
 **Memexicanísimos** reta formalmente a diseñadores web, desarrolladores, creadores de contenido y maestros del humor digital a tomar la web oficial de Memexicanísimos y transformarla por completo usando Rótulos Web:
+
+👉 **[¡Entra a Probar el Editor en Vivo aquí en GitHub Pages!](https://myinnervoid.github.io/RotulosWEB/)**
 
 1. **Hazla tuya:** Cambia las noticias satíricas por las de tu colonia o tu escuela, reemplaza las imágenes por los memes más pesados que tengas y dale tu toque con la paleta de colores de rótulo.
 2. **Arregla o desbarata:** Arrastra botones charros, alertas tricolores o cajas con glassmorphism; pon a prueba qué tan lejos puedes llevar el diseño sin tocar una sola línea de código.
