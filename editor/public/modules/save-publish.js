@@ -10,6 +10,9 @@ import { t } from './i18n.js';
 import { getPublishState, setPublishState, updatePublishUI } from './toast.js';
 import { showConfirmDialog } from './dialog.js';
 import { getErrorMessage } from './error-messages.js';
+import { getEditorInstance } from './editor-init.js';
+import { eventBus } from './event-bus.js';
+import { EDITOR_EVENTS } from './editor-events.js';
 
 /**
  * Limpia el HTML del editor de atributos internos de GrapesJS.
@@ -86,6 +89,8 @@ async function triggerSave(editor, btnSave) {
     const cleanHtml = getSanitizedHtml(editor.getHtml());
     const cssContent = editor.getCss();
 
+    eventBus.publish(EDITOR_EVENTS.BEFORE_SAVE, { html: cleanHtml, css: cssContent });
+
     if (window.isStaticMode) {
       const fullHtml = `<!DOCTYPE html>\n<html lang="es">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Memexicanisimos — Rediseño Popular</title>\n  <style>\n${cssContent}\n  </style>\n</head>\n<body>\n${cleanHtml}\n</body>\n</html>`;
       const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
@@ -98,6 +103,7 @@ async function triggerSave(editor, btnSave) {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       showToast('🎉 ¡Descargaste tu index.html modificado!');
+      eventBus.publish(EDITOR_EVENTS.AFTER_SAVE, { staticDownload: true });
       if (btn) {
         btn.innerHTML = `<i class="fas fa-check"></i> <span>¡Descargado!</span>`;
         setTimeout(() => {
@@ -119,6 +125,7 @@ async function triggerSave(editor, btnSave) {
     if (saveResult.success) {
       const backupName = saveResult.data ? saveResult.data.backup : 'creado';
       showToast(`¡Guardado exitoso! (Respaldo: ${backupName})`);
+      eventBus.publish(EDITOR_EVENTS.AFTER_SAVE, { result: saveResult });
       if (btn) {
         btn.innerHTML = `<i class="fas fa-check"></i> <span>${t('btn_saved', '¡Guardado!')}</span>`;
         setTimeout(() => {
@@ -128,6 +135,10 @@ async function triggerSave(editor, btnSave) {
       }
     } else {
       showToast('Error al guardar: ' + getErrorMessage(saveResult.error_code, saveResult.message || 'Desconocido'), true);
+      eventBus.publish(EDITOR_EVENTS.ERROR_OCCURRED, {
+        code: saveResult.error_code || 'SAVE_FAILED',
+        message: saveResult.message || 'Error al guardar'
+      });
       if (btn) {
         btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>Reintentar</span>`;
         btn.disabled = false;
@@ -135,6 +146,10 @@ async function triggerSave(editor, btnSave) {
     }
   } catch (err) {
     showToast('Fallo de conexión al guardar: ' + err.message, true);
+    eventBus.publish(EDITOR_EVENTS.ERROR_OCCURRED, {
+      code: 'NETWORK_ERROR',
+      message: err.message
+    });
     if (btn) {
       btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>Error</span>`;
       btn.disabled = false;
@@ -247,7 +262,7 @@ export function setupStatsModal(editorInstance) {
     document.dispatchEvent(new Event('drawer:close'));
     statsModal.classList.add('open');
 
-    const ed = editorInstance || window.editor;
+    const ed = editorInstance || getEditorInstance();
     const pageMetrics = { elements: 0, headings: 0, links: 0, images: 0, words: 0 };
     try {
       const canvasDoc = ed && ed.Canvas ? ed.Canvas.getDocument() : null;
@@ -393,7 +408,7 @@ export function setupScreenshotModal(editorInstance) {
         const currentTheme = localStorage.getItem('memex-theme') || 'patria';
         const isFullPage = chkFullPage ? chkFullPage.checked : false;
 
-        const ed = editorInstance || window.editor;
+        const ed = editorInstance || getEditorInstance();
         let activeHtml = '';
         let activeCss = '';
         if (ed) {

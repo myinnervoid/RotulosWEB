@@ -9,6 +9,9 @@ import { showToast } from './toast.js';
 import { showConfirmDialog, showPromptDialog } from './dialog.js';
 import { getErrorMessage } from './error-messages.js';
 import { rebuildDockSections } from './ui-panels.js';
+import { getEditorInstance } from './editor-init.js';
+import { eventBus } from './event-bus.js';
+import { EDITOR_EVENTS } from './editor-events.js';
 
 /**
  * Carga y muestra los proyectos recientes en el drawer.
@@ -139,7 +142,7 @@ export function setupProjectSelector(editor) {
             });
 
             const bodyContent = doc.body ? doc.body.innerHTML : rawContent;
-            const ed = editor || window.editor;
+            const ed = editor || getEditorInstance();
 
             if (ed) {
               ed.setComponents(bodyContent);
@@ -148,6 +151,11 @@ export function setupProjectSelector(editor) {
               }
               ed.refresh();
               rebuildDockSections(ed);
+              eventBus.publish(EDITOR_EVENTS.PROJECT_LOADED, {
+                name: file.name,
+                html: bodyContent,
+                css: extractedCss
+              });
             }
 
             // Persistir archivo importado para evitar reseteo con F5
@@ -194,12 +202,17 @@ export function setupProjectSelector(editor) {
         if (tHtmlRes.ok && tCssRes.ok) {
           const h = await tHtmlRes.text();
           const c = await tCssRes.text();
-          const ed = editor || window.editor;
+          const ed = editor || getEditorInstance();
           if (ed) {
             ed.setComponents(h);
             ed.setStyle(c);
             ed.refresh();
             rebuildDockSections(ed);
+            eventBus.publish(EDITOR_EVENTS.PROJECT_LOADED, {
+              name: 'Memexicanísimos (Plantilla Oficial)',
+              html: h,
+              css: c
+            });
           }
 
           try {
@@ -240,7 +253,7 @@ export function setupProjectSelector(editor) {
             });
 
             const bodyContent = doc.body ? doc.body.innerHTML : rawContent;
-            const ed = editor || window.editor;
+            const ed = editor || getEditorInstance();
 
             if (ed) {
               ed.setComponents(bodyContent);
@@ -249,6 +262,11 @@ export function setupProjectSelector(editor) {
               }
               ed.refresh();
               rebuildDockSections(ed);
+              eventBus.publish(EDITOR_EVENTS.PROJECT_LOADED, {
+                name: file.name,
+                html: bodyContent,
+                css: extractedCss
+              });
             }
 
             try {

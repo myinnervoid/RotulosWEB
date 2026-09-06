@@ -23,8 +23,31 @@ import { setupLangSelector } from './i18n.js';
 import { showToast } from './toast.js';
 import { getErrorMessage } from './error-messages.js';
 
-/** Instancia global del editor (accesible vía window.editor) */
-let editor;
+import { eventBus } from './event-bus.js';
+import { EDITOR_EVENTS } from './editor-events.js';
+
+/** Instancia interna del editor */
+let editorInstance = null;
+
+/**
+ * Obtiene la instancia activa de GrapesJS sin depender de window.editor global.
+ * @returns {any}
+ */
+export function getEditorInstance() {
+  return editorInstance;
+}
+
+/**
+ * Establece la instancia activa y sincroniza __editor para depuración.
+ * @param {any} inst
+ */
+export function setEditorInstance(inst) {
+  editorInstance = inst;
+  if (typeof window !== 'undefined') {
+    window.__editor = inst;
+    window.editor = inst; // Compatibilidad transitoria
+  }
+}
 
 /**
  * Inicializa el editor visual GrapesJS y todos sus módulos.
@@ -200,8 +223,34 @@ export async function initEditor() {
         ]
       }
     });
+    setEditorInstance(editor);
 
-    window.editor = editor;
+    // ── Publicar eventos de GrapesJS en EventBus (Arquitectura Desacoplada) ──
+    editor.on('load', () => {
+      eventBus.publish(EDITOR_EVENTS.EDITOR_READY, { editor });
+    });
+    editor.on('change:changesCount', () => {
+      eventBus.publish(EDITOR_EVENTS.CONTENT_CHANGED, {
+        html: editor.getHtml(),
+        css: editor.getCss()
+      });
+    });
+    editor.on('component:selected', (component) => {
+      eventBus.publish(EDITOR_EVENTS.COMPONENT_SELECTED, {
+        componentId: component && component.getId ? component.getId() : '',
+        tagName: component && component.get ? component.get('tagName') : '',
+        component
+      });
+    });
+    editor.on('component:deselected', () => {
+      eventBus.publish(EDITOR_EVENTS.COMPONENT_DESELECTED);
+    });
+    editor.on('component:add', (component) => {
+      eventBus.publish(EDITOR_EVENTS.COMPONENT_ADDED, { component });
+    });
+    editor.on('component:remove', (component) => {
+      eventBus.publish(EDITOR_EVENTS.COMPONENT_REMOVED, { component });
+    });
 
     // ── 4. Registrar bloques ──────────────────────────────
     registerBlocks(editor);
