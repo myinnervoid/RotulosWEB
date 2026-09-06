@@ -1089,8 +1089,17 @@ export function setupDiagnosticsModal(editor) {
       try {
         const rawHtml = editor && typeof editor.getHtml === 'function' ? editor.getHtml() : '';
         if (rawHtml && typeof Worker !== 'undefined') {
-          const workerResult = await runAccessibilityAudit(rawHtml);
-          if (workerResult && Array.isArray(workerResult.issues)) {
+          const workerResult = await runAccessibilityAudit(rawHtml, 'accessibility-audit');
+          if (workerResult && Array.isArray(workerResult.violations)) {
+            workerResult.violations.forEach(v => {
+              a11ySeo.results.push({
+                category: 'a11y',
+                name: `[axe-core] ${v.id}`,
+                status: v.impact === 'critical' || v.impact === 'serious' ? 'FAIL' : 'WARN',
+                message: `${v.description} — ${v.help}`
+              });
+            });
+          } else if (workerResult && Array.isArray(workerResult.issues)) {
             workerResult.issues.forEach(iss => {
               a11ySeo.results.push({
                 category: iss.category || 'a11y',
@@ -1166,12 +1175,12 @@ export function setupDiagnosticsModal(editor) {
  * @param {string} html
  * @returns {Promise<{ stats: object, issues: Array<object> }>}
  */
-export async function runAccessibilityAudit(html) {
+export async function runAccessibilityAudit(html, mode = 'accessibility-audit') {
   try {
-    eventBus.publish(EDITOR_EVENTS.AUDIT_PROGRESS, { percent: 10, message: 'Iniciando Worker de diagnóstico DOM...' });
+    eventBus.publish(EDITOR_EVENTS.AUDIT_PROGRESS, { percent: 10, message: 'Iniciando Worker de diagnóstico de accesibilidad...' });
     workerManager.createWorker('dom', '/workers/dom-worker.js');
 
-    const result = await workerManager.sendTask('dom', 'analyze-dom', { html }, (progress) => {
+    const result = await workerManager.sendTask('dom', mode, { html }, (progress) => {
       eventBus.publish(EDITOR_EVENTS.AUDIT_PROGRESS, progress);
     });
 

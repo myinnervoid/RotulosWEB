@@ -29,6 +29,7 @@ import { EDITOR_EVENTS } from './editor-events.js';
 import { setupVirtualLayers } from './layers-virtual.js';
 import { debounce } from './debounce.js';
 import { initHistory } from './history.js';
+import { initTheme } from './theme.js';
 
 /** Instancia interna del editor */
 let editorInstance = null;
@@ -284,6 +285,7 @@ export async function initEditor() {
     setupMobileSidebar(editor);
     setupPreviewButton(editor);
     setupHistoryButtons(editor);
+    initTheme();
     setupThemeSelector();
     setupShutdownButton();
     setupDiagnosticsModal(editor);

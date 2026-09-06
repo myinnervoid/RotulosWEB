@@ -27,12 +27,22 @@
 
 /* ── TEMA 1: PATRIA (Por defecto) ── */
 :root, [data-theme="patria"] {
+  --bg-primary: #090D0B;
+  --bg-secondary: #121815;
   --bg-dark: #090D0B;
   --bg-surface: #121815;
   --bg-elevated: #1A231F;
   --bg-hover: #222E29;
+  --text-primary: #F8F9FA;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
   --border-color: rgba(212, 175, 55, 0.22);
   --border-highlight: rgba(212, 175, 55, 0.55);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --accent: #D4AF37;
+  --accent-hover: #F5C542;
+  --danger: #dc3545;
+  --success: #28a745;
   --oro-charro: #D4AF37;
   --oro-brillante: #F5C542;
   --verde-patrio: #006847;
@@ -45,14 +55,24 @@
   --dock-expanded-width: 210px;
 }
 
-/* ── TEMA 2: OSCURO (Obsidiana / Cyber) ── */
-[data-theme="oscuro"] {
+/* ── TEMA 2: OSCURO (Obsidiana / Cyber / Dark) ── */
+[data-theme="dark"], [data-theme="oscuro"] {
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #141414;
   --bg-dark: #0A0A0A;
   --bg-surface: #141414;
   --bg-elevated: #1E1E1E;
   --bg-hover: #2A2A2A;
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
   --border-color: rgba(255, 255, 255, 0.12);
   --border-highlight: rgba(0, 240, 255, 0.45);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --accent: #00F0FF;
+  --accent-hover: #38BDF8;
+  --danger: #dc3545;
+  --success: #28a745;
   --oro-charro: #00F0FF;
   --oro-brillante: #38BDF8;
   --verde-patrio: #059669;
@@ -62,14 +82,24 @@
   --sidebar-w: 360px;
 }
 
-/* ── TEMA 3: CLARO (Estudio Editorial Pergamino) ── */
-[data-theme="claro"] {
+/* ── TEMA 3: CLARO (Estudio Editorial Pergamino / Light) ── */
+[data-theme="light"], [data-theme="claro"] {
+  --bg-primary: #EDE8DF;
+  --bg-secondary: #FBF8F2;
   --bg-dark: #EDE8DF;
   --bg-surface: #FBF8F2;
   --bg-elevated: #FFFFFF;
   --bg-hover: #F0EAE1;
+  --text-primary: #1C2621;
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
   --border-color: rgba(184, 134, 11, 0.35);
   --border-highlight: #B8860B;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --accent: #996515;
+  --accent-hover: #B8860B;
+  --danger: #dc3545;
+  --success: #28a745;
   --oro-charro: #996515;
   --oro-brillante: #B8860B;
   --verde-patrio: #006847;

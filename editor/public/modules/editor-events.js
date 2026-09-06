@@ -101,7 +101,10 @@ export const EDITOR_EVENTS = Object.freeze({
   PUBLISH_COMPLETED: 'editor:publish:completed',
 
   /** Error durante la publicación */
-  PUBLISH_ERROR: 'editor:publish:error'
+  PUBLISH_ERROR: 'editor:publish:error',
+
+  /** Cambio de tema visual de la interfaz */
+  THEME_CHANGED: 'editor:theme:changed'
 });
 
 /** Alias canónico para compatibilidad */
