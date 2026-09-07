@@ -34,12 +34,12 @@ const userConfigDir = path.join(
   '.rotulos'
 );
 if (!fs.existsSync(userConfigDir)) {
-  try { fs.mkdirSync(userConfigDir, { recursive: true }); } catch (e) {}
+  try { fs.mkdirSync(userConfigDir, { recursive: true }); } catch (e) { /* ignore error */ }
 }
 const recentFile = path.join(userConfigDir, 'recent.json');
 const legacyRecentFile = path.join(process.env.HOME || '.', '.talachas', 'recent.json');
 if (!fs.existsSync(recentFile) && fs.existsSync(legacyRecentFile)) {
-  try { fs.copyFileSync(legacyRecentFile, recentFile); } catch (e) {}
+  try { fs.copyFileSync(legacyRecentFile, recentFile); } catch (e) { /* ignore error */ }
 }
 
 function addRecentProject(p) {
@@ -73,7 +73,7 @@ function getActiveStylePath() {
 function getActiveBackupsDir() {
   const custom = path.join(projectPath, 'backups');
   if (!fs.existsSync(custom)) {
-    try { fs.mkdirSync(custom, { recursive: true }); } catch (e) {}
+    try { fs.mkdirSync(custom, { recursive: true }); } catch (e) { /* ignore error */ }
   }
   return custom;
 }
@@ -130,7 +130,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({ origin: ['http://localhost:5050', 'https://localhost:5050', 'http://127.0.0.1:5050', 'https://127.0.0.1:5050'] }));
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: process.env.PAYLOAD_LIMIT || '20mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/locales', express.static(path.join(__dirname, 'locales')));
 app.use('/vendor/grapesjs', express.static(path.join(__dirname, 'node_modules/grapesjs/dist')));
@@ -268,7 +268,13 @@ app.get('/api/page', (req, res) => {
 });
 
 // 3. Endpoint para guardar los cambios en index.html con respaldo dinámico
-app.post('/api/save', (req, res) => {
+let isSaving = false;
+
+app.post('/api/save', async (req, res) => {
+  if (isSaving) {
+    return res.status(429).json(createApiResponse(false, null, 'SAVE_IN_PROGRESS', 'Ya hay una operación de guardado en curso.'));
+  }
+  isSaving = true;
   try {
     const { html, css } = req.body;
     if (!html || typeof html !== 'string' || html.trim().length < 10) {
@@ -305,6 +311,8 @@ app.post('/api/save', (req, res) => {
   } catch (error) {
     console.error('[ERROR] Al guardar:', error);
     res.status(500).json(createApiResponse(false, null, 'SAVE_FAILED', error.message));
+  } finally {
+    isSaving = false;
   }
 });
 
@@ -530,7 +538,8 @@ if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
   server = http.createServer(app);
 }
 
-server.listen(PORT, '127.0.0.1', () => {
+if (require.main === module) {
+  server.listen(PORT, '127.0.0.1', () => {
   const protocol = isHttps ? 'https' : 'http';
   const url = `${protocol}://localhost:${PORT}`;
   console.log(`
@@ -546,9 +555,12 @@ server.listen(PORT, '127.0.0.1', () => {
 ==========================================================
 ${!isHttps ? '💡 TIP: Para activar HTTPS local con candado verde:\n   mkcert -install && mkcert localhost 127.0.0.1 ::1\n' : ''}`);
 
-  if (openPkg && process.env.NODE_ENV !== 'test' && !process.env.NO_OPEN) {
-    try {
-      openPkg(url).catch(() => {});
-    } catch (e) {}
-  }
-});
+    if (openPkg && process.env.NODE_ENV !== 'test' && !process.env.NO_OPEN) {
+      try {
+        openPkg(url).catch(() => {});
+      } catch (e) { /* ignore error */ }
+    }
+  });
+}
+
+module.exports = app; // export for testing

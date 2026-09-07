@@ -3,7 +3,13 @@
 # 🇲🇽 GESTOR UNIFICADO DEL ESTUDIO VISUAL MEMEXICANISIMOS
 # Uso: ./editor.sh [start | stop | restart | status]
 # ==========================================================
-export PATH="/home/myinnervoid/.nvm/versions/node/v24.18.0/bin:$PATH"
+if ! command -v node >/dev/null 2>&1; then
+  if [ -s "$HOME/.nvm/nvm.sh" ]; then
+    source "$HOME/.nvm/nvm.sh"
+  elif [ -d "/home/myinnervoid/.nvm/versions/node/v24.18.0/bin" ]; then
+    export PATH="/home/myinnervoid/.nvm/versions/node/v24.18.0/bin:$PATH"
+  fi
+fi
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EDITOR_DIR="$DIR/editor"
 PORT=5050
