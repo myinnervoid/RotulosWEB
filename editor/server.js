@@ -267,7 +267,7 @@ app.get('/live', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     return res.sendFile(indexPath);
   }
-  res.status(404).send('No se encontró index.html en el proyecto activo');
+  res.status(404).json(createApiResponse(false, null, ERROR_CODES.FILE_NOT_FOUND.code, 'No se encontró index.html en el proyecto activo'));
 });
 
 // Servir assets dinámicos del proyecto actual con fallback al workspace
@@ -563,13 +563,6 @@ app.get('/api/page', (req, res) => {
     const activePath = (req.query.project && fs.existsSync(req.query.project))
       ? path.resolve(req.query.project)
       : projectPath;
-
-    // Si se pasa ?project= válido y difiere de projectPath actual, conmutar projectPath
-    if (req.query.project && fs.existsSync(req.query.project) && activePath !== projectPath) {
-      projectPath = activePath;
-      addRecentProject(activePath);
-      console.log(`[PROYECTO] Conmutado mediante query param a: ${projectPath}`);
-    }
 
     const indexPath = path.join(activePath, 'index.html');
     const stylePath = path.join(activePath, 'style.css');
@@ -959,7 +952,7 @@ app.get('/api/templates/:id', (req, res) => {
 });
 
 // ── Servir assets desde plantillas con protección anti-traversal ────────
-app.get(/^\/api\/templates\/([^\/]+)\/assets\/(.+)$/, (req, res) => {
+app.get(/^\/api\/templates\/([^/]+)\/assets\/(.+)$/, (req, res) => {
   try {
     const id = req.params[0];
     const rawSubPath = req.params[1] || '';

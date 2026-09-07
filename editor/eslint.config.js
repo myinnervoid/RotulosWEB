@@ -18,7 +18,8 @@ module.exports = [
         console: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
-        Buffer: 'readonly'
+        Buffer: 'readonly',
+        fetch: 'readonly'
       }
     },
     rules: {
@@ -52,6 +53,9 @@ module.exports = [
         // Web APIs
         CustomEvent: 'readonly',
         Event: 'readonly',
+        EventSource: 'readonly',
+        Worker: 'readonly',
+        crypto: 'readonly',
         Blob: 'readonly',
         URL: 'readonly',
         URLSearchParams: 'readonly',
@@ -110,7 +114,9 @@ module.exports = [
         document: 'readonly',
         localStorage: 'readonly',
         fetch: 'readonly',
-        console: 'readonly'
+        console: 'readonly',
+        Event: 'readonly',
+        CustomEvent: 'readonly'
       }
     },
     rules: {

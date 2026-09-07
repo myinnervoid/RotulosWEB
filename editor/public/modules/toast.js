@@ -55,6 +55,11 @@ export function updatePublishUI(state, msg = '') {
         updatePublishUI('IDLE');
       }, 3000);
       break;
+    case 'EMPTY':
+      btn.innerHTML = `<i class="fas fa-box-open"></i> <span>Sin cambios</span>`;
+      btn.disabled = true;
+      btn.className = 'btn-action btn-publish';
+      break;
     case 'FAULT':
       btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>Reintentar</span>`;
       btn.disabled = false;

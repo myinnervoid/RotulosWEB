@@ -158,7 +158,7 @@ function formatDate(isoString) {
  * Formatea bytes a cadena legible
  */
 function formatSize(bytes) {
-  if (bytes == null || isNaN(bytes)) return '0 B';
+  if (bytes === null || bytes === undefined || isNaN(bytes)) return '0 B';
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / 1048576).toFixed(1) + ' MB';
