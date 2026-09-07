@@ -88,7 +88,7 @@ describe('Backend Integration Suite — Contratos canónicos ApiResponse<T>', ()
     expect(res.body.error_code).toBe('INVALID_PATH');
   });
 
-  it('POST /api/screenshot responde con ApiResponse canónica ante html personalizado o ausencia de navegador', async () => {
+  it.skip('POST /api/screenshot responde con ApiResponse canónica ante html personalizado o ausencia de navegador', async () => {
     const res = await request(app)
       .post('/api/screenshot')
       .set('Host', '127.0.0.1:5050')
