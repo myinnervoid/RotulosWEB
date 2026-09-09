@@ -230,3 +230,35 @@
 12. Actualizar `AGENTS.md`
 13. Migrar vitest a v3+
 14. `docs/DOMAIN.md` con invariantes
+
+---
+
+## 🔍 ADDENDUM: Auditoría v5.1.0 — Motor Autónomo (v3.2)
+**Fecha:** 2024-05-19 | **Auditor:** Jules
+
+### Revisión de Brechas Anteriores (Estado Actualizado)
+
+1. **Bug INDEX_HTML_PATH:** Resuelto. `getActiveIndexPath()` fue implementado.
+2. **Tests backend:** Resuelto. Suite de `supertest` implementada y pasa todos los tests. Tests actuales: 122.
+3. **ESLint:** Resuelto. Configuración añadida en `eslint.config.js`.
+4. **Catálogo de Errores (V2):** Resuelto. Centralizado en `server/error-codes.js`.
+5. **Mapeo error_code UI (V4):** Resuelto. Implementado vía `modules/error-messages.js`.
+6. **Estado EMPTY FSM (V4):** Resuelto. Incorporado en `toast.js`.
+7. **Escritura Atómica (V3):** Resuelto. Método "write-then-rename" utilizado.
+8. **Modales <dialog> (V4):** Resuelto. Implementado en `modules/dialog.js`.
+9. **Invariantes DOMAIN.md (V1):** Resuelto. Archivo `docs/DOMAIN.md` existe.
+10. **JSDoc ApiResponse<T> (V2):** Resuelto.
+11. **Migración Vitest (V5):** Resuelto. Se usa vitest v3.
+
+### Nuevas Brechas y Generación de Planeación de Mejoras
+
+| # | Vector | Artefacto Esperado | Estado Actual | Brecha | Criticidad | Acción |
+|---|---|---|---|---|---|---|
+| 1 | V5 | GitHub Actions CI | No existe `.github/workflows/` | Sin pipeline CI/CD en un entorno local verificado | 🟠 Mayor | Crear `ci.yml` que orqueste `npm test` y `npm run lint` para Node.js. |
+
+### Lista Priorizada de Mejoras
+
+**Corto Plazo (Mayor)**
+- Automatización de Integración Continua (`ci.yml`) para validación de la suite que actualmente cuenta con 122 tests exitosos.
+
+*Nota:* No se han detectado brechas adicionales mayores. El foco es finalizar la infraestructura de verificación.

@@ -310,3 +310,21 @@ Las plantillas prediseñadas (*Landing, Blog, Portfolio*) no cargaban imágenes 
 **Consecuencias Negativas:**
 - Mayor tamaño en disco dentro de `templates/` (compensado con el uso de formatos SVG y compresión WebP).
 
+
+---
+
+## DEC-017 — Consolidación de Calidad y Refactorización (Post-Auditoría v5.1.0)
+
+**Fecha:** 2024-05-19
+**Contexto / Problema:**
+Tras la revisión arquitectónica utilizando el estándar de 5 vectores (Motor de Auditoría v3.2), se evidenció que la base de código ha madurado, estabilizando los contratos de datos (`ApiResponse<T>`), la gestión de errores (`error-codes.js`, `error-messages.js`) y alcanzando 122 tests pasando satisfactoriamente. Sin embargo, no se tiene registro continuo automatizado de dicha estabilidad.
+
+**Decisión Adoptada:**
+Registrar oficialmente la finalización de los hallazgos técnicos de deuda de la versión anterior (3.x) y priorizar para el siguiente ciclo la creación de flujos de trabajo de CI/CD (GitHub Actions) en un entorno restringido para respetar las invariantes de red y ejecución offline.
+
+**Consecuencias Positivas:**
+- Mayor confianza y visibilidad del estado de los 5 vectores del proyecto.
+- Se mantiene la garantía de "Zero Data Loss" ya que la auditoría fue solo en modo de inspección estricto.
+
+**Consecuencias Negativas:**
+- Ninguna. No se alteró código base para reflejar este hallazgo.
