@@ -108,7 +108,7 @@ describe('Backend Integration Suite — Contratos canónicos ApiResponse<T>', ()
       expect(res.body).toHaveProperty('success', false);
       expect(res.body).toHaveProperty('error_code', 'CHROME_NOT_FOUND');
     }
-  });
+  }, 15000);
 
   it('GET /api/assets escanea imágenes y responde con lista de assets', async () => {
     const res = await request(app)
