@@ -22,8 +22,11 @@ Si generaste tu sitio web con herramientas de Inteligencia Artificial (Claude, C
 
 👉 **[¡Entra a Probar el Editor en Vivo aquí en GitHub Pages!](https://myinnervoid.github.io/RotulosWEB/)**
 
-1. **Hazla tuya:** Cambia las noticias satíricas por las de tu colonia o tu escuela, reemplaza las imágenes por los memes más pesados que tengas y dale tu toque con la paleta de colores de rótulo.
-2. **Arregla o desbarata:** Arrastra botones charros, alertas tricolores o cajas con glassmorphism; pon a prueba qué tan lejos puedes llevar el diseño sin tocar una sola línea de código.
+💀🎃 **Edición Especial de Temporada — Día de Muertos & Todos Santos:**  
+¡La tradición se digitaliza! Ponemos a prueba tu creatividad para adornar la web al estilo de un altar de muertos: cuelga guirnaldas de papel picado, aromatiza con flores de cempasúchil digitales, sirve pan de muerto en las tarjetas y desata las mejores calaveritas satíricas y memes de ultratumba.
+
+1. **Hazla tuya:** Cambia las noticias satíricas por las de tu colonia o tu escuela, reemplaza las imágenes por los memes más pesados que tengas y dale tu toque con la paleta de colores de rótulo y altar.
+2. **Arregla o desbarata:** Arrastra botones charros, alertas tricolores, ofrendas o cajas con glassmorphism; pon a prueba qué tan lejos puedes llevar el diseño sin tocar una sola línea de código.
 3. **Descarga y comparte:** Presiona *Guardar*, toma una captura o descarga tu sitio y compártelo en redes sociales etiquetando a **@memexicanisimos**.
 4. **Viralidad y Comunidad:** Los mejores rediseños y las versiones más creativas o chuscas se presentarán en nuestras redes oficiales (TikTok, YouTube y Facebook), demostrando que la comunidad mexicana tiene ingenio de sobra para el diseño web.
 
@@ -37,12 +40,12 @@ Si generaste tu sitio web con herramientas de Inteligencia Artificial (Claude, C
 Rótulos Web no es solo un clon de editor; es una suite ergonómica diseñada para trabajar a velocidad relámpago:
 
 ### 1. 🧱 Caja de Bloques Memexicanísimos (Arrastrar y Soltar)
-- **Componentes Listos:** Tarjetas de noticias con cabecera en vivo, vitrinas de software (.io), banners de alerta comunitaria, tablas de atajos estilo `<kbd>`, botones dorados charros y badges tricolores.
+- **Componentes Listos:** Tarjetas de noticias con cabecera en vivo, vitrinas de software (.io), banners de alerta comunitaria, tablas de atajos estilo `<kbd>`, botones dorados charros, guirnaldas de papel picado vectoriales y badges tricolores.
 - **Auto-selección e Inserción Limpia:** Los bloques están diseñados para nunca colapsar al soltarse; caen con espaciado óptimo, altura real y se auto-seleccionan para edición inmediata.
 
 ### 2. 🎨 Inspector de Estilos con Paleta de Rótulo Rápida
-- **Paleta Popular a 1 Clic:** Colores patrios predeterminados (*Verde Bandera #006847, Oro Charro #D4AF37, Rojo Bandera #CE1126, Verde Neón #55EBB2, Blanco Hueso #F8F9FA*).
-- **Traductor de Colores en Lenguaje Natural:** Escribe palabras como `"oro"`, `"verde"`, `"azul cielo"` o `"naranja pastor"` y el editor las convierte automáticamente a su código hexadecimal.
+- **Paleta Popular y Tradiciones a 1 Clic:** Colores patrios y festivos predeterminados (*Naranja Cempasúchil #FF7518, Morado Altar #7B1FA2, Pan de Muerto #C67D3B, Blanco Hueso #FFF8F0, Verde Bandera #006847, Oro Charro #D4AF37, Rojo Bandera #CE1126, Verde Neón #55EBB2*).
+- **Traductor de Colores en Lenguaje Natural:** Escribe palabras como `"oro"`, `"verde"`, `"cempasuchil"`, `"morado"`, `"azul cielo"` o `"naranja pastor"` y el editor las convierte automáticamente a su código hexadecimal.
 - **Historial de Colores Recientes:** Los tonos que vas usando se guardan en la barra inferior para reutilizarlos con un toque.
 - **Control CSS Total:** Dimensiones, márgenes, rellenos, tipografía, bordes redondeados y alineación Flexbox.
 
@@ -64,11 +67,16 @@ Rótulos Web no es solo un clon de editor; es una suite ergonómica diseñada pa
   - 🤠 **Creador & Contacto** (`#creador-contacto`)
   - 👁️ **Ver Todo**: Activa el modo de edición continua con guías visuales punteadas.
 
-### 6. 🗂️ Pantalla de Bienvenida (Welcome Hub), Proyectos Locales y Plantillas (v5.1)
+### 6. 🗂️ Pantalla de Bienvenida (Welcome Hub), Proyectos Locales y Plantillas (v5.2)
 - **Pantalla de Inicio Estilo Suite Creativa (Welcome Hub)**: Al estilo de Photoshop, Word o VS Code, te recibe con tus proyectos recientes, opción de continuar tu sesión y selector de plantillas. Accesible siempre desde el menú drawer o haciendo clic en el logotipo superior.
 - **Portabilidad Total en Primer Arranque**: Al clonar el repositorio o usar el editor por primera vez, se genera automáticamente el proyecto completo de referencia en `~/RotulosProjects/memexicanisimos` sin rutas absolutas ni dependencias de máquinas específicas.
 - **Gestión Local Soberana**: Crea, duplica, renombra y elimina proyectos locales en `~/RotulosProjects` sin bases de datos ni intermediarios.
-- **Galería de Plantillas en 1 Clic**: Elige entre plantillas prediseñadas (*Landing Page, Blog Editorial, Portafolio Creativo y Memexicanísimos Oficial*) o comienza desde un lienzo en blanco.
+- **Galería de Plantillas en 1 Clic**: Elige entre plantillas prediseñadas o comienza desde un lienzo en blanco:
+  - 💀 **Memexicanísimos Oficial (Día de Muertos / Halloween)**: Plantilla insignia actualizada en vivo con paleta cempasúchil, guirnalda de papel picado, cabecera de altar, dock temático y noticias satíricas de temporada.
+  - 🕯️ **Todos Santos**: Copia dedicada e independiente para preservar la ambientación festiva sin alterar configuraciones base.
+  - 💼 **Landing Page**: Página de aterrizaje comercial de alta conversión con hero, grid y llamadas a la acción.
+  - 📰 **Blog Editorial**: Revista moderna para crónicas, notas y artículos.
+  - 🎨 **Portafolio Creativo**: Vitrina interactiva para desarrolladores, ilustradores y diseñadores.
 - **Favoritos Reactivos**: Marca tus proyectos más importantes con una estrella ⭐ para acceso prioritario persistido en tu navegador.
 
 ### 7. 🚀 Publicación Simplificada en 1 Clic (GitHub Pages & Netlify) (v5.0)

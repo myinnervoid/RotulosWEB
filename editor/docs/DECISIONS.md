@@ -328,3 +328,26 @@ Registrar oficialmente la finalización de los hallazgos técnicos de deuda de l
 
 **Consecuencias Negativas:**
 - Ninguna. No se alteró código base para reflejar este hallazgo.
+
+---
+
+## DEC-018 — Edición Especial Día de Muertos y Plantilla Dedicada Todos Santos (v5.2)
+
+**Fecha:** 2026-09-16
+**Contexto / Problema:**
+Con motivo de las celebraciones tradicionales mexicanas de Halloween, Día de Muertos y Todos Santos, el portal oficial `memexicanisimos` requería una transformación visual temática (paleta de cempasúchil, papel picado, ofrendas y noticias satíricas de temporada). Para garantizar la persistencia de esta ambientación sin riesgo de pérdida al restaurar plantillas base, se requería versionar tanto la plantilla principal como una copia dedicada en el catálogo del editor.
+
+**Decisión Adoptada:**
+1. **Actualización de Plantilla Principal (`templates/memexicanisimos/` y `editor/templates/memexicanisimos/`)**: Incorporación de la paleta Día de Muertos (`--cempasuchil`, `--morado-altar`, `--pan-muerto`, `--blanco-hueso`), guirnalda de papel picado vectorial (`papel_picado_muertos.svg`), cabecera de altar, dock temático y marcos festivos en todas las ventanas.
+2. **Creación de Plantilla Dedicada Todos Santos (`templates/todos-santos/` y `editor/templates/todos-santos/`)**: Registro de una copia estacional independiente en la categoría `Temporada` del catálogo servido por `GET /api/templates`.
+3. **Optimización de Carga y Assets Limpios**: Eliminación de blobs inline base64 de 300KB heredados de exportaciones visuales previas, reduciendo el peso de `index.html` en más del 88% (~41KB) y garantizando compatibilidad con CSP estricta.
+4. **Verificación Automatizada (`editor/verify.sh`)**: Inclusión de `todos-santos` en el bucle de verificación de plantillas del editor.
+
+**Consecuencias Positivas:**
+- Soporte estacional auténtico de tradiciones mexicanas sin romper la arquitectura soberana.
+- El usuario puede alternar entre la plantilla principal y la plantilla de temporada o instanciar nuevos proyectos temáticos desde el Welcome Hub.
+- Código limpio, ligero y con cumplimiento estricto de CSP.
+
+**Consecuencias Negativas:**
+- Añade una carpeta adicional de plantilla en disco (~45KB de código HTML/CSS/JS + assets de imágenes y patrones vectoriales).
+

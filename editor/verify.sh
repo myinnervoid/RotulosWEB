@@ -40,7 +40,7 @@ done
 
 # 3. Verificar plantillas
 echo "3. Verificando plantillas en templates/..."
-for template in memexicanisimos landing blog portfolio; do
+for template in memexicanisimos landing blog portfolio todos-santos; do
   if [ -d "templates/$template" ]; then
     echo "   ✅ Plantilla '$template' encontrada"
   else

@@ -855,14 +855,16 @@ app.get('/api/templates', (req, res) => {
       landing: 'Página de aterrizaje comercial de alta conversión con hero, grid y llamadas a la acción.',
       blog: 'Revista editorial moderna para publicación de artículos, crónicas y contenidos.',
       portfolio: 'Vitrina personal y portafolio interactivo para creativos y desarrolladores.',
-      memexicanisimos: 'Plantilla patria icónica oficial de Memexicanísimos con dock y secciones.'
+      memexicanisimos: 'Plantilla oficial de Memexicanísimos con dock, paleta Día de Muertos y secciones interactivas.',
+      'todos-santos': 'Edición especial Día de Muertos y Todos Santos con paleta cempasúchil, papel picado y altar tradicional.'
     };
 
     const categories = {
       landing: 'Negocios',
       blog: 'Editorial',
       portfolio: 'Personal',
-      memexicanisimos: 'Oficial'
+      memexicanisimos: 'Oficial',
+      'todos-santos': 'Temporada'
     };
 
     const templates = dirs.map(id => {
