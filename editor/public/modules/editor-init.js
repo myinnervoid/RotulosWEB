@@ -136,6 +136,13 @@ export async function initEditor() {
       }
     } catch {
       localAssets = [
+        { src: 'assets/Dia de muertos/avatar.png', name: 'Avatar Altar de Muertos' },
+        { src: 'assets/Dia de muertos/panaderia.png', name: 'Pan de Muerto La Chona' },
+        { src: 'assets/Dia de muertos/Mercado.png', name: 'Mercado Tradiciones' },
+        { src: 'assets/Dia de muertos/mariachi.png', name: 'Mariachis y Muertos' },
+        { src: 'assets/Dia de muertos/Panteon.png', name: 'Panteón Nocturno' },
+        { src: 'assets/patterns/papel_picado_muertos.svg', name: 'Papel Picado Vectorial' },
+        { src: 'assets/patterns/cempasuchil_petalos.svg', name: 'Pétalos de Cempasúchil' },
         { src: 'assets/Logo.png', name: 'Logo Memexicanisimos' },
         { src: 'assets/Avatar.jpg', name: 'Avatar Creador' },
         { src: 'assets/news/reportero_zocalo.jpg', name: 'Reportero Zócalo' },
