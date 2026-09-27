@@ -46,28 +46,28 @@ export function rebuildDockSections(editor) {
   if (officialSections.length > 0) {
     // Plantilla oficial de Memexicanísimos
     itemsWrapper.innerHTML = `
-      <button class="dock-btn active" data-section="noticias-news" title="Noticias & Humor (#noticias-news)">
+      <button class="dock-btn active" data-section="noticias-news" title="Noticias & Humor (#noticias-news)" aria-label="Noticias y Humor">
         <span class="dock-btn-icon">📰</span>
         <span class="dock-btn-text" data-i18n="dock_noticias">Noticias & Humor</span>
       </button>
-      <button class="dock-btn" data-section="perfiles" title="Suite de Apps .io (#perfiles)">
+      <button class="dock-btn" data-section="perfiles" title="Suite de Apps .io (#perfiles)" aria-label="Suite de Apps">
         <span class="dock-btn-icon">🛠️</span>
         <span class="dock-btn-text" data-i18n="dock_apps">Suite de Apps</span>
       </button>
-      <button class="dock-btn" data-section="redes-sociales" title="Redes & Live (#redes-sociales)">
+      <button class="dock-btn" data-section="redes-sociales" title="Redes & Live (#redes-sociales)" aria-label="Redes y Live">
         <span class="dock-btn-icon">📱</span>
         <span class="dock-btn-text" data-i18n="dock_redes">Redes & Live</span>
       </button>
-      <button class="dock-btn" data-section="nosotros-apoyo" title="Nosotros & Filosofía (#nosotros-apoyo)">
+      <button class="dock-btn" data-section="nosotros-apoyo" title="Nosotros & Filosofía (#nosotros-apoyo)" aria-label="Nosotros y Filosofía">
         <span class="dock-btn-icon">🤝</span>
         <span class="dock-btn-text" data-i18n="dock_nosotros">Nosotros & Filosofía</span>
       </button>
-      <button class="dock-btn" data-section="creador-contacto" title="Creador & Contacto (#creador-contacto)">
+      <button class="dock-btn" data-section="creador-contacto" title="Creador & Contacto (#creador-contacto)" aria-label="Creador y Contacto">
         <span class="dock-btn-icon">🤠</span>
         <span class="dock-btn-text" data-i18n="dock_creador">Creador & Contacto</span>
       </button>
       <div class="dock-separator"></div>
-      <button class="dock-btn dock-btn-all" data-section="all" title="Ver Todo el Sitio (Modo Edición Continua)">
+      <button class="dock-btn dock-btn-all" data-section="all" title="Ver Todo el Sitio (Modo Edición Continua)" aria-label="Ver Todo el Sitio">
         <span class="dock-btn-icon">👁️</span>
         <span class="dock-btn-text" data-i18n="dock_all">Ver Todo</span>
       </button>
@@ -126,7 +126,7 @@ export function rebuildDockSections(editor) {
         const icon = getIconForElement(el, idx);
         const label = getLabelForElement(el, idx);
         return `
-          <button class="dock-btn ${idx === 0 ? 'active' : ''}" data-section="${secId}" data-target-idx="${idx}" title="${label}">
+          <button class="dock-btn ${idx === 0 ? 'active' : ''}" data-section="${secId}" data-target-idx="${idx}" title="${label}" aria-label="${label}">
             <span class="dock-btn-icon">${icon}</span>
             <span class="dock-btn-text">${label}</span>
           </button>
@@ -136,14 +136,14 @@ export function rebuildDockSections(editor) {
       itemsWrapper.innerHTML = `
         ${buttonsHtml}
         <div class="dock-separator"></div>
-        <button class="dock-btn dock-btn-all" data-section="all" title="Ver Todo el Sitio (Modo Edición Continua)">
+        <button class="dock-btn dock-btn-all" data-section="all" title="Ver Todo el Sitio (Modo Edición Continua)" aria-label="Ver Todo el Sitio">
           <span class="dock-btn-icon">👁️</span>
           <span class="dock-btn-text" data-i18n="dock_all">Ver Todo</span>
         </button>
       `;
     } else {
       itemsWrapper.innerHTML = `
-        <button class="dock-btn active dock-btn-all" data-section="all" title="Ver Todo el Sitio">
+        <button class="dock-btn active dock-btn-all" data-section="all" title="Ver Todo el Sitio" aria-label="Ver Todo el Sitio">
           <span class="dock-btn-icon">👁️</span>
           <span class="dock-btn-text" data-i18n="dock_all">Ver Todo</span>
         </button>
@@ -531,11 +531,11 @@ function updateContextPanel(component, editor) {
   html += `<div class="context-nav-buttons">`;
   if (parent) {
     const pName = getComponentName(parent);
-    html += `<button class="context-nav-btn" id="btn-context-parent" title="Subir a ${pName}"><i class="fas fa-arrow-up"></i> Subir a ${pName}</button>`;
+    html += `<button class="context-nav-btn" id="btn-context-parent" title="Subir a ${pName}" aria-label="Subir a ${pName}"><i class="fas fa-arrow-up"></i> Subir a ${pName}</button>`;
   }
   if (children.length > 0) {
     const cName = getComponentName(children[0]);
-    html += `<button class="context-nav-btn" id="btn-context-child" title="Bajar a ${cName}"><i class="fas fa-arrow-down"></i> Bajar a ${cName}</button>`;
+    html += `<button class="context-nav-btn" id="btn-context-child" title="Bajar a ${cName}" aria-label="Bajar a ${cName}"><i class="fas fa-arrow-down"></i> Bajar a ${cName}</button>`;
   }
   html += `</div>`;
 
