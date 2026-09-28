@@ -421,13 +421,17 @@ export function setupTabs(editor) {
     updateContextPanel(null, editor);
   });
 
+  let uiUpdateTimeout = null;
   editor.on('component:update', () => {
-    setTimeout(updateLayerAttributes, 100);
-    const selected = editor.getSelected();
-    if (selected) {
-      updateBreadcrumbs(selected, editor);
-      updateContextPanel(selected, editor);
-    }
+    if (uiUpdateTimeout) clearTimeout(uiUpdateTimeout);
+    uiUpdateTimeout = setTimeout(() => {
+      updateLayerAttributes();
+      const selected = editor.getSelected();
+      if (selected) {
+        updateBreadcrumbs(selected, editor);
+        updateContextPanel(selected, editor);
+      }
+    }, 150);
   });
 
   return switchTab;
@@ -736,6 +740,26 @@ export function setupMobileSidebar(editor) {
     sidebar.classList.toggle('collapsed');
     const isCollapsed = sidebar.classList.contains('collapsed');
     btnToggleSidebar.classList.toggle('active', !isCollapsed);
+
+    // Adjust breadcrumbs-bar to expand when sidebar is hidden
+    const breadcrumbsBar = document.getElementById('breadcrumbs-bar');
+    if (breadcrumbsBar) {
+      if (isCollapsed) {
+        breadcrumbsBar.style.right = '0px';
+      } else {
+        const savedWidth = localStorage.getItem('talachas-sidebar-w') || 360;
+        breadcrumbsBar.style.right = `${savedWidth}px`;
+      }
+    }
+
+    // Clear inline width when collapsed so that CSS width: 0 !important takes effect
+    if (isCollapsed) {
+      sidebar.style.width = '';
+    } else {
+      const savedWidth = localStorage.getItem('talachas-sidebar-w') || 360;
+      sidebar.style.width = `${savedWidth}px`;
+    }
+
     if (fabMobile && window.innerWidth <= 768) {
       fabMobile.style.display = isCollapsed ? 'flex' : 'none';
     }

@@ -215,8 +215,9 @@ export function initHistory(editor, project = '') {
   const debouncedCapture = () => {
     if (captureTimeout) clearTimeout(captureTimeout);
     captureTimeout = setTimeout(() => {
-      captureSnapshot();
-    }, 2000);
+      // Usa un requestAnimationFrame para evitar bloquear el thread principal
+      requestAnimationFrame(() => captureSnapshot());
+    }, 3500);
   };
 
   if (editor && typeof editor.on === 'function') {

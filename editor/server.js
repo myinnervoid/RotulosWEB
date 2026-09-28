@@ -916,7 +916,7 @@ app.get('/api/templates/:id', (req, res) => {
     );
 
     // Listar assets disponibles en la carpeta de la plantilla
-    let assets = [];
+    const assets = [];
     if (fs.existsSync(assetsPath) && fs.statSync(assetsPath).isDirectory()) {
       const scanAssets = (dir, relDir = '') => {
         const entries = fs.readdirSync(dir, { withFileTypes: true });
