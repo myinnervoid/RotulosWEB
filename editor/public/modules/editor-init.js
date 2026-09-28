@@ -243,15 +243,17 @@ export async function initEditor() {
     });
     // Debounce a eventos de alta frecuencia para no saturar el EventBus ni la serialización DOM
     const debouncedPublishContent = debounce(() => {
-      try {
-        eventBus.publish(EDITOR_EVENTS.CONTENT_CHANGED, {
-          html: editor.getHtml(),
-          css: editor.getCss()
-        });
-      } catch (err) {
-        console.warn('[EventBus] Error al serializar contenido:', err);
-      }
-    }, 300);
+      requestAnimationFrame(() => {
+        try {
+          eventBus.publish(EDITOR_EVENTS.CONTENT_CHANGED, {
+            html: editor.getHtml(),
+            css: editor.getCss()
+          });
+        } catch (err) {
+          console.warn('[EventBus] Error al serializar contenido:', err);
+        }
+      });
+    }, 800); // Increased debounce time for heavy serialization operations to prevent UI freezing
 
     editor.on('change:changesCount', debouncedPublishContent);
     editor.on('style:update', debouncedPublishContent);

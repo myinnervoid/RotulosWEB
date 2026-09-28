@@ -480,7 +480,7 @@ export async function showProjectSelector(editor) {
       const query = (searchInput.value || '').trim().toLowerCase();
       const favorites = getFavorites();
 
-      let filtered = projects.filter(p => p.name.toLowerCase().includes(query));
+      const filtered = projects.filter(p => p.name.toLowerCase().includes(query));
 
       // Ordenar: favoritos primero, luego fecha modificación descendente
       filtered.sort((a, b) => {
@@ -813,6 +813,9 @@ export function setupProjectSelector(editor) {
               if (extractedCss.trim()) {
                 ed.setStyle(extractedCss);
               }
+
+              if (typeof window.clearHistory === 'function') window.clearHistory();
+
               ed.refresh();
               rebuildDockSections(ed);
               eventBus.publish(EDITOR_EVENTS.PROJECT_LOADED, {
@@ -820,6 +823,10 @@ export function setupProjectSelector(editor) {
                 html: bodyContent,
                 css: extractedCss
               });
+
+              setTimeout(() => {
+                if (typeof window.captureSnapshot === 'function') window.captureSnapshot('Import ' + file.name);
+              }, 500);
             }
 
             // Persistir archivo importado para evitar reseteo con F5
@@ -924,6 +931,9 @@ export function setupProjectSelector(editor) {
               if (extractedCss.trim()) {
                 ed.setStyle(extractedCss);
               }
+
+              if (typeof window.clearHistory === 'function') window.clearHistory();
+
               ed.refresh();
               rebuildDockSections(ed);
               eventBus.publish(EDITOR_EVENTS.PROJECT_LOADED, {
@@ -931,6 +941,10 @@ export function setupProjectSelector(editor) {
                 html: bodyContent,
                 css: extractedCss
               });
+
+              setTimeout(() => {
+                if (typeof window.captureSnapshot === 'function') window.captureSnapshot('Drop ' + file.name);
+              }, 500);
             }
 
             try {

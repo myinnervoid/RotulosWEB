@@ -764,8 +764,10 @@ body {
 
 .editor-sidebar.collapsed {
   transform: translateX(100%);
-  width: 0;
+  width: 0 !important;
+  min-width: 0 !important;
   border-left: none;
+  overflow: hidden;
 }
 
 /* Pestañas de la barra lateral */
