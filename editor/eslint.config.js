@@ -23,7 +23,7 @@ module.exports = [
       }
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_|^e$' }],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_|^e$', caughtErrorsIgnorePattern: '^_|^e$' }],
       'no-console': 'off',
       'eqeqeq': ['error', 'always'],
       'no-var': 'error',
@@ -52,11 +52,13 @@ module.exports = [
         fetch: 'readonly',
         // Web APIs
         CustomEvent: 'readonly',
+        Blob: 'readonly',
+        setTimeout: 'readonly',
         Event: 'readonly',
         EventSource: 'readonly',
         Worker: 'readonly',
         crypto: 'readonly',
-        Blob: 'readonly',
+        Blob: 'readonly', setTimeout: 'readonly',
         URL: 'readonly',
         URLSearchParams: 'readonly',
         DOMParser: 'readonly',
@@ -83,7 +85,7 @@ module.exports = [
       }
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'no-console': 'off',
       'eqeqeq': ['error', 'always'],
       'no-var': 'error',
@@ -116,11 +118,13 @@ module.exports = [
         fetch: 'readonly',
         console: 'readonly',
         Event: 'readonly',
-        CustomEvent: 'readonly'
+        CustomEvent: 'readonly',
+        Blob: 'readonly',
+        setTimeout: 'readonly'
       }
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_|^get' }],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_|^get$', varsIgnorePattern: '^_|^get$', caughtErrorsIgnorePattern: '^_' }],
       'no-console': 'off',
       'no-empty': 'off'
     }

@@ -480,7 +480,7 @@ export async function showProjectSelector(editor) {
       const query = (searchInput.value || '').trim().toLowerCase();
       const favorites = getFavorites();
 
-      let filtered = projects.filter(p => p.name.toLowerCase().includes(query));
+      const filtered = projects.filter(p => p.name.toLowerCase().includes(query));
 
       // Ordenar: favoritos primero, luego fecha modificación descendente
       filtered.sort((a, b) => {

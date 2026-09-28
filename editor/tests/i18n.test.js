@@ -20,7 +20,7 @@ Object.defineProperty(global, 'localStorage', { value: localStorageMock });
 global.fetch = vi.fn();
 
 // Importar después de definir mocks
-const { loadTranslations, applyTranslations, t, getCurrentLang } = await import('../public/modules/i18n.js');
+const { loadTranslations, applyTranslations, t } = await import('../public/modules/i18n.js');
 
 describe('i18n — t()', () => {
   it('devuelve el fallback cuando no hay traducciones cargadas', () => {

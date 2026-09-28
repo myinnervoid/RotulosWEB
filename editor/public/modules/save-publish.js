@@ -8,7 +8,6 @@
 import { showToast } from './toast.js';
 import { t } from './i18n.js';
 import { getPublishState, setPublishState, updatePublishUI } from './toast.js';
-import { showConfirmDialog } from './dialog.js';
 import { getErrorMessage } from './error-messages.js';
 import { getEditorInstance } from './editor-init.js';
 import { eventBus } from './event-bus.js';
@@ -22,6 +21,7 @@ import { showPublishDialog, publishToGitHub } from './publish.js';
  * @returns {string}
  */
 export function getSanitizedHtml(rawHtml) {
+  if (!rawHtml) return "";
   const parser = new DOMParser();
   const doc = parser.parseFromString(rawHtml, 'text/html');
 
@@ -244,7 +244,7 @@ export function setupCodeInspector(editor) {
       try {
         await navigator.clipboard.writeText(codeContent.value);
         showToast('¡Código copiado al portapapeles!');
-      } catch (e) {
+      } catch (_e) {
         codeContent.select();
         document.execCommand('copy');
         showToast('¡Código copiado!');
@@ -481,7 +481,7 @@ export function setupScreenshotModal(editorInstance) {
  * @param {Array<{ path: string, content: string|Uint8Array }>} [customFiles] - Archivos opcionales
  * @returns {Promise<Blob>}
  */
-export async function downloadProjectAsZip(projectPath = '', customFiles = null) {
+export async function downloadProjectAsZip(_projectPath = '', customFiles = null) {
   try {
     let files = customFiles;
 
@@ -537,7 +537,7 @@ export async function downloadProjectAsZip(projectPath = '', customFiles = null)
  * Configura el botón de exportar ZIP si existe en el DOM
  * @param {object} [editor]
  */
-export function setupZipExport(editor) {
+export function setupZipExport(_editor) {
   const btnExportZip = document.getElementById('btn-export-zip');
   if (!btnExportZip) return;
 
