@@ -89,3 +89,70 @@ describe('ui-panels.js — rebuildDockSections() & setupDocsModule()', () => {
     expect(modal.querySelector('[data-tab="atajos"]')).not.toBeNull();
   });
 });
+
+import { setupDiagnosticsModal, runAccessibilityAudit } from '../public/modules/ui-panels.js';
+import { workerManager } from '../public/modules/worker-manager.js';
+import { eventBus } from '../public/modules/event-bus.js';
+import { vi, afterEach } from 'vitest';
+
+describe('Diagnostics & Accessibility Audit edge cases', () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <button id="btn-diagnostics"></button>
+      <div id="diag-modal">
+        <button id="btn-close-diag"></button>
+        <button id="btn-rerun-diag"></button>
+        <div id="diag-content-box"></div>
+        <div id="diag-score-num"></div>
+        <div id="diag-summary-text"></div>
+      </div>
+    `;
+
+    vi.spyOn(workerManager, 'createWorker').mockImplementation(() => {});
+    vi.spyOn(eventBus, 'publish').mockImplementation(() => {});
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('runAccessibilityAudit() maneja fallos de red/worker', async () => {
+    vi.spyOn(workerManager, 'sendTask').mockRejectedValue(new Error('Worker timeout'));
+
+    await expect(runAccessibilityAudit('<html></html>')).rejects.toThrow('Worker timeout');
+
+    expect(eventBus.publish).toHaveBeenCalledWith('editor:audit:error', { message: 'Worker timeout' });
+  });
+
+  it('setupDiagnosticsModal() maneja correctamente una suite de integracion que falla', async () => {
+    const mockEditor = { getHtml: () => '<div></div>' };
+    setupDiagnosticsModal(mockEditor);
+
+    // Forzar fallo de la suite en la API MemexDiagnostics
+    window.MemexDiagnostics = {
+      runIntegritySuite: vi.fn().mockRejectedValue(new Error('Integrity Check Failed')),
+      runA11yAndSeoSuite: vi.fn(),
+      downloadReport: vi.fn(),
+    };
+
+    const btnDiag = document.getElementById('btn-diagnostics');
+    btnDiag.click();
+
+    // Como es asincrono, tenemos que esperar un ciclo de evento para que termine la promesa catch
+    await new Promise(r => setTimeout(r, 0));
+
+    const contentBox = document.getElementById('diag-content-box');
+    expect(contentBox.innerHTML).toContain('Error al ejecutar suite: Integrity Check Failed');
+  });
+
+  it('setupDiagnosticsModal() se salta elementos faltantes en el DOM con gracia', () => {
+    // Si no existen los botones, no debe lanzar error.
+    document.body.innerHTML = '';
+    const mockEditor = {};
+
+    expect(() => {
+      setupDiagnosticsModal(mockEditor);
+    }).not.toThrow();
+  });
+});

@@ -18,7 +18,7 @@ const panelIds = ['noticias-news', 'perfiles', 'redes-sociales', 'nosotros-apoyo
 
 // ── REFERENCIA GLOBAL AL EDITOR (inyectada desde editor-init) ──
 let _editor = null;
-let _switchTab = null; // referencia lazy a switchTab (necesaria para focusTextTrait)
+// let __switchTab = null; // referencia lazy a switchTab (necesaria para focusTextTrait)
 
 // ── DOCK IZQUIERDO ──────────────────────────────────────────
 
@@ -395,7 +395,7 @@ export function setupTabs(editor) {
     });
   }
 
-  _switchTab = switchTab;
+  // __switchTab = switchTab;
 
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {

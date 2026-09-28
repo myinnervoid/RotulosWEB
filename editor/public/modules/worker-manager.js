@@ -139,7 +139,7 @@ export class WorkerManager {
       this.terminate(name);
     });
     this.workers = {};
-    for (const [id, pending] of this.pending.entries()) {
+    for (const [, pending] of this.pending.entries()) {
       pending.reject(new Error('WorkerManager: Operación cancelada por terminación'));
     }
     this.pending.clear();

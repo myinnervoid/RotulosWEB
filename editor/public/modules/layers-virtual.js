@@ -14,7 +14,7 @@
  * @param {object} [editor] - Instancia opcional de GrapesJS
  * @returns {Function} Función de limpieza para observadores
  */
-export function setupVirtualLayers(editor) {
+export function setupVirtualLayers(_editor) {
   if (typeof document === 'undefined') return () => {};
 
   const layersContainer = document.querySelector('.gjs-layers') || document.getElementById('layers-container');

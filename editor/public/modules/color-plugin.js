@@ -158,7 +158,7 @@ function renderRecentSwatches(container) {
  */
 export const talachaColorPlugin = (ed) => {
   ed.StyleManager.addType('color', {
-    create({ props, change, updateStyle }) {
+    create({ props: _props, change: _change, updateStyle }) {
       const el = document.createElement('div');
       el.className = 'talacha-color-widget';
 

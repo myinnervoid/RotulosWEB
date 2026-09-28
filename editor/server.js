@@ -12,7 +12,7 @@ const { GitHubAPI } = require('./server/github-api');
 let openPkg;
 try {
   openPkg = require('open');
-} catch (e) {
+} catch (_e) {
   openPkg = null;
 }
 
@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 5050;
 // Directorio universal de proyectos (portable, funciona en cualquier máquina)
 const PROJECTS_BASE_EARLY = process.env.ROTULOS_PROJECTS_DIR || path.join(os.homedir(), 'RotulosProjects');
 if (!fs.existsSync(PROJECTS_BASE_EARLY)) {
-  try { fs.mkdirSync(PROJECTS_BASE_EARLY, { recursive: true }); } catch (e) {}
+  try { fs.mkdirSync(PROJECTS_BASE_EARLY, { recursive: true }); } catch (_e) {}
 }
 
 // ── BOOTSTRAP: Copiar proyecto Memexicanísimos en primer arranque ──
@@ -87,12 +87,12 @@ const userConfigDir = path.join(
   '.rotulos'
 );
 if (!fs.existsSync(userConfigDir)) {
-  try { fs.mkdirSync(userConfigDir, { recursive: true }); } catch (e) {}
+  try { fs.mkdirSync(userConfigDir, { recursive: true }); } catch (_e) {}
 }
 const recentFile = path.join(userConfigDir, 'recent.json');
 const legacyRecentFile = path.join(process.env.HOME || '.', '.talachas', 'recent.json');
 if (!fs.existsSync(recentFile) && fs.existsSync(legacyRecentFile)) {
-  try { fs.copyFileSync(legacyRecentFile, recentFile); } catch (e) {}
+  try { fs.copyFileSync(legacyRecentFile, recentFile); } catch (_e) {}
 }
 
 // Restaurar el último proyecto activo de recent.json si no se especificó por CLI o ENV
@@ -136,7 +136,7 @@ function getActiveStylePath() {
 function getActiveBackupsDir() {
   const custom = path.join(projectPath, 'backups');
   if (!fs.existsSync(custom)) {
-    try { fs.mkdirSync(custom, { recursive: true }); } catch (e) {}
+    try { fs.mkdirSync(custom, { recursive: true }); } catch (_e) {}
   }
   return custom;
 }
@@ -1377,8 +1377,8 @@ if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
     };
     server = https.createServer(sslOptions, app);
     isHttps = true;
-  } catch (e) {
-    console.warn('⚠️ Error al leer certificados SSL, alternando a HTTP:', e.message);
+  } catch (_e) {
+    console.warn('⚠️ Error al leer certificados SSL, alternando a HTTP:', _e.message);
     server = http.createServer(app);
   }
 } else {
@@ -1405,7 +1405,7 @@ ${!isHttps ? '💡 TIP: Para activar HTTPS local con candado verde:\n   mkcert -
     if (openPkg && process.env.NODE_ENV !== 'test' && !process.env.NO_OPEN) {
       try {
         openPkg(url).catch(() => {});
-      } catch (e) {}
+      } catch (_e) {}
     }
   });
 }
