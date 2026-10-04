@@ -5,7 +5,7 @@ const urlsToCache = [
   '/style.min.css',
   '/style.css',
   '/app.min.js',
-  '/app.js',
+  '/modules/main.js',
   '/vendor/grapesjs/css/grapes.min.css',
   '/vendor/grapesjs/grapes.min.js',
   '/vendor/grapesjs-blocks-basic/index.js',
