@@ -1013,6 +1013,38 @@ export function setupDocsModule() {
         `
       },
       {
+        id: 'bloques',
+        label: '🧱 Catálogo de Bloques',
+        content: `
+          <h3>Catálogo de Bloques Disponibles (Manifiesto)</h3>
+          <p>Rótulos Web cuenta con 17 bloques divididos en dos categorías en la barra lateral izquierda:</p>
+          
+          <h4>Estructura & Básicos</h4>
+          <ul>
+            <li><strong>1 Columna:</strong> Sección <code>&lt;section&gt;</code> centrada de ancho máximo (1200px).</li>
+            <li><strong>2 Columnas:</strong> Flexbox simétrico 50/50 con auto-wrap a 300px en pantallas móviles.</li>
+            <li><strong>3 Columnas:</strong> Tríptico flexbox adaptable para tarjetas, servicios o noticias.</li>
+            <li><strong>2 Cols (30/70):</strong> Layout asimétrico ideal para sidebar + contenido principal.</li>
+            <li><strong>Texto / Párrafo:</strong> Bloque de texto con tipografía de alto contraste y doble clic para editar.</li>
+            <li><strong>Enlace:</strong> Hipervínculo con acento verde neón (#55EBB2) y target configurable.</li>
+            <li><strong>Imagen / Video / Mapa:</strong> Bloques multimedia responsivos con esquinas redondeadas.</li>
+          </ul>
+
+          <h4>🎨 Rótulos Web (Memexicanísimos)</h4>
+          <ul>
+            <li><strong>📰 Tarjeta Noticia:</strong> Card editorial con foto de portada, primicia dorada (#D4AF37), titular H3 y link a crónica.</li>
+            <li><strong>⚡ Vitrina App .io:</strong> Showcase de software con badge verde, tag de versión monospaciada y botones Demo/GitHub.</li>
+            <li><strong>🎯 Llamada a la Acción (CTA):</strong> Banner nocturno con gradiente, borde dorado y botón pill brillante.</li>
+            <li><strong>📢 Banner de Alerta:</strong> Notificación tricolor horizontal para avisos urgentes o comunicados.</li>
+            <li><strong>⌨️ Tabla de Atajos:</strong> Widget de referencia rápida con etiquetas &lt;kbd&gt; de estilo terminal.</li>
+            <li><strong>🇲🇽 Botón Dorado Charro:</strong> Botón de acción principal con gradiente dorado metálico y sombra profunda.</li>
+            <li><strong>🟢 Etiqueta Tricolor:</strong> Chip inline monospace (#Space Mono) para estados o badges.</li>
+            <li><strong>✨ Caja Glassmorphism:</strong> Contenedor moderno con desenfoque de fondo (backdrop-filter: blur(12px)).</li>
+          </ul>
+          <p><em>Para especificaciones completas, consulta el archivo técnico: <code>editor/docs/BLOQUES_MANIFEST.md</code>.</em></p>
+        `
+      },
+      {
         id: 'atajos',
         label: '⌨️ Atajos de Teclado',
         content: `
