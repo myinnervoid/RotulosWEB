@@ -1,3 +1,4 @@
+/* global require, module */
 const js = require('@eslint/js');
 
 module.exports = [
@@ -53,12 +54,10 @@ module.exports = [
         // Web APIs
         CustomEvent: 'readonly',
         Blob: 'readonly',
-        setTimeout: 'readonly',
         Event: 'readonly',
         EventSource: 'readonly',
         Worker: 'readonly',
         crypto: 'readonly',
-        Blob: 'readonly', setTimeout: 'readonly',
         URL: 'readonly',
         URLSearchParams: 'readonly',
         DOMParser: 'readonly',
@@ -120,7 +119,8 @@ module.exports = [
         Event: 'readonly',
         CustomEvent: 'readonly',
         Blob: 'readonly',
-        setTimeout: 'readonly'
+        setTimeout: 'readonly',
+        process: 'readonly'
       }
     },
     rules: {
@@ -138,7 +138,13 @@ module.exports = [
       'public/style.min.css',
       'public/vendor/**',
       'dist/**',
-      'backups/**'
+      'backups/**',
+      'templates/**/app.js',
+      'public/workers/zip-worker.js',
+      'public/workers/dom-worker.js',
+      'public/sw.js',
+      'public/tools-config.js',
+      'public/diagnostics.js'
     ]
   }
 ];
