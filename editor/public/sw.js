@@ -1,7 +1,8 @@
-const CACHE_NAME = 'rotulos-editor-v3.3.2';
+const CACHE_NAME = 'rotulos-editor-v5.1.0';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/manifest.json',
   '/style.min.css',
   '/style.css',
   '/app.min.js',

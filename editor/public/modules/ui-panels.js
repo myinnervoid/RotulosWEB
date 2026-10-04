@@ -642,6 +642,7 @@ export function setupSidebarResizer() {
   let isResizing = false;
   let startX = 0;
   let startWidth = 0;
+  let rafId = null;
 
   resizer.addEventListener('mousedown', (e) => {
     isResizing = true;
@@ -654,15 +655,22 @@ export function setupSidebarResizer() {
 
   window.addEventListener('mousemove', (e) => {
     if (!isResizing) return;
-    const diff = startX - e.clientX;
-    const newWidth = Math.max(280, Math.min(800, startWidth + diff));
-    sidebar.style.width = `${newWidth}px`;
-    if (breadcrumbsBar) breadcrumbsBar.style.right = `${newWidth}px`;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(() => {
+      const diff = startX - e.clientX;
+      const newWidth = Math.max(280, Math.min(800, startWidth + diff));
+      sidebar.style.width = `${newWidth}px`;
+      if (breadcrumbsBar) breadcrumbsBar.style.right = `${newWidth}px`;
+    });
   });
 
   window.addEventListener('mouseup', () => {
     if (isResizing) {
       isResizing = false;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
       resizer.classList.remove('resizing');
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
