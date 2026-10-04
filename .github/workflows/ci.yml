@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Tests & Auditoría
+    name: Tests & Linting
     runs-on: ubuntu-latest
 
     steps:
@@ -26,18 +26,15 @@ jobs:
         working-directory: editor
         run: npm ci
 
-      - name: Ejecutar tests unitarios
+      - name: Ejecutar Linting
         working-directory: editor
-        run: npm test
+        run: npm run lint
+
+      - name: Ejecutar Tests
+        working-directory: editor
+        run: npm run test
 
       - name: Auditoría de seguridad (solo producción)
         working-directory: editor
         run: npm audit --audit-level=high --omit=dev
-        # Las vulns de devDeps (vitest@1.x) no bloquean el pipeline.
-        # Solo vulnerabilidades en deps de producción con severidad high/critical fallan el CI.
-        continue-on-error: false
-
-      - name: Reporte de cobertura (informativo)
-        working-directory: editor
-        run: npm run test:coverage
         continue-on-error: true
