@@ -217,7 +217,79 @@ Rótulos Web organiza sus bloques en dos categorías principales accesibles desd
 
 ---
 
-## 3. Matriz Comparativa de Bloques
+## 3. Categoría: 📰 Blog & Editorial (`blog`)
+
+### 3.1. `blog-articulo-narracion` — Artículo & Narración
+- **ID:** `blog-articulo-narracion`
+- **Icono:** `fa-paragraph` (Oro claro `#F5C542`)
+- **Propósito:** Composición editorial de lectura profunda con letra capital drop-cap en Oro Charro, cita destacada (`blockquote`) con borde izquierdo y párrafos con interlineado `1.8`.
+
+### 3.2. `blog-caja-titular` — Encabezado con Firma
+- **ID:** `blog-caja-titular`
+- **Icono:** `fa-heading` (Verde Neón `#55EBB2`)
+- **Propósito:** Cabecera completa de artículo con chip de categoría, titular H1 de 2.4rem, subtítulo explicativo y firma de autor con avatar circular, fecha y tiempo estimado de lectura.
+
+### 3.3. `blog-feed-grid` — Despliegue de Notas
+- **ID:** `blog-feed-grid`
+- **Icono:** `fa-layer-group` (Dorado `#D4AF37`)
+- **Propósito:** Cuadrícula responsiva de 3 artículos con portadas fotográficas, metadatos en Space Mono, titulares H3 y enlaces directos de lectura.
+
+### 3.4. `blog-media-texto` — Texto con Imagen al Lado
+- **ID:** `blog-media-texto`
+- **Icono:** `fa-align-left` (Azul `#7AA2E7`)
+- **Propósito:** Disposición en 2 columnas 50/50 balanceada con fotografía descriptiva y pie de foto en un lado, y caja narrativa con viñetas destacadas en el otro.
+
+---
+
+## 4. Categoría: 👤 Personal & Portafolio (`portafolio`)
+
+### 4.1. `portfolio-avatar-bio` — Avatar Circular & Bio
+- **ID:** `portfolio-avatar-bio`
+- **Icono:** `fa-user-circle` (Dorado `#D4AF37`)
+- **Propósito:** Tarjeta de presentación con fotografía circular (`border-radius: 50%`) de 130px, indicador de disponibilidad en línea verde, título profesional y botones de acción.
+
+### 4.2. `portfolio-skills-grid` — Grid de Conocimientos
+- **ID:** `portfolio-skills-grid`
+- **Icono:** `fa-th` (Verde `#55EBB2`)
+- **Propósito:** Mosaico de 4 tarjetas de habilidades con iconos temáticos (Cámara, Código, Arte, Producción en vivo), badges de experiencia y descripciones de stack.
+
+### 4.3. `portfolio-perfil-cv` — Ficha de Perfil CV
+- **ID:** `portfolio-perfil-cv`
+- **Icono:** `fa-id-card` (Púrpura `#C792EA`)
+- **Propósito:** Resumen profesional con métricas clave (Ubicación, Años de experiencia, Modalidad) y botón de descarga de CV en PDF.
+
+### 4.4. `portfolio-galeria-3d` — Galería de Arte 3D
+- **ID:** `portfolio-galeria-3d`
+- **Icono:** `fa-images` (Oro claro `#F5C542`)
+- **Propósito:** Escaparate visual de 3 proyectos u obras fotográficas con tarjetas elevadas, sombra de profundidad 3D y marco dorado sutil.
+
+### 4.5. `portfolio-mapa-timeline` — Línea de Tiempo / Árbol
+- **ID:** `portfolio-mapa-timeline`
+- **Icono:** `fa-project-diagram` (Verde `#55EBB2`)
+- **Propósito:** Mapa cronológico vertical con línea conectora central, nodos circulares dorados y descripción de hitos de trayectoria artística o laboral.
+
+---
+
+## 5. Categoría: 💼 Landing Profesional (`landing`)
+
+### 5.1. `landing-hero-overlay` — Hero con Fondo Traslúcido
+- **ID:** `landing-hero-overlay`
+- **Icono:** `fa-star` (Dorado `#D4AF37`)
+- **Propósito:** Cabecera de aterrizaje de alto impacto con imagen de fondo cubierta por overlay oscuro traslúcido (`rgba(10,15,13,0.85)` a `0.92`), titular H1 nítido en primer plano y botones duales de llamada a la acción.
+
+### 5.2. `landing-bento-grid` — Bento Grid de Servicios
+- **ID:** `landing-bento-grid`
+- **Icono:** `fa-cubes` (Azul `#7AA2E7`)
+- **Propósito:** Disposición moderna asimétrica estilo Bento (tarjeta principal 2x2 + tarjetas medianas + barra de llamada a la acción) para exponer servicios y propuestas de valor.
+
+### 5.3. `landing-metricas-impacto` — Métricas de Impacto
+- **ID:** `landing-metricas-impacto`
+- **Icono:** `fa-chart-line` (Verde `#55EBB2`)
+- **Propósito:** Franja de 4 estadísticas contundentes con números gigantes en Space Mono / Oro Charro y etiquetas descriptivas.
+
+---
+
+## 6. Matriz Comparativa Completa de Bloques
 
 | ID de Bloque | Categoría | Tipo Semántico | Responsivo Móvil | Acento de Color | Uso Principal |
 |:---|:---|:---|:---:|:---:|:---|
@@ -238,10 +310,22 @@ Rótulos Web organiza sus bloques en dos categorías principales accesibles desd
 | `boton-charro` | Rótulos | `<a>` | ✅ Inline-flex | Oro metálico | Botón de acción principal |
 | `badge-patrio` | Rótulos | `<span>` | ✅ Inline | Verde bosque | Chips e insignias |
 | `caja-glass` | Rótulos | `<div>` | ✅ Max 900px | Glass / Blur | Contenedor de cristal |
+| `blog-articulo-narracion` | Blog | `<article>` | ✅ Max 820px | Oro / Fraunces | Lectura profunda con capitular y cita |
+| `blog-caja-titular` | Blog | `<header>` | ✅ Max 860px | Verde Neón | Titular H1 con metadatos y firma |
+| `blog-feed-grid` | Blog | `<section>` | ✅ Flex-wrap | Oro Charro | Feed visual de 3 notas con miniatura |
+| `blog-media-texto` | Blog | `<section>` | ✅ Flex-wrap 380px | Azul / Oro | Imagen y descripción side-by-side |
+| `portfolio-avatar-bio` | Portafolio | `<section>` | ✅ Max 760px | Oro / Verde | Avatar circular con indicador online y bio |
+| `portfolio-skills-grid` | Portafolio | `<section>` | ✅ Auto-fit 210px | Oro / Neón | Grid de habilidades con iconos |
+| `portfolio-perfil-cv` | Portafolio | `<section>` | ✅ Auto-fit 220px | Púrpura | Ficha CV con hitos y descarga |
+| `portfolio-galeria-3d` | Portafolio | `<section>` | ✅ Flex 310px | Oro Charro | Galería de obras con sombra 3D |
+| `portfolio-mapa-timeline` | Portafolio | `<section>` | ✅ Padding-left 32px | Verde / Oro | Línea de tiempo vertical cronológica |
+| `landing-hero-overlay` | Landing | `<section>` | ✅ Max 1150px | Oro / Neón | Hero con fondo traslúcido y botones duales |
+| `landing-bento-grid` | Landing | `<section>` | ✅ Auto-fit 300px | Bento / Vidrio | Grid asimétrico de propuestas y servicios |
+| `landing-metricas-impacto` | Landing | `<section>` | ✅ Auto-fit 180px | Oro / Verde | 4 Contadores gigantes de estadísticas |
 
 ---
 
-## 4. Cómo registrar nuevos bloques personalizados
+## 7. Cómo registrar nuevos bloques personalizados
 
 Para agregar un nuevo bloque al editor, se edita [`editor/public/modules/blocks.js`](file:///home/myinnervoid/Estudio%20Memexicanisimos/Rotulos%20Web/editor/public/modules/blocks.js) agregando una llamada a `bm.add(id, options)`:
 

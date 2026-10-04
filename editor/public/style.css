@@ -404,6 +404,77 @@ body {
   height: 100% !important;
 }
 
+/* ── ERGONOMÍA DEL CANVAS: DROPZONE, SELECCIÓN Y MANIPULACIÓN ── */
+.gjs-placeholder {
+  border: 2px dashed #55EBB2 !important;
+  background: rgba(85, 235, 178, 0.22) !important;
+  box-shadow: 0 0 14px rgba(85, 235, 178, 0.45) !important;
+  border-radius: 6px !important;
+  min-height: 12px !important;
+  margin: 6px 0 !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.gjs-placeholder-int {
+  background: #55EBB2 !important;
+  box-shadow: 0 0 8px #55EBB2 !important;
+}
+
+.gjs-selected {
+  outline: 2px solid #D4AF37 !important;
+  outline-offset: -2px !important;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.35) !important;
+}
+
+.gjs-hovered {
+  outline: 1.5px dashed rgba(212, 175, 55, 0.6) !important;
+  outline-offset: -1px !important;
+}
+
+.gjs-badge {
+  background: #141B17 !important;
+  color: #D4AF37 !important;
+  font-family: 'Space Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(212, 175, 55, 0.5) !important;
+  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6) !important;
+}
+
+.gjs-toolbar {
+  background: #141B17 !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7) !important;
+  padding: 4px !important;
+}
+
+.gjs-toolbar-item {
+  color: #F8F9FA !important;
+  padding: 6px 9px !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  transition: all 0.15s ease !important;
+}
+
+.gjs-toolbar-item:hover {
+  background: rgba(212, 175, 55, 0.25) !important;
+  color: #D4AF37 !important;
+}
+
+.gjs-resizer-hdl {
+  background: #D4AF37 !important;
+  border: 1px solid #090D0B !important;
+  border-radius: 50% !important;
+  width: 9px !important;
+  height: 9px !important;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.6) !important;
+}
+
 /* ── DRAWER / MENÚ HAMBURGUESA (ZONA 2) ── */
 .drawer-backdrop {
   position: fixed;

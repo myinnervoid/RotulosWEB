@@ -227,7 +227,28 @@ export async function initEditor() {
         styles: [
           'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
           '/fonts/fonts.css',
-          'data:text/css;charset=utf-8,' + encodeURIComponent('html, body { overflow-y: auto !important; height: auto !important; min-height: 100vh !important; }')
+          'data:text/css;charset=utf-8,' + encodeURIComponent(`
+            html, body {
+              overflow-y: auto !important;
+              height: auto !important;
+              min-height: 100vh !important;
+            }
+            /* Ergonomía de diseño: Contenedores vacíos no colapsan a 0px */
+            [data-gjs-type]:empty:not(img):not(input):not(br):not(hr) {
+              min-height: 48px !important;
+              outline: 1.5px dashed rgba(212, 175, 55, 0.4) !important;
+              outline-offset: -2px;
+              background: rgba(255, 255, 255, 0.02) !important;
+              box-sizing: border-box !important;
+            }
+            p, h1, h2, h3, h4, h5, h6, blockquote {
+              position: relative;
+            }
+            [data-gjs-type]:hover {
+              outline: 1px dashed rgba(85, 235, 178, 0.35);
+              outline-offset: -1px;
+            }
+          `)
         ]
       }
     });
