@@ -454,12 +454,18 @@ app.post('/api/recent-projects', (req, res) => {
 app.post('/api/switch-project', (req, res) => {
   try {
     const { newProjectPath } = req.body;
-    if (!newProjectPath) {
+    if (!newProjectPath || typeof newProjectPath !== 'string') {
       return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PATH.code, 'Ruta no especificada'));
     }
+
+    // Validate for null bytes or other potentially dangerous characters.
+    if (newProjectPath.indexOf('\0') !== -1) {
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PATH.code, 'Ruta contiene caracteres inválidos'));
+    }
+
     const resolved = path.resolve(newProjectPath);
     if (!fs.existsSync(resolved)) {
-      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.PATH_NOT_FOUND.code, `La ruta "${resolved}" no existe`));
+      return res.status(400).json(createApiResponse(false, null, ERROR_CODES.PATH_NOT_FOUND.code, `La ruta no existe`));
     }
     projectPath = resolved;
     addRecentProject(resolved);
@@ -611,12 +617,22 @@ app.post('/api/save', (req, res) => {
       // B. Escritura atómica: escribir a .tmp y luego renombrar (evita corrupción)
       const tmpPath = indexPath + '.tmp';
       fs.writeFileSync(tmpPath, html, 'utf-8');
+      const expectedHtmlSize = Buffer.byteLength(html, 'utf8');
+      const actualHtmlSize = fs.statSync(tmpPath).size;
+      if (actualHtmlSize !== expectedHtmlSize) {
+        throw new Error('Falló la comprobación de integridad al guardar index.html');
+      }
       fs.renameSync(tmpPath, indexPath);
 
       // C. Si se envían estilos actualizados, guardar en style.css (también atómico)
       if (css && typeof css === 'string') {
         const tmpCss = stylePath + '.tmp';
         fs.writeFileSync(tmpCss, css, 'utf-8');
+        const expectedCssSize = Buffer.byteLength(css, 'utf8');
+        const actualCssSize = fs.statSync(tmpCss).size;
+        if (actualCssSize !== expectedCssSize) {
+          throw new Error('Falló la comprobación de integridad al guardar style.css');
+        }
         fs.renameSync(tmpCss, stylePath);
       }
 
@@ -737,13 +753,63 @@ function findSystemChrome() {
   return null;
 }
 
-// 6. Endpoint para Render y Captura de Pantalla HD (Fase C)
-app.post('/api/screenshot', async (req, res) => {
-  const chromePath = findSystemChrome();
-  if (!chromePath) {
-    return res.status(503).json(createApiResponse(false, null, ERROR_CODES.CHROME_NOT_FOUND.code, 'No se encontró un navegador Chrome/Chromium en el sistema (/usr/bin/google-chrome).'));
+let globalBrowser = null;
+let browserPromise = null;
+let browserIdleTimer = null;
+const BROWSER_IDLE_TIMEOUT = 60000; // 60 seconds
+
+async function getBrowserInstance() {
+  if (browserIdleTimer) {
+    clearTimeout(browserIdleTimer);
+    browserIdleTimer = null;
   }
 
+  if (!globalBrowser || !globalBrowser.isConnected()) {
+    if (!browserPromise) {
+      const chromePath = findSystemChrome();
+      if (!chromePath) {
+        throw new Error(ERROR_CODES.CHROME_NOT_FOUND.code);
+      }
+      browserPromise = puppeteer.launch({
+        executablePath: chromePath,
+        headless: 'new',
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--hide-scrollbars'
+        ]
+      }).then(browser => {
+        globalBrowser = browser;
+        browserPromise = null;
+        return browser;
+      }).catch(err => {
+        browserPromise = null;
+        throw err;
+      });
+    }
+    await browserPromise;
+  }
+
+  // Set the idle timer to close the browser after 60 seconds of inactivity
+  browserIdleTimer = setTimeout(async () => {
+    if (globalBrowser) {
+      try {
+        await globalBrowser.close();
+      } catch (err) {
+        console.warn('[PUPPETEER] Error closing idle browser:', err.message);
+      }
+      globalBrowser = null;
+      browserPromise = null;
+    }
+  }, BROWSER_IDLE_TIMEOUT);
+
+  return globalBrowser;
+}
+
+// 6. Endpoint para Render y Captura de Pantalla HD (Fase C)
+app.post('/api/screenshot', async (req, res) => {
   const { device = 'desktop', customWidth, customHeight, fullPage = false, theme = 'patria', html, css } = req.body || {};
   const resolutions = {
     desktop: { width: 1920, height: 1080 },
@@ -762,21 +828,10 @@ app.post('/api/screenshot', async (req, res) => {
     height = resolutions[device].height;
   }
 
-  let browser = null;
+  let page = null;
   try {
-    browser = await puppeteer.launch({
-      executablePath: chromePath,
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--hide-scrollbars'
-      ]
-    });
-
-    const page = await browser.newPage();
+    const browser = await getBrowserInstance();
+    page = await browser.newPage();
     await page.setViewport({ width, height, deviceScaleFactor: 2 });
 
     if (html && typeof html === 'string') {
@@ -827,13 +882,16 @@ app.post('/api/screenshot', async (req, res) => {
 
   } catch (err) {
     console.error('[SCREENSHOT ERROR]:', err.message);
+    if (err.message === ERROR_CODES.CHROME_NOT_FOUND.code) {
+      return res.status(503).json(createApiResponse(false, null, ERROR_CODES.CHROME_NOT_FOUND.code, 'No se encontró un navegador Chrome/Chromium en el sistema (/usr/bin/google-chrome).'));
+    }
     res.status(500).json(createApiResponse(false, null, ERROR_CODES.SCREENSHOT_FAILED.code, 'Error al capturar pantalla: ' + err.message));
   } finally {
-    if (browser) {
+    if (page) {
       try {
-        await browser.close();
+        await page.close();
       } catch (closeErr) {
-        console.warn('[SCREENSHOT WARN] Error cerrando browser:', closeErr.message);
+        console.warn('[SCREENSHOT WARN] Error cerrando page:', closeErr.message);
       }
     }
   }

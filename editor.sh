@@ -67,7 +67,7 @@ function start_server() {
       echo "❌ La ruta '$target_path' no existe o no es un directorio válido."
       exit 1
     fi
-    export PROJECT_PATH="$(cd "$target_path" && pwd)"
+    export PROJECT_PATH="$(cd "${target_path}" && pwd)"
   fi
 
   echo "----------------------------------------------------------"
@@ -85,7 +85,7 @@ function start_server() {
   echo "----------------------------------------------------------"
 
   cd "$EDITOR_DIR" || exit 1
-  exec node server.js "$PROJECT_PATH"
+  exec node server.js "${PROJECT_PATH:-$DIR}"
 }
 
 function restart_server() {
@@ -124,13 +124,13 @@ PROJECT_ARG="${2:-}"
 
 case "$ACTION" in
   start)
-    start_server "$PROJECT_ARG"
+    start_server "${PROJECT_ARG}"
     ;;
   stop)
     stop_server
     ;;
   restart)
-    restart_server "$PROJECT_ARG"
+    restart_server "${PROJECT_ARG}"
     ;;
   status)
     status_server
