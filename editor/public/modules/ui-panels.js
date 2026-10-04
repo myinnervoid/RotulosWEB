@@ -1140,7 +1140,18 @@ export function setupDiagnosticsModal(editor) {
 
     try {
       if (!window.MemexDiagnostics) {
-        throw new Error('El motor de diagnóstico no está cargado');
+        try {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = './diagnostics.js';
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('No se pudo cargar diagnostics.js'));
+            document.head.appendChild(script);
+          });
+        } catch (_) {}
+      }
+      if (!window.MemexDiagnostics) {
+        throw new Error('El motor de diagnóstico no está cargado. Verifica que el servidor en http://localhost:5050 esté activo.');
       }
       const integrity = await window.MemexDiagnostics.runIntegritySuite(editor);
       const a11ySeo = await window.MemexDiagnostics.runA11yAndSeoSuite(editor);

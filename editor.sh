@@ -82,10 +82,54 @@ function start_server() {
   echo "   - Detener:   ./editor.sh stop"
   echo "   - Reiniciar: ./editor.sh restart [ruta-opcional]"
   echo "   - Estado:    ./editor.sh status"
-  echo "----------------------------------------------------------"
+  if [ ! -d "$EDITOR_DIR/node_modules" ]; then
+    echo "📦 Instalando dependencias de Rótulos Web (npm ci)..."
+    (cd "$EDITOR_DIR" && npm ci) || { echo "❌ Error al instalar dependencias con npm ci."; exit 1; }
+  fi
 
   cd "$EDITOR_DIR" || exit 1
   exec node server.js "${PROJECT_PATH:-$DIR}"
+}
+
+function start_daemon() {
+  local target_path="${1:-}"
+
+  if [ -x "$EDITOR_DIR/cleanup.sh" ]; then
+    "$EDITOR_DIR/cleanup.sh"
+  fi
+
+  local pid=$(get_pid)
+  if [ -n "$pid" ]; then
+    echo "⚠️ Ya existe un servidor activo en puerto $PORT (PID: $pid)."
+    return 0
+  fi
+
+  if [ -n "$target_path" ]; then
+    if [ ! -d "$target_path" ]; then
+      echo "❌ La ruta '$target_path' no existe o no es un directorio válido."
+      exit 1
+    fi
+    export PROJECT_PATH="$(cd "${target_path}" && pwd)"
+  fi
+
+  echo "🛠️ Iniciando Rótulos Web en segundo plano (daemon)..."
+  if [ ! -d "$EDITOR_DIR/node_modules" ]; then
+    echo "📦 Instalando dependencias de Rótulos Web (npm ci)..."
+    (cd "$EDITOR_DIR" && npm ci) || { echo "❌ Error al instalar dependencias con npm ci."; exit 1; }
+  fi
+
+  cd "$EDITOR_DIR" || exit 1
+  nohup node server.js "${PROJECT_PATH:-$DIR}" > "$DIR/editor.log" 2>&1 &
+  sleep 1
+  local new_pid=$(get_pid)
+  if [ -n "$new_pid" ]; then
+    echo "🟢 Servidor iniciado en segundo plano (PID: $new_pid)."
+    echo "📂 Proyecto activo: ${PROJECT_PATH:-$DIR}"
+    echo "🌐 Disponible en: http://localhost:$PORT"
+    echo "📄 Log disponible en: $DIR/editor.log"
+  else
+    echo "❌ Error al iniciar en segundo plano. Revisa $DIR/editor.log"
+  fi
 }
 
 function restart_server() {
@@ -126,6 +170,9 @@ case "$ACTION" in
   start)
     start_server "${PROJECT_ARG}"
     ;;
+  daemon|bg|start-bg)
+    start_daemon "${PROJECT_ARG}"
+    ;;
   stop)
     stop_server
     ;;
@@ -140,7 +187,7 @@ case "$ACTION" in
     ;;
   *)
     echo "🛠️ Talachas y Rótulos Web – Gestor Universal"
-    echo "Uso: $0 [start | stop | restart | status | build] [ruta-del-proyecto]"
+    echo "Uso: $0 [start | daemon | stop | restart | status | build] [ruta-del-proyecto]"
     exit 1
     ;;
 esac

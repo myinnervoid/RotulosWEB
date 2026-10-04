@@ -2,12 +2,11 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const { app } = require('../server.js');
+const { app, PROJECTS_BASE } = require('../server.js');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const PROJECTS_BASE = path.join(os.homedir(), 'RotulosProjects');
 const TEST_PROJECT = 'test-project-' + Date.now();
 const TEST_PROJECT_TPL = 'test-project-tpl-' + Date.now();
 

@@ -12,6 +12,7 @@ const urlsToCache = [
   '/vendor/grapesjs-blocks-basic/index.js',
   '/locales/es.json',
   '/locales/en.json',
+  '/diagnostics.js',
   '/vendor/axe.min.js',
   '/fonts/SpaceGrotesk.ttf',
   '/fonts/SpaceMono-Regular.ttf',

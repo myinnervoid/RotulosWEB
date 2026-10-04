@@ -20,11 +20,26 @@ const app = express();
 const PORT = process.env.PORT || 5050;
 
 // ── CONFIGURACIÓN PORTABLE DE PROYECTOS ─────────────────────
-// Directorio universal de proyectos (portable, funciona en cualquier máquina)
-const PROJECTS_BASE_EARLY = process.env.ROTULOS_PROJECTS_DIR || path.join(os.homedir(), 'RotulosProjects');
-if (!fs.existsSync(PROJECTS_BASE_EARLY)) {
-  try { fs.mkdirSync(PROJECTS_BASE_EARLY, { recursive: true }); } catch (_e) {}
-}
+// Directorio universal de proyectos (portable, funciona en cualquier máquina o entorno restringido)
+const PROJECTS_BASE_EARLY = (function() {
+  const custom = process.env.ROTULOS_PROJECTS_DIR;
+  if (custom) return custom;
+  const userHomeProjects = path.join(os.homedir(), 'RotulosProjects');
+  try {
+    if (!fs.existsSync(userHomeProjects)) {
+      fs.mkdirSync(userHomeProjects, { recursive: true });
+    }
+    return userHomeProjects;
+  } catch (_e) {
+    const fallbackProjects = path.resolve(__dirname, '..', 'RotulosProjects');
+    try {
+      if (!fs.existsSync(fallbackProjects)) {
+        fs.mkdirSync(fallbackProjects, { recursive: true });
+      }
+    } catch (_) {}
+    return fallbackProjects;
+  }
+})();
 
 // ── BOOTSTRAP: Copiar proyecto Memexicanísimos en primer arranque ──
 // Garantiza que todo usuario nuevo (al clonar el repo o descargar el binario)
@@ -72,7 +87,7 @@ if (!fs.existsSync(PROJECTS_BASE_EARLY)) {
 const defaultMemexProject = path.join(PROJECTS_BASE_EARLY, 'memexicanisimos');
 const defaultCandidate = fs.existsSync(defaultMemexProject)
   ? defaultMemexProject
-  : PROJECTS_BASE_EARLY;
+  : (fs.existsSync(PROJECTS_BASE_EARLY) ? PROJECTS_BASE_EARLY : path.resolve(__dirname, '..'));
 
 let projectPath = process.env.PROJECT_PATH || process.argv[2] || defaultCandidate;
 if (!fs.existsSync(projectPath)) {
@@ -1049,15 +1064,7 @@ app.get('/api/templates/:id/preview', (req, res) => {
 });
 
 // ── 9. Gestión de Proyectos en Disco (v5.0 Fase 1) ────────────
-const PROJECTS_BASE = process.env.ROTULOS_PROJECTS_DIR || path.join(os.homedir(), 'RotulosProjects');
-
-if (!fs.existsSync(PROJECTS_BASE)) {
-  try {
-    fs.mkdirSync(PROJECTS_BASE, { recursive: true });
-  } catch (err) {
-    console.warn('[PROJECTS] Error creando PROJECTS_BASE:', err.message);
-  }
-}
+const PROJECTS_BASE = PROJECTS_BASE_EARLY;
 
 function getSafeProjectPath(projectName) {
   const safeName = path.basename(projectName || '');
@@ -1154,27 +1161,30 @@ app.post('/api/projects/create', (req, res) => {
     }
 
     const safeName = path.basename(name.trim());
-    const projectPath = path.join(PROJECTS_BASE, safeName);
-    if (fs.existsSync(projectPath)) {
+    const newProjPath = path.join(PROJECTS_BASE, safeName);
+    if (fs.existsSync(newProjPath)) {
       return res.status(409).json(createApiResponse(false, null, 'PROJECT_EXISTS', 'El proyecto ya existe'));
     }
 
-    fs.mkdirSync(projectPath, { recursive: true });
+    fs.mkdirSync(newProjPath, { recursive: true });
 
     if (templateId) {
       const templateDir = path.join(__dirname, 'templates', path.basename(templateId));
       if (fs.existsSync(templateDir) && fs.statSync(templateDir).isDirectory()) {
-        copyTemplate(templateDir, projectPath);
+        copyTemplate(templateDir, newProjPath);
       } else {
-        fs.writeFileSync(path.join(projectPath, 'index.html'), '<!DOCTYPE html>\n<html lang="es">\n<head><meta charset="UTF-8"><title>' + safeName + '</title></head>\n<body><h1>' + safeName + '</h1></body></html>', 'utf8');
+        fs.writeFileSync(path.join(newProjPath, 'index.html'), '<!DOCTYPE html>\n<html lang="es">\n<head><meta charset="UTF-8"><title>' + safeName + '</title></head>\n<body><h1>' + safeName + '</h1></body></html>', 'utf8');
       }
     } else {
-      fs.writeFileSync(path.join(projectPath, 'index.html'), '<!DOCTYPE html>\n<html lang="es">\n<head><meta charset="UTF-8"><title>' + safeName + '</title></head>\n<body><h1>' + safeName + '</h1></body></html>', 'utf8');
+      fs.writeFileSync(path.join(newProjPath, 'index.html'), '<!DOCTYPE html>\n<html lang="es">\n<head><meta charset="UTF-8"><title>' + safeName + '</title></head>\n<body><h1>' + safeName + '</h1></body></html>', 'utf8');
     }
 
-    addRecentProject(projectPath);
+    projectPath = newProjPath;
+    addRecentProject(newProjPath);
+    startProjectWatcher(newProjPath);
+    console.log(`[PROYECTO] Creado y conmutado a: ${projectPath}`);
 
-    res.json(createApiResponse(true, { name: safeName, path: projectPath }, null, 'Proyecto creado exitosamente'));
+    res.json(createApiResponse(true, { name: safeName, path: newProjPath }, null, 'Proyecto creado exitosamente'));
   } catch (err) {
     res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
   }
@@ -1444,6 +1454,23 @@ if (fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
 }
 
 if (require.main === module) {
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ El puerto ${PORT} ya está en uso. Ejecuta './editor.sh stop' o './editor.sh restart' para liberar el puerto.`);
+      process.exit(1);
+    } else {
+      console.error('❌ Error en el servidor:', err);
+    }
+  });
+
+  process.on('uncaughtException', (err) => {
+    console.error('⚠️ [UNCAUGHT EXCEPTION]', err.message);
+  });
+
+  process.on('unhandledRejection', (reason) => {
+    console.error('⚠️ [UNHANDLED REJECTION]', reason);
+  });
+
   server.listen(PORT, '127.0.0.1', () => {
     const protocol = isHttps ? 'https' : 'http';
     const url = `${protocol}://localhost:${PORT}`;
@@ -1468,4 +1495,4 @@ ${!isHttps ? '💡 TIP: Para activar HTTPS local con candado verde:\n   mkcert -
   });
 }
 
-module.exports = { app, server, createApiResponse };
+module.exports = { app, server, createApiResponse, PROJECTS_BASE };

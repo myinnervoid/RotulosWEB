@@ -381,16 +381,19 @@ async function switchAndReload(projectPath) {
     const json = await res.json();
     if (!json.success) throw new Error(json.message || 'No se pudo cambiar de proyecto');
     
-    // Limpiar estado de sesión previa
+    // Limpiar estado de sesión previa y secciones activas
     try {
       localStorage.removeItem('rotulos_active_imported_html');
       localStorage.removeItem('rotulos_active_imported_css');
       localStorage.removeItem('rotulos_active_imported_name');
+      localStorage.removeItem('editor_active_section');
     } catch {}
 
     eventBus.publish(EDITOR_EVENTS.PROJECT_LOADED, { projectPath });
     showToast(`📂 Abriendo proyecto: ${projectPath.split('/').filter(Boolean).pop()}`);
-    setTimeout(() => window.location.reload(), 600);
+    setTimeout(() => {
+      window.location.href = `/?project=${encodeURIComponent(projectPath)}`;
+    }, 400);
   } catch (err) {
     showToast('Error al cambiar de proyecto: ' + err.message, true);
   }

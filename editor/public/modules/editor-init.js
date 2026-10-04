@@ -68,43 +68,39 @@ export async function initEditor() {
     const urlParams = new URLSearchParams(window.location.search);
     const queryProjectPath = urlParams.get('project');
 
-    // Si viene ?project= explícito en la URL, limpiar localStorage previo para priorizar el proyecto
-    if (queryProjectPath) {
-      try {
-        localStorage.removeItem('rotulos_active_imported_html');
-        localStorage.removeItem('rotulos_active_imported_css');
-        localStorage.removeItem('rotulos_active_imported_name');
-      } catch {}
-    }
-
-    // Verificar si hay un archivo importado previamente persistido en localStorage
-    const savedImportedHtml = localStorage.getItem('rotulos_active_imported_html');
-    const savedImportedCss = localStorage.getItem('rotulos_active_imported_css');
-    const savedImportedName = localStorage.getItem('rotulos_active_imported_name');
-
-    if (savedImportedHtml) {
-      html = savedImportedHtml;
-      css = savedImportedCss || '';
-    } else {
-      try {
-        const pageEndpoint = queryProjectPath
-          ? `/api/page?project=${encodeURIComponent(queryProjectPath)}`
-          : '/api/page';
-        const res = await fetch(pageEndpoint);
-        if (res.ok) {
-          const pageResponse = await res.json();
-          if (pageResponse.success && pageResponse.data) {
-            html = pageResponse.data.html;
-            css = pageResponse.data.css;
-          } else {
-            throw new Error(getErrorMessage(pageResponse.error_code, pageResponse.message || 'Error en respuesta /api/page'));
-          }
+    try {
+      const pageEndpoint = queryProjectPath
+        ? `/api/page?project=${encodeURIComponent(queryProjectPath)}`
+        : '/api/page';
+      const res = await fetch(pageEndpoint);
+      if (res.ok) {
+        const pageResponse = await res.json();
+        if (pageResponse.success && pageResponse.data) {
+          html = pageResponse.data.html;
+          css = pageResponse.data.css || '';
+          // Limpiar cualquier residuo de importaciones previas para evitar bloqueos
+          try {
+            localStorage.removeItem('rotulos_active_imported_html');
+            localStorage.removeItem('rotulos_active_imported_css');
+            localStorage.removeItem('rotulos_active_imported_name');
+          } catch {}
         } else {
-          throw new Error('Servidor sin endpoint /api/page');
+          throw new Error(getErrorMessage(pageResponse.error_code, pageResponse.message || 'Error en respuesta /api/page'));
         }
-      } catch (errPage) {
-        console.log('ℹ️ Modo Web Estático / GitHub Pages detectado:', errPage.message);
-        window.isStaticMode = true;
+      } else {
+        throw new Error('Servidor sin endpoint /api/page');
+      }
+    } catch (errPage) {
+      console.log('ℹ️ Modo Web Estático / Offline detectado:', errPage.message);
+      window.isStaticMode = true;
+
+      const savedImportedHtml = localStorage.getItem('rotulos_active_imported_html');
+      const savedImportedCss = localStorage.getItem('rotulos_active_imported_css');
+
+      if (savedImportedHtml) {
+        html = savedImportedHtml;
+        css = savedImportedCss || '';
+      } else {
         try {
           const [tHtmlRes, tCssRes] = await Promise.all([
             fetch('./templates/memexicanisimos/index.html'),

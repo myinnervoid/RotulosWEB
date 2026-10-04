@@ -24,3 +24,9 @@ editor/public/screenshots/screenshot_*.png
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Directorios de proyectos locales y logs
+RotulosProjects/
+editor/RotulosProjects/
+editor.log
+ambient/

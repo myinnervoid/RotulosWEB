@@ -260,6 +260,27 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
               const { html, css } = templateJson.data;
 
               if (applyToEditor && editor) {
+                // Limpiar residuos en localStorage
+                try {
+                  localStorage.removeItem('rotulos_active_imported_html');
+                  localStorage.removeItem('rotulos_active_imported_css');
+                  localStorage.removeItem('rotulos_active_imported_name');
+                  localStorage.removeItem('editor_active_section');
+                } catch {}
+
+                // Limpiar componentes y estilos previos del editor para evitar colisiones
+                if (editor.DomComponents && typeof editor.DomComponents.clear === 'function') {
+                  editor.DomComponents.clear();
+                } else if (editor.Components && typeof editor.Components.clear === 'function') {
+                  editor.Components.clear();
+                }
+                if (editor.CssComposer && typeof editor.CssComposer.clear === 'function') {
+                  editor.CssComposer.clear();
+                }
+                if (typeof editor.setStyle === 'function') {
+                  editor.setStyle('');
+                }
+
                 if (typeof editor.setComponents === 'function') {
                   editor.setComponents(html);
                 } else if (typeof editor.setHtml === 'function') {
@@ -271,6 +292,22 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
                   } else if (typeof editor.setCss === 'function') {
                     editor.setCss(css);
                   }
+                }
+
+                // Inyectar fuentes y hojas de estilo de la nueva plantilla en el iframe del canvas
+                const iframeDoc = editor.Canvas ? editor.Canvas.getDocument() : null;
+                if (iframeDoc && iframeDoc.head) {
+                  iframeDoc.querySelectorAll('.injected-template-head').forEach(el => el.remove());
+                  try {
+                    const rawDoc = (new DOMParser()).parseFromString(html, 'text/html');
+                    if (rawDoc && rawDoc.head) {
+                      rawDoc.head.querySelectorAll('link[rel*="stylesheet"], link[href*="fonts"], style').forEach(el => {
+                        const clone = el.cloneNode(true);
+                        clone.classList.add('injected-template-head');
+                        iframeDoc.head.appendChild(clone);
+                      });
+                    }
+                  } catch (_) {}
                 }
 
                 // Registrar assets de la plantilla en el AssetManager de GrapesJS
@@ -292,6 +329,7 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
                 }
 
                 rebuildDockSections(editor);
+                eventBus.publish(EDITOR_EVENTS.CONTENT_CHANGED, { html, css });
                 eventBus.publish(EDITOR_EVENTS.TEMPLATE_LOADED, { templateId: id, data: templateJson.data });
                 showToast(`🎉 ¡Plantilla "${id}" cargada exitosamente!`);
               }
