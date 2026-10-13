@@ -378,7 +378,7 @@ export function setupWelcomeHubButton() {
  * @returns {Function} switchTab - función para cambiar pestaña programáticamente
  */
 export function setupTabs(editor) {
-  const tabBtns = document.querySelectorAll('.sidebar-tab-btn');
+  const tabBtns = document.querySelectorAll('.sidebar-tab-btn[data-tab]');
   const panes = {
     blocks: document.getElementById('pane-blocks'),
     styles: document.getElementById('pane-styles'),
@@ -387,6 +387,7 @@ export function setupTabs(editor) {
   };
 
   function switchTab(targetTab) {
+    if (!targetTab || !panes[targetTab]) return;
     tabBtns.forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === targetTab);
     });
@@ -399,6 +400,7 @@ export function setupTabs(editor) {
 
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
+      if (!btn.dataset.tab) return;
       switchTab(btn.dataset.tab);
       if (btn.dataset.tab === 'layers') {
         setTimeout(updateLayerAttributes, 80);

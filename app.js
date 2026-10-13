@@ -1113,8 +1113,8 @@ async function initEditor() {
       }
     });
 
-    // 7. Pestañas de la barra lateral
-    const tabBtns = document.querySelectorAll('.sidebar-tab-btn');
+    // 7. Pestañas de la barra lateral (filtrar solo botones con data-tab)
+    const tabBtns = document.querySelectorAll('.sidebar-tab-btn[data-tab]');
     const panes = {
       blocks: document.getElementById('pane-blocks'),
       styles: document.getElementById('pane-styles'),
@@ -1123,16 +1123,20 @@ async function initEditor() {
     };
 
     function switchTab(targetTab) {
+      if (!targetTab || !panes[targetTab]) return;
       tabBtns.forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === targetTab);
       });
       Object.keys(panes).forEach(tabKey => {
-        panes[tabKey].classList.toggle('active', tabKey === targetTab);
+        if (panes[tabKey]) {
+          panes[tabKey].classList.toggle('active', tabKey === targetTab);
+        }
       });
     }
 
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
+        if (!btn.dataset.tab) return;
         switchTab(btn.dataset.tab);
         if (btn.dataset.tab === 'layers') {
           setTimeout(updateLayerAttributes, 80);
@@ -1427,12 +1431,14 @@ async function initEditor() {
 
       if (btnToggleW) {
         btnToggleW.addEventListener('click', () => {
+          sidebar.classList.remove('collapsed');
           const currentW = sidebar.offsetWidth;
           const targetW = currentW > 420 ? 360 : 540;
           sidebar.style.width = `${targetW}px`;
           if (breadcrumbsBar) breadcrumbsBar.style.right = `${targetW}px`;
           localStorage.setItem('talachas-sidebar-w', targetW);
           showToast(targetW > 420 ? 'Panel expandido a modo amplio' : 'Panel en modo compacto');
+          setTimeout(() => editor.refresh(), 100);
         });
       }
 
@@ -2255,6 +2261,24 @@ async function initEditor() {
       sidebar.classList.toggle('collapsed');
       const isCollapsed = sidebar.classList.contains('collapsed');
       btnToggleSidebar.classList.toggle('active', !isCollapsed);
+
+      const breadcrumbsBar = document.getElementById('breadcrumbs-bar');
+      if (breadcrumbsBar) {
+        if (isCollapsed) {
+          breadcrumbsBar.style.right = '0px';
+        } else {
+          const savedWidth = localStorage.getItem('talachas-sidebar-w') || 360;
+          breadcrumbsBar.style.right = `${savedWidth}px`;
+        }
+      }
+
+      if (isCollapsed) {
+        sidebar.style.width = '';
+      } else {
+        const savedWidth = localStorage.getItem('talachas-sidebar-w') || 360;
+        sidebar.style.width = `${savedWidth}px`;
+      }
+
       if (fabMobile && window.innerWidth <= 768) {
         fabMobile.style.display = isCollapsed ? 'flex' : 'none';
       }
