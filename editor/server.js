@@ -788,11 +788,13 @@ async function getBrowserInstance() {
       browserPromise = puppeteer.launch({
         executablePath: chromePath,
         headless: 'new',
+        timeout: 5000,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
           '--disable-gpu',
+          '--disable-software-rasterizer',
           '--hide-scrollbars'
         ]
       }).then(browser => {
