@@ -406,6 +406,71 @@ export function setupTabs(editor) {
     });
   });
 
+  function addImageTraitToComponent(component) {
+    if (!component) return;
+    const isImg = component.is('image') || (component.get('tagName') || '').toLowerCase() === 'img';
+    if (!isImg) {
+      const oldGalleryBtn = document.getElementById('btn-trait-open-gallery');
+      if (oldGalleryBtn && oldGalleryBtn.parentElement) {
+        oldGalleryBtn.parentElement.remove();
+      }
+      return;
+    }
+
+    const currentSrc = component.get('src') || (component.getAttributes && component.getAttributes().src) || '';
+    const currentAlt = (component.getAttributes && component.getAttributes().alt) || '';
+
+    component.set('traits', [
+      {
+        type: 'text',
+        name: 'src',
+        label: '🖼️ Ruta o URL de Imagen',
+        placeholder: 'assets/... o https://...',
+        value: currentSrc,
+        changeProp: 1
+      },
+      {
+        type: 'text',
+        name: 'alt',
+        label: '🏷️ Texto Alternativo (Alt)',
+        placeholder: 'Descripción de la imagen...',
+        value: currentAlt
+      }
+    ]);
+
+    component.off('change:src');
+    component.on('change:src', () => {
+      const newSrc = component.get('src');
+      if (newSrc) {
+        component.addAttributes({ src: newSrc });
+        if (component.view && component.view.el) {
+          component.view.el.src = newSrc;
+        }
+      }
+    });
+
+    if (editor.TraitManager && editor.TraitManager.render) {
+      editor.TraitManager.render();
+    }
+
+    setTimeout(() => {
+      const traitsContainer = document.getElementById('traits-container');
+      if (traitsContainer && !traitsContainer.querySelector('#btn-trait-open-gallery')) {
+        const btnWrap = document.createElement('div');
+        btnWrap.style.padding = '10px 12px 6px';
+        btnWrap.innerHTML = `
+          <button type="button" id="btn-trait-open-gallery" style="width:100%; background:linear-gradient(135deg,#FF7518,#E0115F); color:#FFF; border:1px solid #FFA000; border-radius:8px; padding:10px 14px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 12px rgba(255,117,24,0.35);">
+            <i class="fas fa-images"></i> Elegir Imagen de la Galería
+          </button>
+        `;
+        traitsContainer.prepend(btnWrap);
+        btnWrap.querySelector('#btn-trait-open-gallery').addEventListener('click', () => {
+          editor.runCommand('open-assets', { target: component, types: ['image'] });
+        });
+      }
+    }, 50);
+  }
+
   editor.on('component:selected', (model) => {
     const activeBtn = document.querySelector('.sidebar-tab-btn.active');
     if (activeBtn && activeBtn.dataset.tab === 'blocks') {
@@ -414,6 +479,7 @@ export function setupTabs(editor) {
     setTimeout(updateLayerAttributes, 50);
     updateBreadcrumbs(model, editor);
     updateContextPanel(model, editor);
+    addImageTraitToComponent(model);
   });
 
   editor.on('component:deselected', () => {
@@ -543,6 +609,17 @@ function updateContextPanel(component, editor) {
   }
   html += `</div>`;
 
+  const isImg = component.is('image') || (component.get('tagName') || '').toLowerCase() === 'img';
+  if (isImg) {
+    html += `
+      <div style="padding: 4px 0 6px;">
+        <button class="context-nav-btn" id="btn-context-change-img" style="width:100%; background:rgba(255,117,24,0.22); border:1px solid #FF7518; color:#FFD700; font-weight:700; font-size:0.82rem; padding:8px 12px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.15s ease;">
+          <i class="fas fa-images"></i> 🖼️ Cambiar Imagen desde Galería
+        </button>
+      </div>
+    `;
+  }
+
   if (siblings && siblings.length > 0) {
     html += `
       <div class="context-section-heading">
@@ -573,6 +650,13 @@ function updateContextPanel(component, editor) {
 
   const btnChild = content.querySelector('#btn-context-child');
   if (btnChild && children.length > 0 && editor) btnChild.addEventListener('click', () => editor.select(children[0]));
+
+  const btnChangeImg = content.querySelector('#btn-context-change-img');
+  if (btnChangeImg && editor) {
+    btnChangeImg.addEventListener('click', () => {
+      editor.runCommand('open-assets', { target: component, types: ['image'] });
+    });
+  }
 
   content.querySelectorAll('.context-sibling').forEach(item => {
     item.addEventListener('click', () => {
@@ -655,8 +739,8 @@ export function setupSidebarResizer() {
 
   window.addEventListener('mousemove', (e) => {
     if (!isResizing) return;
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(() => {
+    if (rafId) window.cancelAnimationFrame(rafId);
+    rafId = window.requestAnimationFrame(() => {
       const diff = startX - e.clientX;
       const newWidth = Math.max(280, Math.min(800, startWidth + diff));
       sidebar.style.width = `${newWidth}px`;
@@ -668,7 +752,7 @@ export function setupSidebarResizer() {
     if (isResizing) {
       isResizing = false;
       if (rafId) {
-        cancelAnimationFrame(rafId);
+        window.cancelAnimationFrame(rafId);
         rafId = null;
       }
       resizer.classList.remove('resizing');

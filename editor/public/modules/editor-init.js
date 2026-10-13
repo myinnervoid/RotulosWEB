@@ -62,6 +62,7 @@ export async function initEditor() {
     // ── 1. Cargar HTML/CSS del proyecto ──────────────────
     let html = '';
     let css = '';
+    let savedImportedName = null;
     window.isStaticMode = false;
 
     // Verificar si hay parámetro ?project= en la URL
@@ -96,6 +97,7 @@ export async function initEditor() {
 
       const savedImportedHtml = localStorage.getItem('rotulos_active_imported_html');
       const savedImportedCss = localStorage.getItem('rotulos_active_imported_css');
+      savedImportedName = localStorage.getItem('rotulos_active_imported_name');
 
       if (savedImportedHtml) {
         html = savedImportedHtml;
