@@ -1307,6 +1307,18 @@ async function initEditor() {
         `;
       }
 
+      // Botón de Cambio Rápido de Imagen si el elemento es una imagen
+      const isImg = component.is('image') || (component.get('tagName') || '').toLowerCase() === 'img';
+      if (isImg) {
+        html += `
+          <div style="padding: 4px 0 6px;">
+            <button class="context-nav-btn" id="btn-context-change-img" style="width:100%; background:rgba(255,117,24,0.22); border:1px solid #FF7518; color:#FFD700; font-weight:700; font-size:0.82rem; padding:8px 12px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.15s ease;">
+              <i class="fas fa-images"></i> 🖼️ Cambiar Imagen desde Galería
+            </button>
+          </div>
+        `;
+      }
+
       // 3. Lista Plana de Hermanos (Siblings)
       if (siblings && siblings.length > 0) {
         html += `
@@ -1354,6 +1366,13 @@ async function initEditor() {
           } else {
             switchTab('traits');
           }
+        });
+      }
+
+      const btnChangeImg = content.querySelector('#btn-context-change-img');
+      if (btnChangeImg) {
+        btnChangeImg.addEventListener('click', () => {
+          editor.runCommand('open-assets', { target: component, types: ['image'] });
         });
       }
 
@@ -1784,15 +1803,88 @@ async function initEditor() {
           });
         }
 
+        function addImageTraitToComponent(component) {
+          if (!component) return;
+          const isImg = component.is('image') || (component.get('tagName') || '').toLowerCase() === 'img';
+          if (!isImg) return;
+
+          const currentSrc = component.get('src') || (component.getAttributes && component.getAttributes().src) || '';
+          const currentAlt = (component.getAttributes && component.getAttributes().alt) || '';
+
+          component.set('traits', [
+            {
+              type: 'text',
+              name: 'src',
+              label: '🖼️ Ruta o URL de Imagen',
+              placeholder: 'assets/... o https://...',
+              value: currentSrc,
+              changeProp: 1
+            },
+            {
+              type: 'text',
+              name: 'alt',
+              label: '🏷️ Texto Alternativo (Alt)',
+              placeholder: 'Descripción de la imagen...',
+              value: currentAlt
+            }
+          ]);
+
+          component.off('change:src');
+          component.on('change:src', () => {
+            const newSrc = component.get('src');
+            if (newSrc) {
+              component.addAttributes({ src: newSrc });
+              if (component.view && component.view.el) {
+                component.view.el.src = newSrc;
+              }
+            }
+          });
+
+          if (editor.TraitManager && editor.TraitManager.render) {
+            editor.TraitManager.render();
+          }
+
+          setTimeout(() => {
+            const traitsContainer = document.getElementById('traits-container');
+            if (traitsContainer && !traitsContainer.querySelector('#btn-trait-open-gallery')) {
+              const btnWrap = document.createElement('div');
+              btnWrap.style.padding = '10px 12px 6px';
+              btnWrap.innerHTML = `
+                <button type="button" id="btn-trait-open-gallery" style="width:100%; background:linear-gradient(135deg,#FF7518,#E0115F); color:#FFF; border:1px solid #FFA000; border-radius:8px; padding:10px 14px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 12px rgba(255,117,24,0.35);">
+                  <i class="fas fa-images"></i> Elegir Imagen de la Galería
+                </button>
+              `;
+              traitsContainer.prepend(btnWrap);
+              btnWrap.querySelector('#btn-trait-open-gallery').addEventListener('click', () => {
+                editor.runCommand('open-assets', { target: component, types: ['image'] });
+              });
+            }
+          }, 50);
+        }
+
         editor.on('component:selected', (comp) => {
           if (comp) {
-            addTextTraitToComponent(comp);
+            const isImg = comp.is('image') || (comp.get('tagName') || '').toLowerCase() === 'img';
+            if (isImg) {
+              addImageTraitToComponent(comp);
+            } else {
+              const oldGalleryBtn = document.getElementById('btn-trait-open-gallery');
+              if (oldGalleryBtn && oldGalleryBtn.parentElement) {
+                oldGalleryBtn.parentElement.remove();
+              }
+              addTextTraitToComponent(comp);
+            }
           }
         });
 
         editor.on('component:add', (comp) => {
-          if (comp && isTextEditable(comp)) {
-            setTimeout(() => addTextTraitToComponent(comp), 100);
+          if (comp) {
+            const isImg = comp.is('image') || (comp.get('tagName') || '').toLowerCase() === 'img';
+            if (isImg) {
+              setTimeout(() => addImageTraitToComponent(comp), 100);
+            } else if (isTextEditable(comp)) {
+              setTimeout(() => addTextTraitToComponent(comp), 100);
+            }
           }
         });
       } catch (err) {
