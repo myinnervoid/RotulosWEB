@@ -28,6 +28,16 @@ export function shouldShowWelcomeHub() {
   }
 }
 
+const FALLBACK_STATIC_TEMPLATES = [
+  { id: 'memexicanisimos', name: 'Memexicanísimos', description: 'Rótulo popular mexicano con estilo Wada y tipografía de impacto.', emoji: '🇲🇽', category: 'Oficial' },
+  { id: 'cartel-sonidero', name: 'Cartel Sonidero', description: 'Estética sonidera popular con colores canónicos de alto contraste.', emoji: '🔊', category: 'Popular' },
+  { id: 'rotulo-ferreteria', name: 'Rótulo Ferretería', description: 'Estilo clásico rotulado para comercios y talleres de barrio.', emoji: '🔧', category: 'Comercial' },
+  { id: 'todos-santos', name: 'Todos Santos', description: 'Diseño solemne y tradicional con paleta mineral Día de Muertos.', emoji: '🕯️', category: 'Tradicional' },
+  { id: 'landing', name: 'Landing Page', description: 'Estructura moderna comercial para productos y servicios.', emoji: '💼', category: 'Negocios' },
+  { id: 'blog', name: 'Blog Editorial', description: 'Plantilla de lectura limpia con tipografía legible.', emoji: '📰', category: 'Editorial' },
+  { id: 'portfolio', name: 'Portafolio', description: 'Muestra de proyectos y trabajos creativos.', emoji: '🎨', category: 'Personal' }
+];
+
 /**
  * Muestra el Welcome Hub modal.
  * @param {object} options
@@ -43,6 +53,7 @@ export async function showWelcomeHub({ onProjectSelected, onTemplateSelected, al
   let projects = [];
   let templates = [];
   let currentProject = null;
+  let isBackendAvailable = false;
 
   try {
     const [projRes, tplRes, currRes] = await Promise.all([
@@ -51,10 +62,17 @@ export async function showWelcomeHub({ onProjectSelected, onTemplateSelected, al
       fetch('/api/current-project').then(r => r.ok ? r.json() : { success: false, data: null })
     ]);
     projects = projRes.success && Array.isArray(projRes.data) ? projRes.data : [];
-    templates = tplRes.success && Array.isArray(tplRes.data) ? tplRes.data : [];
+    templates = tplRes.success && Array.isArray(tplRes.data) && tplRes.data.length > 0 ? tplRes.data : FALLBACK_STATIC_TEMPLATES;
     currentProject = currRes.success && currRes.data ? currRes.data : null;
+    isBackendAvailable = Boolean(currRes.success || projRes.success || tplRes.success);
   } catch (err) {
-    console.warn('[WelcomeHub] Error al obtener datos:', err.message);
+    console.warn('[WelcomeHub] Backend no disponible, usando modo estático:', err.message);
+    templates = FALLBACK_STATIC_TEMPLATES;
+  }
+
+  // En modo estático (GitHub Pages / sin servidor Express), siempre se permite cerrar
+  if (!isBackendAvailable) {
+    allowClose = true;
   }
 
   // === Deduplicar: separar sesión activa de otros proyectos ===
@@ -81,7 +99,7 @@ export async function showWelcomeHub({ onProjectSelected, onTemplateSelected, al
       id: t.id,
       name: t.name,
       description: t.description || 'Plantilla prediseñada lista para personalizar.',
-      emoji: t.id === 'memexicanisimos' ? '🇲🇽' : t.category === 'Negocios' ? '💼' : t.category === 'Editorial' ? '📰' : t.category === 'Personal' ? '🎨' : '📄',
+      emoji: t.emoji || (t.id === 'memexicanisimos' ? '🇲🇽' : t.category === 'Negocios' ? '💼' : t.category === 'Editorial' ? '📰' : t.category === 'Personal' ? '🎨' : '📄'),
       category: t.category || 'General'
     }))
   ];
@@ -145,8 +163,13 @@ export async function showWelcomeHub({ onProjectSelected, onTemplateSelected, al
                 </div>
               `).join('') : `
                 <div class="wh-empty-state">
-                  <p>📭 No hay otros proyectos guardados aún.</p>
-                  <p>Crea uno nuevo a la derecha.</p>
+                  ${!isBackendAvailable ? `
+                    <p>🌐 <strong>Modo Web Estático</strong></p>
+                    <p>Diseña libremente en tu navegador. Elige una plantilla a la derecha o pulsa saltar para entrar al editor.</p>
+                  ` : `
+                    <p>📭 No hay otros proyectos guardados aún.</p>
+                    <p>Crea uno nuevo a la derecha.</p>
+                  `}
                 </div>
               `}
             </div>
@@ -304,7 +327,10 @@ export async function showWelcomeHub({ onProjectSelected, onTemplateSelected, al
     if (!name || selectedTemplateId === null) return;
 
     btnCreate.disabled = true;
-    btnCreate.textContent = '⏳ Creando proyecto...';
+    btnCreate.textContent = '⏳ Preparando proyecto...';
+
+    let backendSuccess = false;
+    let projectPath = name;
 
     try {
       const res = await fetch('/api/projects/create', {
@@ -312,19 +338,37 @@ export async function showWelcomeHub({ onProjectSelected, onTemplateSelected, al
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, templateId: selectedTemplateId || null })
       });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.message || 'Error al crear el proyecto');
-
-      modal.remove();
-      if (onTemplateSelected) {
-        onTemplateSelected(selectedTemplateId, json.data?.path || name);
-      } else {
-        await switchAndReload(json.data?.path);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          backendSuccess = true;
+          projectPath = json.data?.path || name;
+        }
       }
-    } catch (err) {
-      showToast('Error al crear proyecto: ' + err.message, true);
-      btnCreate.disabled = false;
-      btnCreate.textContent = '✦ Crear y Diseñar';
+    } catch (_) {
+      // Backend no disponible (modo estático en GitHub Pages)
+    }
+
+    // SIEMPRE cerrar el modal de bienvenida
+    modal.remove();
+
+    if (backendSuccess) {
+      if (onTemplateSelected) {
+        onTemplateSelected(selectedTemplateId, projectPath);
+      } else {
+        await switchAndReload(projectPath);
+      }
+    } else {
+      // Fallback para modo estático en GitHub Pages
+      try {
+        localStorage.setItem('rotulos_project_name', name);
+      } catch {}
+
+      if (onTemplateSelected) {
+        onTemplateSelected(selectedTemplateId, name);
+      } else {
+        await loadTemplateInStaticEditor(selectedTemplateId, name);
+      }
     }
   });
 
@@ -367,8 +411,74 @@ function sanitizeName(name) {
 
 function getTemplateName(id) {
   if (!id) return 'Lienzo en Blanco';
-  const names = { memexicanisimos: 'Memexicanísimos', landing: 'Landing Page', blog: 'Blog Editorial', portfolio: 'Portafolio' };
+  const names = {
+    memexicanisimos: 'Memexicanísimos',
+    'cartel-sonidero': 'Cartel Sonidero',
+    'rotulo-ferreteria': 'Rótulo Ferretería',
+    'todos-santos': 'Todos Santos',
+    landing: 'Landing Page',
+    blog: 'Blog Editorial',
+    portfolio: 'Portafolio'
+  };
   return names[id] || id;
+}
+
+async function loadTemplateInStaticEditor(templateId, projectName) {
+  const editor = typeof window !== 'undefined' ? (window.__editor || window.editor) : null;
+
+  if (!templateId) {
+    if (editor) {
+      try {
+        if (editor.DomComponents?.clear) editor.DomComponents.clear();
+        else if (editor.Components?.clear) editor.Components.clear();
+        if (editor.CssComposer?.clear) editor.CssComposer.clear();
+        if (editor.setStyle) editor.setStyle('');
+        if (editor.setComponents) editor.setComponents('');
+      } catch {}
+    }
+    showToast(`✨ Proyecto "${projectName}" iniciado con Lienzo en Blanco`);
+    return;
+  }
+
+  showToast(`Cargando plantilla "${getTemplateName(templateId)}"...`);
+  try {
+    const [htmlRes, cssRes] = await Promise.all([
+      fetch(`templates/${templateId}/index.html`),
+      fetch(`templates/${templateId}/style.css`)
+    ]);
+
+    let html = htmlRes.ok ? await htmlRes.text() : '';
+    let css = cssRes.ok ? await cssRes.text() : '';
+
+    if (html && editor) {
+      try {
+        localStorage.removeItem('rotulos_active_imported_html');
+        localStorage.removeItem('rotulos_active_imported_css');
+        localStorage.removeItem('rotulos_active_imported_name');
+        localStorage.removeItem('editor_active_section');
+      } catch {}
+
+      if (editor.DomComponents?.clear) editor.DomComponents.clear();
+      else if (editor.Components?.clear) editor.Components.clear();
+      if (editor.CssComposer?.clear) editor.CssComposer.clear();
+      if (editor.setStyle) editor.setStyle('');
+
+      if (editor.setComponents) editor.setComponents(html);
+      else if (editor.setHtml) editor.setHtml(html);
+
+      if (css && editor.setStyle) {
+        editor.setStyle(css);
+      }
+
+      eventBus.publish(EDITOR_EVENTS.PROJECT_LOADED, { projectPath: projectName, templateId });
+      showToast(`✨ Plantilla "${getTemplateName(templateId)}" cargada con éxito`);
+    } else {
+      showToast(`✨ Proyecto "${projectName}" listo para diseñar`);
+    }
+  } catch (err) {
+    console.warn('[WelcomeHub] No se pudo precargar plantilla estática:', err);
+    showToast(`✨ Proyecto "${projectName}" listo para diseñar`);
+  }
 }
 
 async function switchAndReload(projectPath) {
@@ -378,6 +488,7 @@ async function switchAndReload(projectPath) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newProjectPath: projectPath })
     });
+    if (!res.ok) throw new Error('Servidor local no disponible');
     const json = await res.json();
     if (!json.success) throw new Error(json.message || 'No se pudo cambiar de proyecto');
     
@@ -395,7 +506,7 @@ async function switchAndReload(projectPath) {
       window.location.href = `/?project=${encodeURIComponent(projectPath)}`;
     }, 400);
   } catch (err) {
-    showToast('Error al cambiar de proyecto: ' + err.message, true);
+    showToast(`Modo Web: Proyecto activo "${projectPath.split('/').filter(Boolean).pop() || projectPath}"`);
   }
 }
 

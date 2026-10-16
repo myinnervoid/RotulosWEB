@@ -143,4 +143,40 @@ describe('welcome-hub.js — Pantalla de Bienvenida (Start Screen)', () => {
     btnContinue.click();
     expect(document.querySelector('.wh-overlay')).toBeNull();
   });
+
+  it('en modo estático / GitHub Pages (404 en APIs), permite cerrar y no bloquea al usuario al crear', async () => {
+    // Simular que todas las APIs devuelven 404 (GitHub Pages)
+    global.fetch = vi.fn(() => Promise.resolve({ ok: false, status: 404, json: () => Promise.reject(new Error('404')) }));
+
+    await showWelcomeHub({ allowClose: false }); // Intento forzar allowClose: false
+
+    // Debe haber forzado allowClose: true por no haber backend
+    const closeBtn = document.querySelector('#wh-close');
+    expect(closeBtn).not.toBeNull();
+    const skipBtn = document.querySelector('#wh-btn-skip');
+    expect(skipBtn).not.toBeNull();
+
+    // Las plantillas estáticas deben haberse cargado de respaldo
+    const tplCards = document.querySelectorAll('.wh-tpl-card');
+    expect(tplCards.length).toBeGreaterThan(1);
+
+    // Escribir nombre y seleccionar plantilla
+    const nameInput = document.querySelector('#wh-project-name');
+    nameInput.value = 'mi-rotulo-web';
+    nameInput.dispatchEvent(new Event('input'));
+    tplCards[1].click();
+
+    const btnCreate = document.querySelector('#wh-btn-create');
+    expect(btnCreate.disabled).toBe(false);
+
+    // Al hacer clic en Crear en modo estático, el modal DEBE removerse sin lanzar error
+    btnCreate.click();
+
+    // Esperar microtareas
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(document.querySelector('.wh-overlay')).toBeNull();
+    expect(localStorage.getItem('rotulos_project_name')).toBe('mi-rotulo-web');
+  });
 });
+

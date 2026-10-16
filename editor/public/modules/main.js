@@ -41,18 +41,22 @@ eventBus.subscribe(EDITOR_EVENTS.PROJECT_LOADED, (payload) => {
 async function maybeShowWelcomeHub() {
   try {
     const res = await fetch('/api/current-project');
-    const json = res.ok ? await res.json() : null;
+    const isBackendAlive = res.ok;
+    const json = isBackendAlive ? await res.json() : null;
     const hasIndex = json?.success && json?.data?.hasIndex === true;
 
-    if (!hasIndex) {
-      // Sin proyecto activo: Hub obligatorio, el usuario DEBE elegir
+    if (isBackendAlive && !hasIndex) {
+      // Backend activo pero sin index.html: Hub obligatorio para seleccionar proyecto
       await showWelcomeHub({ allowClose: false });
     } else if (shouldShowWelcomeHub()) {
-      // Proyecto activo pero el Hub está habilitado: mostrar con botón de saltar
+      // En modo estático (GitHub Pages) o proyecto activo: siempre permitir cerrar
       showWelcomeHub({ allowClose: true });
     }
   } catch (_) {
-    // Error de red: mostrar editor directamente (graceful degradation)
+    // Si fetch falla por red u offline, permitir usar el editor directamente
+    if (shouldShowWelcomeHub()) {
+      showWelcomeHub({ allowClose: true });
+    }
   }
 }
 
