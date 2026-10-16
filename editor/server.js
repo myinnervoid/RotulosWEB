@@ -342,7 +342,7 @@ app.get('/api/watch', (req, res) => {
   }
 
   if (!fs.existsSync(targetPath)) {
-    return res.status(400).json(createApiResponse(false, null, ERROR_CODES.INVALID_PATH.code, 'Ruta de proyecto inválida'));
+    targetPath = __dirname;
   }
 
   res.writeHead(200, {
