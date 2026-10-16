@@ -9,6 +9,7 @@ const os = require('os');
 const simpleGit = require('simple-git');
 const { ERROR_CODES } = require('./server/error-codes');
 const { GitHubAPI } = require('./server/github-api');
+const coreEngine = require('./server/core-engine');
 let openPkg;
 try {
   openPkg = require('open');
@@ -183,38 +184,7 @@ function getGitInstance() {
  * @param {string} [message='']
  * @returns {ApiResponse<T>}
  */
-function createApiResponse(success, data = null, errorCode = null, message = '') {
-  return {
-    success: Boolean(success),
-    data: data,
-    error_code: errorCode,
-    message: message || (success ? 'Operación completada con éxito' : 'Error en la operación')
-  };
-}
-
-// ── ROTACIÓN FIFO DE RESPALDOS ──────────────────────────────
-function rotateBackups(dir = getActiveBackupsDir()) {
-  try {
-    if (!fs.existsSync(dir)) return;
-    const files = fs.readdirSync(dir)
-      .filter(f => f.startsWith('index_backup_') && f.endsWith('.html'))
-      .map(f => {
-        const fullPath = path.join(dir, f);
-        return { name: f, path: fullPath, time: fs.statSync(fullPath).mtime.getTime() };
-      })
-      .sort((a, b) => b.time - a.time);
-
-    if (files.length > MAX_BACKUPS) {
-      const toDelete = files.slice(MAX_BACKUPS);
-      for (const file of toDelete) {
-        fs.unlinkSync(file.path);
-        console.log(`[ROTACIÓN FIFO] Respaldo antiguo purgado: ${file.name}`);
-      }
-    }
-  } catch (err) {
-    console.warn('[ROTACIÓN FIFO] Error al purgar respaldos antiguos:', err.message);
-  }
-}
+const { createApiResponse } = coreEngine;
 
 // ── MIDDLEWARES DE SEGURIDAD Y RENDIMIENTO ─────────────────
 app.use((req, res, next) => {
@@ -615,53 +585,18 @@ app.post('/api/save', (req, res) => {
 
   // Serialización estricta para evitar colisiones en rotación FIFO y escritura atómica
   const saveOperation = async () => {
-    try {
-      const indexPath = getActiveIndexPath();
-      const stylePath = getActiveStylePath();
-      const backupsDir = getActiveBackupsDir();
-
-      // A. Crear respaldo previo con timestamp y rotación FIFO
-      const now = new Date();
-      const timestamp = now.toISOString().replace(/[:.]/g, '-');
-      const backupFile = path.join(backupsDir, `index_backup_${timestamp}.html`);
-      if (fs.existsSync(indexPath)) {
-        fs.copyFileSync(indexPath, backupFile);
-        rotateBackups(backupsDir);
-      }
-
-      // B. Escritura atómica: escribir a .tmp y luego renombrar (evita corrupción)
-      const tmpPath = indexPath + '.tmp';
-      fs.writeFileSync(tmpPath, html, 'utf-8');
-      const expectedHtmlSize = Buffer.byteLength(html, 'utf8');
-      const actualHtmlSize = fs.statSync(tmpPath).size;
-      if (actualHtmlSize !== expectedHtmlSize) {
-        throw new Error('Falló la comprobación de integridad al guardar index.html');
-      }
-      fs.renameSync(tmpPath, indexPath);
-
-      // C. Si se envían estilos actualizados, guardar en style.css (también atómico)
-      if (css && typeof css === 'string') {
-        const tmpCss = stylePath + '.tmp';
-        fs.writeFileSync(tmpCss, css, 'utf-8');
-        const expectedCssSize = Buffer.byteLength(css, 'utf8');
-        const actualCssSize = fs.statSync(tmpCss).size;
-        if (actualCssSize !== expectedCssSize) {
-          throw new Error('Falló la comprobación de integridad al guardar style.css');
-        }
-        fs.renameSync(tmpCss, stylePath);
-      }
-
-      console.log(`[OK] Cambios guardados en ${indexPath}. Respaldo: ${path.basename(backupFile)}`);
-      return res.json(createApiResponse(true, { backup: path.basename(backupFile), projectPath }, null, '¡Cambios guardados con éxito en index.html!'));
-    } catch (error) {
-      console.error('[ERROR] Al guardar:', error);
-      // Limpiar archivos .tmp residuales si el guardado falló
-      const tmpPath = getActiveIndexPath() + '.tmp';
-      const tmpCss = getActiveStylePath() + '.tmp';
-      try { if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath); } catch (_) {}
-      try { if (fs.existsSync(tmpCss)) fs.unlinkSync(tmpCss); } catch (_) {}
-      return res.status(500).json(createApiResponse(false, null, ERROR_CODES.SAVE_FAILED.code, error.message));
+    const result = coreEngine.saveAtomicWithFIFO({
+      projectDir: projectPath,
+      html,
+      css,
+      maxBackups: MAX_BACKUPS,
+      sanitizeGjs: true
+    });
+    if (result.success) {
+      console.log(`[OK] Cambios guardados en ${getActiveIndexPath()}. Respaldo: ${result.data.backup}`);
+      return res.json(result);
     }
+    return res.status(500).json(result);
   };
 
   const nextTask = saveQueuePromise.then(() => saveOperation());
@@ -918,46 +853,11 @@ app.post('/api/screenshot', async (req, res) => {
 const TEMPLATES_DIR = path.join(__dirname, 'templates');
 
 app.get('/api/templates', (req, res) => {
-  try {
-    if (!fs.existsSync(TEMPLATES_DIR)) {
-      return res.json(createApiResponse(true, [], null, 'No hay directorio de plantillas'));
-    }
-    const dirs = fs.readdirSync(TEMPLATES_DIR, { withFileTypes: true })
-      .filter(item => item.isDirectory())
-      .map(item => item.name);
-
-    const descriptions = {
-      landing: 'Página de aterrizaje comercial de alta conversión con hero, grid y llamadas a la acción.',
-      blog: 'Revista editorial moderna para publicación de artículos, crónicas y contenidos.',
-      portfolio: 'Vitrina personal y portafolio interactivo para creativos y desarrolladores.',
-      memexicanisimos: 'Plantilla oficial de Memexicanísimos con dock, paleta Día de Muertos y secciones interactivas.',
-      'todos-santos': 'Edición especial Día de Muertos y Todos Santos con paleta cempasúchil, papel picado y altar tradicional.'
-    };
-
-    const categories = {
-      landing: 'Negocios',
-      blog: 'Editorial',
-      portfolio: 'Personal',
-      memexicanisimos: 'Oficial',
-      'todos-santos': 'Temporada'
-    };
-
-    const templates = dirs.map(id => {
-      const hasPreview = fs.existsSync(path.join(TEMPLATES_DIR, id, 'preview.png'));
-      const name = id.charAt(0).toUpperCase() + id.slice(1);
-      return {
-        id,
-        name,
-        description: descriptions[id] || `Plantilla predefinida ${name}`,
-        category: categories[id] || 'General',
-        hasPreview
-      };
-    });
-
-    res.json(createApiResponse(true, templates, null, 'Catálogo de plantillas obtenido con éxito'));
-  } catch (err) {
-    res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
+  const result = coreEngine.listTemplates(TEMPLATES_DIR);
+  if (!result.success) {
+    return res.status(500).json(result);
   }
+  return res.json(result);
 });
 
 app.get('/api/templates/:id', (req, res) => {
@@ -1081,78 +981,18 @@ function validateProject(projectName) {
   return pPath;
 }
 
-function getDirectorySize(dirPath) {
-  let size = 0;
-  if (!fs.existsSync(dirPath)) return 0;
-  try {
-    const files = fs.readdirSync(dirPath);
-    for (const file of files) {
-      const fullPath = path.join(dirPath, file);
-      try {
-        const stats = fs.statSync(fullPath);
-        if (stats.isDirectory()) {
-          size += getDirectorySize(fullPath);
-        } else {
-          size += stats.size;
-        }
-      } catch {}
-    }
-  } catch {}
-  return size;
-}
-
-function copyDirectory(src, dest) {
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
-  }
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    if (entry.isDirectory()) {
-      copyDirectory(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
-  }
-}
+const { copyDirectory } = coreEngine;
 
 function copyTemplate(templateDir, targetProjectPath) {
   copyDirectory(templateDir, targetProjectPath);
 }
 
 app.get('/api/projects/list', (req, res) => {
-  try {
-    if (!fs.existsSync(PROJECTS_BASE)) {
-      return res.json(createApiResponse(true, [], null, 'No hay directorio de proyectos'));
-    }
-    const dirs = fs.readdirSync(PROJECTS_BASE).filter(item => {
-      const fullPath = path.join(PROJECTS_BASE, item);
-      try {
-        return fs.statSync(fullPath).isDirectory() &&
-               fs.existsSync(path.join(fullPath, 'index.html'));
-      } catch {
-        return false;
-      }
-    });
-
-    const projects = dirs.map(name => {
-      const fullPath = path.join(PROJECTS_BASE, name);
-      const stats = fs.statSync(fullPath);
-      const size = getDirectorySize(fullPath);
-      return {
-        name,
-        path: fullPath,
-        modified: stats.mtime.toISOString(),
-        size,
-        hasAssets: fs.existsSync(path.join(fullPath, 'assets'))
-      };
-    });
-
-    res.json(createApiResponse(true, projects, null, 'Listado de proyectos obtenido con éxito'));
-  } catch (err) {
-    res.status(500).json(createApiResponse(false, null, 'SERVER_ERROR', err.message));
+  const result = coreEngine.listProjects(PROJECTS_BASE);
+  if (!result.success) {
+    return res.status(500).json(result);
   }
+  return res.json(result);
 });
 
 app.post('/api/projects/create', (req, res) => {
@@ -1497,4 +1337,4 @@ ${!isHttps ? '💡 TIP: Para activar HTTPS local con candado verde:\n   mkcert -
   });
 }
 
-module.exports = { app, server, createApiResponse, PROJECTS_BASE };
+module.exports = { app, server, createApiResponse, PROJECTS_BASE, coreEngine };

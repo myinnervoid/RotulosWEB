@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { registerBlocks } from '../public/modules/blocks.js';
 
 describe('Blocks Expansion Suite — Blog, Portafolio y Landing Profesional', () => {

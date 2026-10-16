@@ -168,6 +168,31 @@ const ERROR_CODES = {
     code: 'AUTH_REQUIRED',
     http: 401,
     description: 'Se requiere autenticación para realizar la operación.'
+  },
+  PATH_TRAVERSAL_DENIED: {
+    code: 'PATH_TRAVERSAL_DENIED',
+    http: 403,
+    description: 'Intento de recorrido de directorios (path traversal) bloqueado.'
+  },
+  INVALID_SELECTOR: {
+    code: 'INVALID_SELECTOR',
+    http: 400,
+    description: 'Selector CSS/DOM inválido o elemento destino no encontrado.'
+  },
+  BLOCK_NOT_FOUND: {
+    code: 'BLOCK_NOT_FOUND',
+    http: 404,
+    description: 'El bloque solicitado no existe en el catálogo de Rótulos Web.'
+  },
+  TEMPLATE_NOT_FOUND: {
+    code: 'TEMPLATE_NOT_FOUND',
+    http: 404,
+    description: 'La plantilla solicitada no existe en el catálogo.'
+  },
+  BACKUP_NOT_FOUND: {
+    code: 'BACKUP_NOT_FOUND',
+    http: 404,
+    description: 'El respaldo solicitado no existe en el directorio de backups.'
   }
 };
 

@@ -25,57 +25,119 @@
   font-display: swap;
 }
 
-/* ── TEMA 1: PATRIA (Por defecto) ── */
+/* ── SISTEMA DE TOKENS SANZO WADA × IDENTIDAD MEXICANA (159 Pigmentos / 348 Combinaciones) ── */
+:root {
+  /* Neutros Minerales y Papel Amate (60% y 30% — Ley 2 y Ley 3: Cero #000/#FFF puros) */
+  --wada-obsidian: #111314;       /* Black — Obsidiana / Carbón de mezquite */
+  --wada-deep-indigo: #051230;    /* Deep Indigo — Noche profunda de talavera */
+  --wada-tyrian-blue: #12354e;    /* Dark Tyrian Blue — Añil nocturno */
+  --wada-slate: #34454c;          /* Slate Color — Piedra volcánica / Pizarra */
+  --wada-slate-green: #112f2c;    /* Deep Slate Green — Sombra de monte */
+  --wada-cal-white: #f5ecc2;      /* Sulpher Yellow — Blanco a la cal */
+  --wada-amate-cream: #ffefae;    /* Pale Lemon Yellow — Papel amate claro */
+  --wada-ivory-buff: #ebd3a2;     /* Ivory Buff — Cantera de Oaxaca */
+  --wada-ecru: #c2ae93;           /* Ecru — Arena y barro seco */
+
+  /* Acentos de Identidad Mexicana y Semáforo Armonizado (10% — Ley 1, Ley 4 y Ley 5) */
+  --wada-carmine: #cc1236;        /* Carmine — Rojo Bandera / Grana Cochinilla */
+  --wada-jasper-red: #eb5324;     /* Jasper Red — Chile Guajillo */
+  --wada-rosolanc: #b73f74;       /* Rosolanc Purple — Rosa Mexicano / Bugambilia */
+  --wada-spinel-red: #f27291;     /* Spinel Red — Rosa Alfeñique */
+  --wada-english-red: #d96629;    /* English Red — Barro Rojo de Oaxaca */
+  --wada-cempasuchil: #f37420;    /* Orange — Flor de Cempasúchil */
+  --wada-yellow-orange: #f99d1b;  /* Yellow Orange — Oro Cempasúchil */
+  --wada-gold-ocher: #e2b540;     /* Yellow Ocher — Oro Charro / Bronce */
+  --wada-yellow: #fff200;         /* Yellow — Amarillo Rótulo (Combo #154) */
+  --wada-apricot-yellow: #ffdd00; /* Apricot Yellow — Amarillo Feria (Combo #284) */
+  --wada-sea-green: #00b49b;      /* Sea Green — Jade Mesoamericano */
+  --wada-diamine-green: #1a7444;  /* Diamine Green — Verde Bandera / Nopal */
+  --wada-dusky-green: #004f46;    /* Dusky Green — Verde Oscuro de Feria (Combo #284) */
+  --wada-cerulian: #0093a5;       /* Cerulian Blue — Azul Talavera */
+  --wada-blue: #006eb8;           /* Blue — Azul Cobalto Rótulo (Combo #154) */
+  --wada-lyons-blue: #1c4286;     /* Deep Lyons Blue — Azul Añil de Mercado (Combo #179) */
+}
+
+/* ── TEMA 1: PATRIA (Por defecto — Combos Wada #127, #190 y #284: Obsidiana, Jade y Oro Ocre) ── */
 :root, [data-theme="patria"] {
-  --bg-dark: #090D0B;
-  --bg-surface: #121815;
-  --bg-elevated: #1A231F;
-  --bg-hover: #222E29;
-  --border-color: rgba(212, 175, 55, 0.22);
-  --border-highlight: rgba(212, 175, 55, 0.55);
-  --oro-charro: #D4AF37;
-  --oro-brillante: #F5C542;
-  --verde-patrio: #006847;
-  --verde-neon: #55EBB2;
-  --blanco-hueso: #F8F9FA;
-  --texto-sec: #9CA3AF;
+  --bg-primary: #111314;          /* 60% Wada Black (Obsidiana) */
+  --bg-secondary: #112f2c;        /* 30% Wada Deep Slate Green */
+  --bg-dark: #0c1210;
+  --bg-surface: #14221f;
+  --bg-elevated: #1b2e2a;
+  --bg-hover: #243d37;
+  --text-primary: #f5ecc2;        /* Wada Sulpher Yellow (16.4:1 AAA) */
+  --text-secondary: #c2ae93;      /* Wada Ecru (8.2:1 AAA) */
+  --text-muted: #968772;
+  --border-color: rgba(226, 181, 64, 0.26);
+  --border-highlight: rgba(249, 157, 27, 0.65);
+  --shadow: 0 4px 14px rgba(17, 19, 20, 0.55);
+  --accent: #e2b540;              /* 10% Wada Yellow Ocher */
+  --accent-hover: #f99d1b;        /* Wada Yellow Orange */
+  --danger: #cc1236;              /* Wada Carmine */
+  --success: #00b49b;             /* Wada Sea Green */
+  --oro-charro: #e2b540;
+  --oro-brillante: #f99d1b;
+  --verde-patrio: #1a7444;        /* Wada Diamine Green */
+  --verde-neon: #00b49b;          /* Wada Sea Green (Jade natural, cero neón sintético) */
+  --blanco-hueso: #f5ecc2;
+  --texto-sec: #c2ae93;
   --sidebar-w: 360px;
   --header-height: 52px;
   --dock-width: 62px;
   --dock-expanded-width: 210px;
 }
 
-/* ── TEMA 2: OSCURO (Obsidiana / Cyber) ── */
-[data-theme="oscuro"] {
-  --bg-dark: #0A0A0A;
-  --bg-surface: #141414;
-  --bg-elevated: #1E1E1E;
-  --bg-hover: #2A2A2A;
-  --border-color: rgba(255, 255, 255, 0.12);
-  --border-highlight: rgba(0, 240, 255, 0.45);
-  --oro-charro: #00F0FF;
-  --oro-brillante: #38BDF8;
-  --verde-patrio: #059669;
-  --verde-neon: #34D399;
-  --blanco-hueso: #F3F4F6;
-  --texto-sec: #9CA3AF;
+/* ── TEMA 2: OSCURO (Combos Wada #155 y #141: Deep Indigo, Dark Tyrian Blue y Cempasúchil) ── */
+[data-theme="dark"], [data-theme="oscuro"] {
+  --bg-primary: #051230;          /* 60% Wada Deep Indigo */
+  --bg-secondary: #12354e;        /* 30% Wada Dark Tyrian Blue */
+  --bg-dark: #040d24;
+  --bg-surface: #0d263b;
+  --bg-elevated: #12354e;
+  --bg-hover: #1b4969;
+  --text-primary: #ffefae;        /* Wada Pale Lemon Yellow (17.6:1 AAA) */
+  --text-secondary: #c2ae93;      /* Wada Ecru */
+  --text-muted: #8aa2b3;
+  --border-color: rgba(0, 147, 165, 0.32);
+  --border-highlight: rgba(249, 157, 27, 0.65);
+  --shadow: 0 4px 14px rgba(5, 18, 48, 0.65);
+  --accent: #f99d1b;              /* 10% Wada Yellow Orange */
+  --accent-hover: #f37420;        /* Wada Orange (Cempasúchil) */
+  --danger: #cc1236;              /* Wada Carmine */
+  --success: #00b49b;             /* Wada Sea Green */
+  --oro-charro: #f99d1b;
+  --oro-brillante: #ffdd00;
+  --verde-patrio: #007190;        /* Wada Antwarp Blue */
+  --verde-neon: #00b49b;          /* Wada Sea Green */
+  --blanco-hueso: #ffefae;
+  --texto-sec: #c2ae93;
   --sidebar-w: 360px;
 }
 
-/* ── TEMA 3: CLARO (Estudio Editorial Pergamino) ── */
-[data-theme="claro"] {
-  --bg-dark: #EDE8DF;
-  --bg-surface: #FBF8F2;
-  --bg-elevated: #FFFFFF;
-  --bg-hover: #F0EAE1;
-  --border-color: rgba(184, 134, 11, 0.35);
-  --border-highlight: #B8860B;
-  --oro-charro: #996515;
-  --oro-brillante: #B8860B;
-  --verde-patrio: #006847;
-  --verde-neon: #006847;
-  --blanco-hueso: #1C2621;
-  --texto-sec: #4B5563;
+/* ── TEMA 3: CLARO (Combos Wada #190, #154 y #243: Blanco a la Cal, Papel Amate, Cantera y Barro) ── */
+[data-theme="light"], [data-theme="claro"] {
+  --bg-primary: #f5ecc2;          /* 60% Wada Sulpher Yellow (Blanco a la Cal, cero #FFF puro) */
+  --bg-secondary: #ebd3a2;        /* 30% Wada Ivory Buff (Cantera) */
+  --bg-dark: #e2c792;             /* Cantera sombreada para barras estructurales */
+  --bg-surface: #f5ecc2;          /* Superficie principal a la cal */
+  --bg-elevated: #ebd3a2;         /* Contenedores elevados en cantera cálida */
+  --bg-hover: #dfbe82;
+  --text-primary: #111314;        /* Wada Black Obsidiana (16.4:1 AAA sobre cal) */
+  --text-secondary: #34454c;      /* Wada Slate Color (8.4:1 AAA sobre cal) */
+  --text-muted: #52636b;
+  --border-color: #b59b78;        /* Borde mineral definido */
+  --border-highlight: #cc1236;    /* Wada Carmine */
+  --shadow: 0 3px 10px rgba(17, 19, 20, 0.12);
+  --accent: #cc1236;              /* 10% Wada Carmine (6.1:1 AA/AAA sobre cal) */
+  --accent-hover: #d96629;        /* Wada English Red (Barro de Oaxaca) */
+  --danger: #cc1236;
+  --success: #004f46;             /* Wada Dusky Green */
+  --oro-charro: #b5381a;          /* Barro quemado / Carmesí de alto contraste en fondo claro */
+  --oro-brillante: #cc1236;       /* Wada Carmine */
+  --verde-patrio: #004f46;        /* Wada Dusky Green (Combo #284) */
+  --verde-neon: #004f46;          /* Alto contraste sobre superficie clara */
+  --blanco-hueso: #111314;        /* Wada Black Obsidiana */
+  --texto-sec: #34454c;           /* Wada Slate Color */
   --sidebar-w: 360px;
 }
 
@@ -372,6 +434,77 @@ body {
 
 .gjs-frame {
   height: 100% !important;
+}
+
+/* ── ERGONOMÍA DEL CANVAS: DROPZONE, SELECCIÓN Y MANIPULACIÓN ── */
+.gjs-placeholder {
+  border: 2px dashed #55EBB2 !important;
+  background: rgba(85, 235, 178, 0.22) !important;
+  box-shadow: 0 0 14px rgba(85, 235, 178, 0.45) !important;
+  border-radius: 6px !important;
+  min-height: 12px !important;
+  margin: 6px 0 !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.gjs-placeholder-int {
+  background: #55EBB2 !important;
+  box-shadow: 0 0 8px #55EBB2 !important;
+}
+
+.gjs-selected {
+  outline: 2px solid #D4AF37 !important;
+  outline-offset: -2px !important;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.35) !important;
+}
+
+.gjs-hovered {
+  outline: 1.5px dashed rgba(212, 175, 55, 0.6) !important;
+  outline-offset: -1px !important;
+}
+
+.gjs-badge {
+  background: #141B17 !important;
+  color: #D4AF37 !important;
+  font-family: 'Space Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(212, 175, 55, 0.5) !important;
+  border-radius: 4px !important;
+  padding: 3px 8px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6) !important;
+}
+
+.gjs-toolbar {
+  background: #141B17 !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7) !important;
+  padding: 4px !important;
+}
+
+.gjs-toolbar-item {
+  color: #F8F9FA !important;
+  padding: 6px 9px !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  transition: all 0.15s ease !important;
+}
+
+.gjs-toolbar-item:hover {
+  background: rgba(212, 175, 55, 0.25) !important;
+  color: #D4AF37 !important;
+}
+
+.gjs-resizer-hdl {
+  background: #D4AF37 !important;
+  border: 1px solid #090D0B !important;
+  border-radius: 50% !important;
+  width: 9px !important;
+  height: 9px !important;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.6) !important;
 }
 
 /* ── DRAWER / MENÚ HAMBURGUESA (ZONA 2) ── */
@@ -2028,7 +2161,7 @@ body {
 }
 
 /* ============================================================
-   ALTO CONTRASTE EN PANELES E INPUTS (v3.6)
+   ALTO CONTRASTE EN PANELES E INPUTS (ARMONIZADO CON VARIABLES WADA)
    ============================================================ */
 
 /* Inputs y selects del panel de estilos y propiedades */
@@ -2042,13 +2175,13 @@ body {
 .gjs-field select,
 .gjs-field textarea,
 .gjs-input-holder input {
-  background: #1E2822 !important;
-  color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 4px !important;
+  background: var(--bg-surface) !important;
+  color: var(--blanco-hueso) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px !important;
   padding: 6px 10px !important;
   font-size: 0.85rem !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 /* Enfocar */
@@ -2060,9 +2193,9 @@ body {
 .gjs-field input:focus,
 .gjs-field select:focus,
 .gjs-field textarea:focus {
-  border-color: var(--talacha-gold, #D4AF37) !important;
+  border-color: var(--oro-charro) !important;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3) !important;
+  box-shadow: 0 0 0 2px rgba(249, 157, 27, 0.28) !important;
 }
 
 /* Valores numéricos y unidades */
@@ -2070,7 +2203,7 @@ body {
 .gjs-field-unit .gjs-field-unit-select,
 .gjs-field-unit,
 .gjs-field-units {
-  color: #F5C542 !important;
+  color: var(--oro-charro) !important;
   font-weight: 700 !important;
   font-size: 0.85rem !important;
   opacity: 1 !important;
@@ -2079,15 +2212,15 @@ body {
 /* Etiquetas principales */
 .gjs-sm-label,
 .gjs-trt-trait .gjs-label {
-  color: #E5E7EB !important;
-  font-weight: 600 !important;
-  font-size: 0.85rem !important;
+  color: var(--blanco-hueso) !important;
+  font-weight: 700 !important;
+  font-size: 0.84rem !important;
 }
 
 /* Sub-etiquetas (Top, Right, Bottom, Left) */
 .gjs-sm-sub-label,
 .gjs-sm-composite .gjs-sm-label {
-  color: #CBD5E1 !important;
+  color: var(--texto-sec) !important;
   font-size: 0.75rem !important;
   font-weight: 600 !important;
 }
@@ -2096,9 +2229,10 @@ body {
 .gjs-sm-description,
 .gjs-field-description,
 .pane-desc {
-  color: #D1D5DB !important;
+  color: var(--texto-sec) !important;
   font-size: 0.8rem !important;
-  line-height: 1.4 !important;
+  line-height: 1.45 !important;
+  font-weight: 500 !important;
 }
 
 /* Selectores de unidades (px, rem, em, %) y opciones */
@@ -2106,40 +2240,41 @@ body {
 .gjs-field-select option,
 .gjs-sm-select option,
 .gjs-select option {
-  background: #1E2822 !important;
-  color: #FFFFFF !important;
+  background: var(--bg-surface) !important;
+  color: var(--blanco-hueso) !important;
 }
 
 /* Títulos de categorías en estilos */
 .gjs-sm-sector-title {
-  background: #1E2822 !important;
-  color: #E5E7EB !important;
+  background: var(--bg-elevated) !important;
+  color: var(--blanco-hueso) !important;
   padding: 10px 12px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: 1px solid var(--border-color) !important;
 }
 
 .gjs-sm-sector-title .gjs-caret,
 .gjs-sm-sector-caret {
-  color: var(--talacha-gold, #D4AF37) !important;
-  fill: var(--talacha-gold, #D4AF37) !important;
+  color: var(--oro-charro) !important;
+  fill: var(--oro-charro) !important;
 }
 
 /* Selección de texto global */
 ::selection {
-  background: rgba(212, 175, 55, 0.4) !important;
-  color: #FFFFFF !important;
+  background: rgba(249, 157, 27, 0.35) !important;
+  color: var(--blanco-hueso) !important;
 }
 
 /* Inputs de propiedades (traits) */
 .gjs-trt-trait input,
 .gjs-trt-trait select,
 .gjs-trt-trait textarea {
-  background: #1E2822 !important;
-  color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 4px !important;
+  background: var(--bg-surface) !important;
+  color: var(--blanco-hueso) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px !important;
   padding: 6px 10px !important;
   font-size: 0.85rem !important;
+  font-weight: 600 !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
@@ -2153,13 +2288,13 @@ body {
 .gjs-trt-trait input:focus,
 .gjs-trt-trait select:focus,
 .gjs-trt-trait textarea:focus {
-  border-color: var(--talacha-gold, #D4AF37) !important;
+  border-color: var(--oro-charro) !important;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3) !important;
+  box-shadow: 0 0 0 2px rgba(249, 157, 27, 0.28) !important;
 }
 
 /* ============================================================
-   WIDGET DE COLOR & PALETA RÁPIDA (v3.8)
+   WIDGET DE COLOR & PALETA RÁPIDA (ARMONIZADO WADA v5.2)
    ============================================================ */
 .talacha-color-widget {
   width: 100%;
@@ -2181,18 +2316,18 @@ body {
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  border: 1px solid var(--border-highlight, rgba(212, 175, 55, 0.5));
+  border: 1px solid var(--border-highlight, rgba(226, 181, 64, 0.55));
   overflow: hidden;
   cursor: pointer;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  background: repeating-conic-gradient(#333 0% 25%, #1a1a1a 0% 50%) 50% / 6px 6px;
+  box-shadow: 0 2px 6px rgba(17, 19, 20, 0.25);
+  background: repeating-conic-gradient(#34454c 0% 25%, #111314 0% 50%) 50% / 6px 6px;
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
 .talacha-color-preview-wrapper:hover {
   transform: scale(1.08);
-  border-color: var(--oro-brillante, #F5C542);
+  border-color: var(--oro-brillante, #f99d1b);
 }
 
 .talacha-color-preview-box {
@@ -2215,9 +2350,9 @@ body {
 
 .talacha-color-text-input {
   flex: 1;
-  background: #1E2822 !important;
-  color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background: var(--bg-surface) !important;
+  color: var(--blanco-hueso) !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: 6px !important;
   padding: 5px 8px !important;
   font-family: 'Space Mono', monospace !important;
@@ -2227,18 +2362,18 @@ body {
 }
 
 .talacha-color-text-input:focus {
-  border-color: var(--talacha-gold, #D4AF37) !important;
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25) !important;
+  border-color: var(--oro-charro) !important;
+  box-shadow: 0 0 0 2px rgba(249, 157, 27, 0.25) !important;
   outline: none !important;
 }
 
 .talacha-color-clear-btn {
   width: 26px;
   height: 26px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  color: #CBD5E1;
+  color: var(--texto-sec);
   font-size: 1rem;
   line-height: 1;
   display: flex;
@@ -2249,25 +2384,25 @@ body {
 }
 
 .talacha-color-clear-btn:hover {
-  background: rgba(206, 17, 38, 0.3);
-  border-color: #CE1126;
-  color: #FFF;
+  background: var(--wada-carmine, #cc1236);
+  border-color: var(--wada-carmine, #cc1236);
+  color: var(--wada-cal-white, #f5ecc2);
 }
 
 .talacha-color-palette-section,
 .talacha-color-recent-section {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  padding: 4px 6px;
+  padding: 5px 7px;
 }
 
 .talacha-palette-label {
   font-size: 0.65rem;
-  color: var(--texto-sec, #9CA3AF);
+  color: var(--texto-sec);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -2282,21 +2417,21 @@ body {
 }
 
 .talacha-color-swatch-btn {
-  width: 18px;
-  height: 18px;
+  width: 19px;
+  height: 19px;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(17, 19, 20, 0.35);
   cursor: pointer;
   padding: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 3px rgba(17, 19, 20, 0.3);
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, border-color 0.15s ease;
   position: relative;
 }
 
 .talacha-color-swatch-btn:hover {
   transform: scale(1.25);
-  border-color: #FFFFFF;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+  border-color: var(--oro-brillante);
+  box-shadow: 0 0 6px rgba(249, 157, 27, 0.55);
   z-index: 5;
 }
 
@@ -2320,14 +2455,14 @@ body {
   right: 20px;
   z-index: 99;
   background: linear-gradient(135deg, var(--oro-charro), var(--oro-brillante));
-  color: #111;
+  color: #111314;
   border: none;
   border-radius: 999px;
   padding: 12px 20px;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 0.9rem;
   font-weight: 800;
-  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5), 0 2px 8px rgba(0,0,0,0.8);
+  box-shadow: 0 6px 20px rgba(226, 181, 64, 0.5), 0 2px 8px rgba(17, 19, 20, 0.8);
   cursor: pointer;
   align-items: center;
   gap: 8px;
@@ -2341,7 +2476,7 @@ body {
 .btn-close-sidebar-mobile {
   display: none;
   margin-left: auto;
-  color: #EF4444 !important;
+  color: var(--wada-carmine, #cc1236) !important;
   font-size: 1rem;
 }
 
@@ -2462,7 +2597,7 @@ body {
     bottom: 0;
     z-index: 90;
     transform: translateX(-100%);
-    box-shadow: 4px 0 20px rgba(0,0,0,0.8);
+    box-shadow: 4px 0 20px rgba(17, 19, 20, 0.8);
     transition: transform 0.25s ease;
   }
 
@@ -2480,7 +2615,7 @@ body {
     max-width: 360px !important;
     min-width: 0 !important;
     z-index: 120;
-    box-shadow: -8px 0 35px rgba(0, 0, 0, 0.85);
+    box-shadow: -8px 0 35px rgba(17, 19, 20, 0.85);
     background: var(--bg-surface);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -2530,6 +2665,534 @@ body {
   }
 }
 
+/* ── DIÁLOGOS MODALES SOBERANOS (<dialog>) ── */
+dialog.sovereign-dialog {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: auto;
+  outline: none;
+  max-width: 480px;
+  width: 90vw;
+  box-shadow: none;
+}
 
+dialog.sovereign-dialog::backdrop {
+  background: rgba(17, 19, 20, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.dialog-card {
+  background: var(--bg-surface, #14221f);
+  border: 1px solid var(--border-highlight, rgba(249, 157, 27, 0.65));
+  border-radius: 14px;
+  padding: 22px 24px;
+  color: var(--blanco-hueso, #f5ecc2);
+  font-family: 'Space Grotesk', -apple-system, sans-serif;
+  box-shadow: 0 16px 40px rgba(17, 19, 20, 0.85);
+  animation: dialogScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dialog-card.dialog-danger-theme {
+  border-color: var(--wada-carmine, #cc1236);
+  box-shadow: 0 16px 40px rgba(204, 18, 54, 0.35);
+}
+
+@keyframes dialogScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.dialog-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--oro-charro, #e2b540);
+}
+
+.dialog-card.dialog-danger-theme .dialog-title {
+  color: var(--wada-spinel-red, #f27291);
+}
+
+.dialog-body {
+  margin-bottom: 20px;
+}
+
+.dialog-message {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--blanco-hueso, #f5ecc2);
+  margin: 0;
+}
+
+.dialog-input {
+  width: 100%;
+  margin-top: 12px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--verde-neon);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.dialog-input:focus {
+  border-color: var(--oro-brillante, #f99d1b);
+  box-shadow: 0 0 10px rgba(249, 157, 27, 0.3);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-dialog-cancel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  color: var(--texto-sec);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.btn-dialog-cancel:hover {
+  background: var(--bg-hover);
+  color: var(--blanco-hueso);
+}
+
+.btn-dialog-confirm {
+  background: linear-gradient(135deg, var(--oro-charro, #e2b540), var(--wada-english-red, #d96629));
+  border: none;
+  color: #111314;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-family: inherit;
+  box-shadow: 0 2px 8px rgba(226, 181, 64, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-dialog-confirm:hover {
+  background: linear-gradient(135deg, var(--oro-brillante, #f99d1b), var(--oro-charro, #e2b540));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(249, 157, 27, 0.5);
+}
+
+.btn-dialog-danger {
+  background: var(--wada-carmine, #cc1236);
+  border: 1px solid var(--wada-spinel-red, #f27291);
+  color: #f5ecc2;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-family: inherit;
+  box-shadow: 0 2px 8px rgba(204, 18, 54, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-dialog-danger:hover {
+  background: var(--wada-jasper-red, #eb5324);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(204, 18, 54, 0.6);
+}
+
+/* ============================================================
+ * Welcome Hub — Estilos de Selección de Proyectos
+ * ============================================================ */
+.wh-project-item.selected {
+  border-color: var(--oro-charro) !important;
+  background: rgba(249, 157, 27, 0.14) !important;
+}
+.wh-project-item .wh-open-project,
+.wh-project-item .wh-btn-item-open {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.wh-project-item.selected .wh-open-project,
+.wh-project-item.selected .wh-btn-item-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ============================================================
+ * 🎨 ARMONIZACIÓN INTEGRAL SANZO WADA × IDENTIDAD MEXICANA (v5.2)
+ * Elimina fugas de fondos oscuros de GrapesJS, garantiza contraste
+ * WCAG AAA/AA (>7:1 / >4.5:1) y aplica las 5 Leyes de Wada-México.
+ * ============================================================ */
+
+/* Neutralizar clases internas de GrapesJS (.gjs-one-bg, .gjs-blocks-c) que filtraban gris oscuro (#444) */
+.gjs-one-bg,
+.gjs-blocks-c,
+.gjs-block-categories,
+.gjs-pn-panel,
+.gjs-sm-sectors,
+.gjs-trt-traits,
+.gjs-clm-tags {
+  background-color: var(--bg-elevated) !important;
+  color: var(--blanco-hueso) !important;
+}
+
+.gjs-two-color {
+  color: var(--blanco-hueso) !important;
+}
+
+/* Barra inferior de migas (Breadcrumbs) conectada al tema activo */
+.breadcrumbs-bar {
+  background: var(--bg-dark) !important;
+  border-top: 1px solid var(--border-color) !important;
+  color: var(--texto-sec) !important;
+}
+
+.breadcrumb-item {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--blanco-hueso) !important;
+}
+
+.breadcrumb-item:hover {
+  background: var(--bg-hover) !important;
+  border-color: var(--oro-charro) !important;
+  color: var(--oro-brillante) !important;
+}
+
+.breadcrumb-item.active {
+  background: var(--verde-patrio) !important;
+  border-color: var(--verde-neon) !important;
+  color: #f5ecc2 !important;
+}
+
+/* ── REFINAMIENTO ESPECÍFICO: MODO CLARO (Combos Wada #190, #154 y #243: Cal, Amate, Cantera y Carmesí) ── */
+[data-theme="light"] .top-toolbar,
+[data-theme="claro"] .top-toolbar {
+  background: var(--wada-ivory-buff, #ebd3a2) !important;
+  border-bottom: 2px solid #b59b78 !important;
+  box-shadow: 0 2px 10px rgba(17, 19, 20, 0.1) !important;
+}
+
+[data-theme="light"] .btn-hamburger,
+[data-theme="claro"] .btn-hamburger {
+  background: var(--wada-amate-cream, #ffefae) !important;
+  border: 1px solid #9e8462 !important;
+  color: var(--wada-obsidian, #111314) !important;
+}
+
+[data-theme="light"] .btn-hamburger:hover,
+[data-theme="claro"] .btn-hamburger:hover {
+  background: var(--wada-carmine, #cc1236) !important;
+  border-color: var(--wada-obsidian, #111314) !important;
+  color: var(--wada-cal-white, #f5ecc2) !important;
+}
+
+[data-theme="light"] .badge-editor,
+[data-theme="claro"] .badge-editor {
+  background: var(--wada-dusky-green, #004f46) !important;
+  border-color: var(--wada-obsidian, #111314) !important;
+  color: var(--wada-cal-white, #f5ecc2) !important;
+}
+
+[data-theme="light"] .device-switcher,
+[data-theme="claro"] .device-switcher,
+[data-theme="light"] .history-controls,
+[data-theme="claro"] .history-controls {
+  background: #dfbe82 !important;
+  border: 1px solid #9e8462 !important;
+}
+
+[data-theme="light"] .btn-device,
+[data-theme="claro"] .btn-device,
+[data-theme="light"] .btn-icon-tool,
+[data-theme="claro"] .btn-icon-tool {
+  color: var(--wada-obsidian, #111314) !important;
+}
+
+[data-theme="light"] .btn-device.active,
+[data-theme="claro"] .btn-device.active {
+  background: var(--wada-blue, #006eb8) !important;
+  color: var(--wada-cal-white, #f5ecc2) !important;
+  box-shadow: 0 2px 5px rgba(0, 110, 184, 0.35) !important;
+}
+
+[data-theme="light"] .btn-action,
+[data-theme="claro"] .btn-action {
+  background: var(--wada-amate-cream, #ffefae) !important;
+  border: 1px solid #9e8462 !important;
+  color: var(--wada-obsidian, #111314) !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .btn-action:hover,
+[data-theme="claro"] .btn-action:hover {
+  background: var(--wada-cal-white, #f5ecc2) !important;
+  border-color: var(--wada-carmine, #cc1236) !important;
+  color: var(--wada-carmine, #cc1236) !important;
+}
+
+[data-theme="light"] .btn-save,
+[data-theme="claro"] .btn-save {
+  background: var(--wada-yellow-orange, #f99d1b) !important;
+  color: var(--wada-obsidian, #111314) !important;
+  border: 2px solid var(--wada-obsidian, #111314) !important;
+  box-shadow: 2px 2px 0 var(--wada-obsidian, #111314) !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="light"] .btn-save:hover,
+[data-theme="claro"] .btn-save:hover {
+  background: var(--wada-apricot-yellow, #ffdd00) !important;
+  color: var(--wada-obsidian, #111314) !important;
+}
+
+[data-theme="light"] .btn-publish,
+[data-theme="claro"] .btn-publish {
+  background: var(--wada-diamine-green, #1a7444) !important;
+  color: var(--wada-cal-white, #f5ecc2) !important;
+  border: 2px solid var(--wada-obsidian, #111314) !important;
+  box-shadow: 2px 2px 0 var(--wada-obsidian, #111314) !important;
+}
+
+[data-theme="light"] .btn-shutdown,
+[data-theme="claro"] .btn-shutdown {
+  background: var(--wada-carmine, #cc1236) !important;
+  border: 2px solid var(--wada-obsidian, #111314) !important;
+  color: var(--wada-cal-white, #f5ecc2) !important;
+  box-shadow: 2px 2px 0 var(--wada-obsidian, #111314) !important;
+}
+
+/* Dock Izquierdo en Modo Claro (Cantera de Oaxaca y Barro) */
+[data-theme="light"] .left-dock,
+[data-theme="claro"] .left-dock {
+  background: var(--wada-ivory-buff, #ebd3a2) !important;
+  border-right: 2px solid #b59b78 !important;
+  box-shadow: 2px 0 8px rgba(17, 19, 20, 0.08) !important;
+}
+
+[data-theme="light"] .dock-top-row,
+[data-theme="claro"] .dock-top-row {
+  background: #dfbe82 !important;
+  border-bottom: 1px solid #b59b78 !important;
+}
+
+[data-theme="light"] .btn-dock-toggle,
+[data-theme="claro"] .btn-dock-toggle {
+  background: var(--wada-amate-cream, #ffefae) !important;
+  border: 1px solid #9e8462 !important;
+  color: var(--wada-obsidian, #111314) !important;
+}
+
+[data-theme="light"] .dock-btn,
+[data-theme="claro"] .dock-btn {
+  color: var(--wada-slate, #34454c) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .dock-btn:hover,
+[data-theme="claro"] .dock-btn:hover {
+  background: var(--wada-amate-cream, #ffefae) !important;
+  border-color: #9e8462 !important;
+  color: var(--wada-obsidian, #111314) !important;
+}
+
+[data-theme="light"] .dock-btn.active,
+[data-theme="claro"] .dock-btn.active {
+  background: var(--wada-carmine, #cc1236) !important;
+  border: 2px solid var(--wada-obsidian, #111314) !important;
+  color: var(--wada-cal-white, #f5ecc2) !important;
+  box-shadow: 2px 2px 0 var(--wada-obsidian, #111314) !important;
+}
+
+/* Lienzo central en Modo Claro */
+[data-theme="light"] #gjs-container,
+[data-theme="claro"] #gjs-container,
+[data-theme="light"] .gjs-cv-canvas,
+[data-theme="claro"] .gjs-cv-canvas {
+  background-color: #dfbe82 !important;
+}
+
+/* Sidebar Derecho, Categorías y Tarjetas de Bloques en Modo Claro (Cero fugas grises) */
+[data-theme="light"] .editor-sidebar,
+[data-theme="claro"] .editor-sidebar {
+  background: var(--wada-cal-white, #f5ecc2) !important;
+  border-left: 2px solid #b59b78 !important;
+  box-shadow: -4px 0 16px rgba(17, 19, 20, 0.1) !important;
+}
+
+[data-theme="light"] .sidebar-tabs,
+[data-theme="claro"] .sidebar-tabs {
+  background: var(--wada-ivory-buff, #ebd3a2) !important;
+  border-bottom: 2px solid #b59b78 !important;
+}
+
+[data-theme="light"] .sidebar-tab-btn,
+[data-theme="claro"] .sidebar-tab-btn {
+  color: var(--wada-slate, #34454c) !important;
+}
+
+[data-theme="light"] .sidebar-tab-btn.active,
+[data-theme="claro"] .sidebar-tab-btn.active {
+  background: var(--wada-amate-cream, #ffefae) !important;
+  color: var(--wada-carmine, #cc1236) !important;
+  border: 1.5px solid var(--wada-obsidian, #111314) !important;
+  box-shadow: 2px 2px 0 var(--wada-obsidian, #111314) !important;
+}
+
+[data-theme="light"] .pane-header,
+[data-theme="claro"] .pane-header {
+  border-bottom: 1.5px solid #b59b78 !important;
+}
+
+[data-theme="light"] .pane-title,
+[data-theme="claro"] .pane-title {
+  color: var(--wada-carmine, #cc1236) !important;
+}
+
+[data-theme="light"] .pane-desc,
+[data-theme="claro"] .pane-desc {
+  color: var(--wada-slate, #34454c) !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .gjs-block-category,
+[data-theme="claro"] .gjs-block-category {
+  background: var(--wada-ivory-buff, #ebd3a2) !important;
+  border: 1.5px solid #9e8462 !important;
+  box-shadow: 0 2px 6px rgba(17, 19, 20, 0.06) !important;
+}
+
+[data-theme="light"] .gjs-title,
+[data-theme="claro"] .gjs-title {
+  background: #dfbe82 !important;
+  color: var(--wada-obsidian, #111314) !important;
+  border-bottom: 1px solid #9e8462 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="light"] .gjs-title::after,
+[data-theme="claro"] .gjs-title::after {
+  color: var(--wada-carmine, #cc1236) !important;
+}
+
+[data-theme="light"] .gjs-title:hover,
+[data-theme="claro"] .gjs-title:hover,
+[data-theme="light"] .gjs-block-category:hover .gjs-title,
+[data-theme="claro"] .gjs-block-category:hover .gjs-title {
+  background: var(--wada-english-red, #d96629) !important;
+  color: var(--wada-cal-white, #f5ecc2) !important;
+}
+
+[data-theme="light"] .gjs-title:hover::after,
+[data-theme="claro"] .gjs-title:hover::after {
+  color: var(--wada-cal-white, #f5ecc2) !important;
+}
+
+[data-theme="light"] .gjs-blocks-c,
+[data-theme="claro"] .gjs-blocks-c {
+  background: var(--wada-ivory-buff, #ebd3a2) !important;
+}
+
+[data-theme="light"] .gjs-block,
+[data-theme="claro"] .gjs-block {
+  background: var(--wada-amate-cream, #ffefae) !important;
+  border: 1.5px solid #9e8462 !important;
+  color: var(--wada-obsidian, #111314) !important;
+  box-shadow: 0 2px 4px rgba(17, 19, 20, 0.08) !important;
+}
+
+[data-theme="light"] .gjs-block svg,
+[data-theme="claro"] .gjs-block svg {
+  fill: var(--wada-carmine, #cc1236) !important;
+}
+
+[data-theme="light"] .gjs-block:hover,
+[data-theme="claro"] .gjs-block:hover {
+  background: var(--wada-cal-white, #f5ecc2) !important;
+  border-color: var(--wada-carmine, #cc1236) !important;
+  color: var(--wada-carmine, #cc1236) !important;
+  box-shadow: 3px 3px 0 var(--wada-obsidian, #111314) !important;
+}
+
+/* Capas y Breadcrumbs en Modo Claro */
+[data-theme="light"] .gjs-layer[data-type="section"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="section"] .gjs-layer-name,
+[data-theme="light"] .gjs-layer[data-type="div"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="div"] .gjs-layer-name,
+[data-theme="light"] .gjs-layer[data-type="header"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="header"] .gjs-layer-name,
+[data-theme="light"] .gjs-layer[data-type="main"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="main"] .gjs-layer-name,
+[data-theme="light"] .gjs-layer[data-type="footer"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="footer"] .gjs-layer-name {
+  color: var(--wada-lyons-blue, #1c4286) !important;
+}
+
+[data-theme="light"] .gjs-layer[data-type="link"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="link"] .gjs-layer-name,
+[data-theme="light"] .gjs-layer[data-type="button"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="button"] .gjs-layer-name {
+  color: var(--wada-dusky-green, #004f46) !important;
+}
+
+[data-theme="light"] .gjs-layer[data-type="text"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="text"] .gjs-layer-name,
+[data-theme="light"] .gjs-layer[data-type="paragraph"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="paragraph"] .gjs-layer-name,
+[data-theme="light"] .gjs-layer[data-type="heading"] .gjs-layer-name,
+[data-theme="claro"] .gjs-layer[data-type="heading"] .gjs-layer-name {
+  color: var(--wada-carmine, #cc1236) !important;
+}
+
+[data-theme="light"] .breadcrumbs-bar,
+[data-theme="claro"] .breadcrumbs-bar {
+  background: var(--wada-ivory-buff, #ebd3a2) !important;
+  border-top: 2px solid #9e8462 !important;
+  color: var(--wada-obsidian, #111314) !important;
+  box-shadow: 0 -2px 10px rgba(17, 19, 20, 0.1) !important;
+}
+
+[data-theme="light"] .breadcrumb-item,
+[data-theme="claro"] .breadcrumb-item {
+  background: var(--wada-amate-cream, #ffefae) !important;
+  border: 1px solid #9e8462 !important;
+  color: var(--wada-obsidian, #111314) !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .breadcrumb-item.active,
+[data-theme="claro"] .breadcrumb-item.active {
+  background: var(--wada-carmine, #cc1236) !important;
+  border-color: var(--wada-obsidian, #111314) !important;
+  color: var(--wada-cal-white, #f5ecc2) !important;
+}
 
 

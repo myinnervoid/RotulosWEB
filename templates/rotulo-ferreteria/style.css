@@ -1,0 +1,227 @@
+/* ==========================================================
+   🇲🇽 Rótulo Ferretería — Combinaciones Sanzo Wada #154 & #190
+   Tríada Clásica (#cc1236, #fff200, #006eb8) + Barda (#ebd3a2, #d96629, #111314)
+   ========================================================== */
+:root {
+  --amarillo-trafico: #f99d1b;    /* Wada Yellow Orange */
+  --amarillo-rotulo: #fff200;     /* Wada Yellow (#154) */
+  --rojo-carmesi: #cc1236;        /* Wada Carmine (#154) */
+  --azul-cobalto: #006eb8;        /* Wada Blue (#154) */
+  --verde-patrio: #1a7444;        /* Wada Diamine Green */
+  --verde-jade: #00b49b;          /* Wada Sea Green */
+  --negro-carbon: #111314;        /* Wada Black (#190) */
+  --blanco-cal: #f5ecc2;          /* Wada Sulpher Yellow */
+  --cantera-oaxaca: #ebd3a2;      /* Wada Ivory Buff (#190) */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  background-color: var(--negro-carbon);
+  color: var(--blanco-cal);
+  line-height: 1.5;
+}
+
+.ferreteria-ribbon {
+  background: var(--rojo-carmesi);
+  color: var(--blanco-cal);
+  padding: 8px 20px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--negro-carbon);
+}
+
+.ferreteria-hero {
+  max-width: 1040px;
+  margin: 28px auto;
+  background: var(--amarillo-trafico);
+  color: var(--negro-carbon);
+  border: 4px solid var(--negro-carbon);
+  border-radius: 18px;
+  padding: 40px 28px;
+  text-align: center;
+  box-shadow: 10px 10px 0 var(--rojo-carmesi);
+}
+
+.ferreteria-badge {
+  display: inline-block;
+  background: var(--negro-carbon);
+  color: var(--amarillo-rotulo);
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-family: 'Space Mono', monospace;
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+}
+
+.ferreteria-hero h1 {
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  font-weight: 900;
+  margin: 0 0 12px;
+  line-height: 1.08;
+  text-transform: uppercase;
+}
+
+.ferreteria-hero p {
+  font-size: 1.1rem;
+  font-weight: 700;
+  max-width: 720px;
+  margin: 0 auto 24px;
+}
+
+.ferreteria-cta-group {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-ferretero-primario {
+  background: var(--rojo-carmesi);
+  color: var(--blanco-cal);
+  padding: 12px 26px;
+  border-radius: 10px;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+  border: 2px solid var(--negro-carbon);
+  box-shadow: 4px 4px 0 var(--negro-carbon);
+}
+
+.btn-ferretero-secundario {
+  background: var(--negro-carbon);
+  color: var(--amarillo-rotulo);
+  padding: 12px 26px;
+  border-radius: 10px;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+  border: 2px solid var(--blanco-cal);
+}
+
+.ferreteria-main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 10px 20px 50px;
+}
+
+.ferreteria-section-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.ferreteria-section-header h2 {
+  color: var(--amarillo-trafico);
+  font-size: 2rem;
+  margin: 0 0 6px;
+}
+
+.ferreteria-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+  margin-bottom: 40px;
+}
+
+.ferreteria-card {
+  background: #112f2c;
+  border: 2px solid #e2b540;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 6px 6px 0 #004f46;
+}
+
+.dia-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--verde-jade);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.ferreteria-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.35rem;
+  color: var(--blanco-cal);
+}
+
+.ferreteria-card p {
+  color: #c2ae93;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.precio-sello {
+  align-self: flex-start;
+  background: var(--verde-patrio);
+  color: var(--blanco-cal);
+  font-family: 'Space Mono', monospace;
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1.5px solid var(--blanco-cal);
+  margin-top: 12px;
+}
+
+.barda-rotulada {
+  background: var(--blanco-cal);
+  border: 4px solid var(--azul-cobalto);
+  border-radius: 14px;
+  padding: 10px;
+  color: var(--negro-carbon);
+  box-shadow: 8px 8px 0 var(--azul-cobalto);
+}
+
+.barda-inner {
+  border: 3px solid var(--rojo-carmesi);
+  border-radius: 8px;
+  padding: 28px 20px;
+  text-align: center;
+}
+
+.barda-kicker {
+  font-family: 'Space Mono', monospace;
+  font-weight: 800;
+  color: var(--azul-cobalto);
+  font-size: 0.85rem;
+}
+
+.barda-inner h2 {
+  color: var(--rojo-carmesi);
+  font-size: 2.3rem;
+  font-weight: 900;
+  margin: 8px 0;
+  text-shadow: 3px 3px 0 var(--amarillo-rotulo);
+}
+
+.barda-footer {
+  display: inline-block;
+  background: var(--azul-cobalto);
+  color: var(--blanco-cal);
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: 2px solid var(--negro-carbon);
+  font-weight: 800;
+  margin-top: 10px;
+}
+
+.ferreteria-footer {
+  text-align: center;
+  padding: 24px;
+  border-top: 1px solid #34454c;
+  color: #c2ae93;
+  font-size: 0.9rem;
+}

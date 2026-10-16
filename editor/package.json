@@ -3,9 +3,15 @@
   "version": "5.1.0",
   "description": "Rótulos Web – Editor Visual Universal Soberano",
   "main": "server.js",
-  "bin": "server.js",
+  "bin": {
+    "rotulos-web": "server.js",
+    "rotulos-cli": "bin/rotulos-cli.js",
+    "rotulos-mcp": "mcp/rotulos-mcp-server.js"
+  },
   "scripts": {
     "start": "node server.js",
+    "cli": "node bin/rotulos-cli.js",
+    "mcp": "node mcp/rotulos-mcp-server.js",
     "build": "npm run build:css && npm run build:js",
     "build:css": "cleancss -o public/style.min.css public/style.css",
     "build:js": "terser public/modules/main.js --module -c -m -o public/app.min.js",
@@ -14,8 +20,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint server.js server/ public/modules/ tests/",
-    "lint:fix": "eslint --fix server.js server/ public/modules/ tests/"
+    "lint": "eslint server.js server/ bin/ mcp/ public/modules/ tests/",
+    "lint:fix": "eslint --fix server.js server/ bin/ mcp/ public/modules/ tests/"
   },
   "keywords": [],
   "type": "commonjs",

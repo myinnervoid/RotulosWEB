@@ -40,7 +40,7 @@ done
 
 # 3. Verificar plantillas
 echo "3. Verificando plantillas en templates/..."
-for template in memexicanisimos landing blog portfolio todos-santos; do
+for template in memexicanisimos landing blog portfolio todos-santos rotulo-ferreteria cartel-sonidero; do
   if [ -d "templates/$template" ]; then
     echo "   ✅ Plantilla '$template' encontrada"
   else
@@ -48,8 +48,8 @@ for template in memexicanisimos landing blog portfolio todos-santos; do
   fi
 done
 
-# 4. Ejecutar pruebas automatizadas
-echo "4. Ejecutando suite de pruebas automatizadas..."
-npm test
+# 4. Ejecutar linting y pruebas automatizadas
+echo "4. Ejecutando linting y suite de pruebas automatizadas..."
+npm run lint && npm test
 
-echo "✅ Verificación de Rótulos Web v5.1 completada con éxito."
+echo "✅ Verificación de Rótulos Web v5.2 completada con éxito."

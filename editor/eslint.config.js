@@ -4,8 +4,8 @@ const js = require('@eslint/js');
 module.exports = [
   js.configs.recommended,
   {
-    // Aplicar a archivos del servidor (CommonJS)
-    files: ['server.js', 'server/**/*.js'],
+    // Aplicar a archivos del servidor, CLI y MCP (CommonJS)
+    files: ['server.js', 'server/**/*.js', 'bin/**/*.js', 'mcp/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'commonjs',

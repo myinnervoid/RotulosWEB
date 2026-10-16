@@ -16,11 +16,12 @@ import { workerManager } from './worker-manager.js';
 import { showPublishDialog, publishToGitHub } from './publish.js';
 
 /**
- * Limpia el HTML del editor de atributos internos de GrapesJS.
+ * Limpia el HTML del editor de atributos internos y IDs basura de GrapesJS.
  * @param {string} rawHtml
+ * @param {string} [rawCss='']
  * @returns {string}
  */
-export function getSanitizedHtml(rawHtml) {
+export function getSanitizedHtml(rawHtml, rawCss = '') {
   if (!rawHtml) return "";
   const parser = new DOMParser();
   const doc = parser.parseFromString(rawHtml, 'text/html');
@@ -38,6 +39,13 @@ export function getSanitizedHtml(rawHtml) {
     }
   });
 
+  // Recolectar referencias a IDs dentro del propio HTML y hojas de estilo
+  const inlineStylesText = Array.from(doc.querySelectorAll('style'))
+    .map(s => s.textContent || '')
+    .join('\n');
+  const combinedCss = `${rawCss || ''}\n${inlineStylesText}`;
+  const gjsAutoIdRegex = /^i[a-z0-9]{3,6}$/;
+
   const allEls = doc.querySelectorAll('*');
   allEls.forEach(el => {
     Array.from(el.attributes).forEach(attr => {
@@ -46,6 +54,20 @@ export function getSanitizedHtml(rawHtml) {
       }
     });
     el.classList.remove('gjs-selected', 'gjs-hovered');
+    if (el.className === '') {
+      el.removeAttribute('class');
+    }
+
+    const currentId = el.getAttribute('id');
+    if (currentId && gjsAutoIdRegex.test(currentId)) {
+      const referencedInCss = combinedCss.includes(`#${currentId}`);
+      const referencedInDom = Boolean(
+        doc.querySelector(`[href="#${currentId}"], [for="${currentId}"], [aria-labelledby~="${currentId}"], [aria-describedby~="${currentId}"], [aria-controls~="${currentId}"]`)
+      );
+      if (!referencedInCss && !referencedInDom) {
+        el.removeAttribute('id');
+      }
+    }
   });
 
   const fixStyle = doc.getElementById('gjs-canvas-scroll-fixes');
@@ -88,8 +110,8 @@ async function triggerSave(editor, btnSave) {
   }
 
   try {
-    const cleanHtml = getSanitizedHtml(editor.getHtml());
     const cssContent = editor.getCss();
+    const cleanHtml = getSanitizedHtml(editor.getHtml(), cssContent);
 
     eventBus.publish(EDITOR_EVENTS.BEFORE_SAVE, { html: cleanHtml, css: cssContent });
 

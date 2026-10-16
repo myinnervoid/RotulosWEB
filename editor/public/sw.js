@@ -1,15 +1,13 @@
-const CACHE_NAME = 'rotulos-editor-v5.1.0';
+const CACHE_NAME = 'rotulos-editor-v5.2.0';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/style.min.css',
   '/style.css',
-  '/app.min.js',
   '/modules/main.js',
-  '/vendor/grapesjs/css/grapes.min.css',
-  '/vendor/grapesjs/grapes.min.js',
-  '/vendor/grapesjs-blocks-basic/index.js',
+  '/vendor/grapesjs.min.js',
+  '/vendor/grapesjs-blocks-basic.min.js',
   '/locales/es.json',
   '/locales/en.json',
   '/diagnostics.js',

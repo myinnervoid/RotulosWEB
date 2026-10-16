@@ -1,12 +1,14 @@
 /**
  * ============================================================
- * 🧱 blocks.js — Bloques GrapesJS (Básicos + Rótulos Web)
- * Rótulos Web / Memexicanísimos Studio v3.3
+ * 🧱 blocks.js — Bloques GrapesJS (Básicos + Rótulos Web + Rótulos Mexicanos)
+ * Rótulos Web / Memexicanísimos Studio v5.2
  * ============================================================
  */
 
+import { registerMexicanRotulosBlocks, MEXICAN_ROTULOS_CATALOG } from './blocks-rotulos-mexicanos.js';
+
 /**
- * Registra todos los bloques de GrapesJS: básicos y de Rótulos Web.
+ * Registra todos los bloques de GrapesJS: básicos, Rótulos Web y Rótulos Tradicionales Mexicanos.
  * @param {object} editor - Instancia activa de GrapesJS
  */
 export function registerBlocks(editor) {
@@ -603,15 +605,46 @@ export function registerBlocks(editor) {
     `
   });
 
+  // ── BLOQUES: RÓTULOS TRADICIONALES MEXICANOS (V1-A2) ─────────
+  registerMexicanRotulosBlocks(editor);
+
   // ── ACORDEÓN DE CATEGORÍAS CON PERSISTENCIA ──────────────────
   setupBlockCategories();
 }
+
+/**
+ * Obtiene el catálogo completo de bloques registrados (para CLI, MCP y UI)
+ * sin requerir un navegador ni instancia real de GrapesJS.
+ * @returns {Array<{id: string, label: string, category: string, categoryLabel: string, content: string}>}
+ */
+export function getAllBlocksCatalog() {
+  const map = new Map();
+  const mockEditor = {
+    BlockManager: {
+      get: (id) => map.get(id),
+      add: (id, cfg) => {
+        map.set(id, {
+          id,
+          label: cfg.label || id,
+          category: (cfg.category && cfg.category.id) ? cfg.category.id : 'general',
+          categoryLabel: (cfg.category && cfg.category.label) ? cfg.category.label : 'General',
+          content: typeof cfg.content === 'string' ? cfg.content.trim() : ''
+        });
+      }
+    }
+  };
+  registerBlocks(mockEditor);
+  return Array.from(map.values());
+}
+
+export { MEXICAN_ROTULOS_CATALOG };
 
 /**
  * Aplica comportamiento de acordeón a las categorías de bloques GrapesJS
  * con persistencia en localStorage.
  */
 function setupBlockCategories() {
+  if (typeof document === 'undefined') return;
   const blocksBox = document.getElementById('blocks-container');
   if (!blocksBox) return;
 

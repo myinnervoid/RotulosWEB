@@ -30,3 +30,18 @@ RotulosProjects/
 editor/RotulosProjects/
 editor.log
 ambient/
+
+# Documentación interna de auditoría de agentes y planeación
+**/AGENTS.md
+**/AUDIT_REPORT.md
+**/DECISIONS.md
+**/REPORTE_ENTREGA.md
+**/TRADEOFFS_MATRIX.md
+**/findings.md
+**/task_plan.md
+**/progress.md
+**/BUGS.md
+**/ANALISIS.md
+**/AUDITORIA_INTEGRAL.md
+**/MANIFEST*.md
+editor/docs/

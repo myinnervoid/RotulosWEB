@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="app_title">Estudio Visual Memexicanísimos · Editor GrapesJS Pro v3.1</title>
+  <title data-i18n="app_title">Estudio Visual Memexicanísimos · Editor GrapesJS Pro v5.1</title>
   
   <!-- Estilos de GrapesJS y Fuentes (CDN Global) -->
   <link rel="stylesheet" href="https://unpkg.com/grapesjs@0.23.6/dist/css/grapes.min.css">
@@ -14,6 +14,9 @@
 
   <!-- Estilos Principales del Editor -->
   <link rel="stylesheet" href="./style.css">
+
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#006847">
 </head>
 <body>
 
@@ -26,7 +29,7 @@
       </button>
       <span class="brand-emoji">🎨</span>
       <span class="brand-name" data-i18n="app_title">Rótulos Web</span>
-      <div class="badge-editor" data-i18n="badge_editor">v3.3</div>
+      <div class="badge-editor" data-i18n="badge_editor">v5.1</div>
     </div>
 
     <!-- CENTRO: EDICIÓN & DISPOSITIVOS -->
@@ -60,10 +63,20 @@
 
     <!-- DERECHA: ACCIONES CRÍTICAS (SIEMPRE VISIBLES) -->
     <div class="toolbar-actions">
+      <!-- MIS PROYECTOS (SELECTOR RÁPIDO) -->
+      <button class="btn-action btn-projects-quick" id="btn-quick-projects" data-i18n-title="my_projects" title="Administrar proyectos locales (crear, duplicar, favoritos)">
+        <i class="fas fa-boxes-stacked" style="color:var(--oro-charro);"></i> <span data-i18n="my_projects">Proyectos</span>
+      </button>
+
       <!-- VISTA PREVIA -->
       <button class="btn-action btn-preview-toggle" id="btn-preview" data-i18n-title="btn_preview" title="Probar enlaces e interactuar sin marcos de edición">
         <i class="fas fa-eye"></i> <span data-i18n="btn_preview">Vista Previa</span>
       </button>
+
+      <!-- VER EN VIVO -->
+      <a class="btn-action" id="btn-open-live" href="/live" target="_blank" rel="noopener" title="Abrir el sitio web tal cual en pestaña nueva (con scripts y animaciones activas)" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+        <i class="fas fa-external-link-alt" style="color:var(--oro-charro);"></i> <span>Ver en Vivo</span>
+      </a>
 
       <!-- PUBLICAR -->
       <button class="btn-action btn-publish" id="btn-publish" data-i18n-title="btn_publish" title="Publicar cambios en repositorio GitHub">
@@ -80,8 +93,13 @@
         <i class="fas fa-columns"></i>
       </button>
 
+      <!-- TOGGLE MODO OSCURO / CLARO -->
+      <button class="btn-action btn-theme-toggle" id="btn-theme-toggle" aria-label="Alternar tema oscuro / claro" title="Alternar Modo Oscuro / Claro">
+        <span class="theme-icon">🌙</span>
+      </button>
+
       <!-- APAGAR SERVIDOR -->
-      <button class="btn-action btn-shutdown" id="btn-shutdown" data-i18n-title="btn_shutdown" title="Detener el servidor local y liberar el puerto 5050">
+      <button class="btn-action btn-shutdown" id="btn-shutdown" data-i18n-title="btn_shutdown" aria-label="Detener servidor local" title="Detener el servidor local y liberar el puerto 5050">
         <i class="fas fa-power-off"></i>
       </button>
     </div>
@@ -109,6 +127,20 @@
           <small class="project-tag">PROYECTO ACTIVO</small>
           <div class="active-project-name" id="active-project-name">Cargando...</div>
         </div>
+        <button class="drawer-tool-btn btn-welcome-hub" id="btn-welcome-hub" title="Abrir Pantalla de Bienvenida (Start Screen)">
+          <i class="fas fa-house-chimney" style="color: #F5C542;"></i>
+          <div class="tool-btn-info">
+            <strong>Pantalla de Inicio...</strong>
+            <small>Abrir o crear proyecto (Start Screen)</small>
+          </div>
+        </button>
+        <button class="drawer-tool-btn btn-projects" id="btn-projects" title="Administrar proyectos locales (crear, duplicar, renombrar, favoritos)">
+          <i class="fas fa-boxes-stacked" style="color: #F5C542;"></i>
+          <div class="tool-btn-info">
+            <strong>Mis Proyectos...</strong>
+            <small>Crear, duplicar, renombrar y favoritos</small>
+          </div>
+        </button>
         <button class="drawer-tool-btn btn-import-html" id="btn-import-html" title="Subir y editar tu propio archivo index.html (desde tu PC o celular)">
           <i class="fas fa-file-code" style="color: #55EBB2;"></i>
           <div class="tool-btn-info">
@@ -128,6 +160,20 @@
           <div class="tool-btn-info">
             <strong>Plantilla Memexicanísimos</strong>
             <small>Restaurar diseño oficial</small>
+          </div>
+        </button>
+        <button class="drawer-tool-btn btn-new-template" id="btn-new-template" title="Explorar y cargar plantillas prediseñadas (Landing, Blog, Portafolio)">
+          <i class="fas fa-layer-group" style="color: #38BDF8;"></i>
+          <div class="tool-btn-info">
+            <strong>Galería de Plantillas...</strong>
+            <small>Landing, Blog, Portafolio</small>
+          </div>
+        </button>
+        <button class="drawer-tool-btn btn-export-zip" id="btn-export-zip" title="Descargar el proyecto completo en un archivo ZIP sin congelar la UI">
+          <i class="fas fa-file-zipper" style="color: #55EBB2;"></i>
+          <div class="tool-btn-info">
+            <strong>Descargar Proyecto .ZIP</strong>
+            <small>Compresión rápida Web Worker</small>
           </div>
         </button>
         <div class="recent-projects-heading">
@@ -220,13 +266,20 @@
               <small>Tutorial interactivo</small>
             </div>
           </button>
+          <a class="drawer-tool-btn" id="drawer-btn-open-live" href="/live" target="_blank" rel="noopener" title="Ver el Sitio Web Publicado (En Vivo)" style="text-decoration: none;">
+            <i class="fas fa-globe" style="color: #F59E0B;"></i>
+            <div class="tool-btn-info">
+              <strong>Ver Sitio en Vivo</strong>
+              <small>Como publicado (100% funcional)</small>
+            </div>
+          </a>
         </div>
       </div>
 
       <!-- SECCIÓN 4: INFORMACIÓN SOBERANA -->
       <div class="drawer-footer-info">
         <div class="info-tag">🌮 Software Soberano Mexicano</div>
-        <p>Rótulos Web v3.3<br>Diseñado para independencia tecnológica local.</p>
+        <p>Rótulos Web v5.1<br>Diseñado para independencia tecnológica local.</p>
       </div>
     </div>
   </aside>
@@ -527,16 +580,28 @@
     <span>Herramientas</span>
   </button>
 
-  <!-- SCRIPTS DE GRAPESJS Y PLUGINS (CDN Global de Alta Disponibilidad) -->
-  <script src="https://unpkg.com/grapesjs@0.23.6/dist/grapes.min.js"></script>
-  <script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2/dist/index.js"></script>
+  <!-- SCRIPTS DE GRAPESJS Y PLUGINS (Local Primero con Fallback CDN) -->
+  <script src="./vendor/grapesjs.min.js"></script>
+  <script src="./vendor/grapesjs-blocks-basic.min.js"></script>
+  <script src="./vendor/axe.min.js"></script>
 
-  <!-- MOTOR DE AUDITORÍA AXE-CORE Y DIAGNÓSTICOS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js"></script>
+  <!-- Fallback a CDN de alta disponibilidad si la carga local no está disponible -->
+  <script>
+    if (typeof grapesjs === 'undefined') {
+      document.write('<script src="https://unpkg.com/grapesjs@0.23.6/dist/grapes.min.js"><\\/script>');
+    }
+    if (typeof grapesjsBlocksBasic === 'undefined') {
+      document.write('<script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2/dist/index.js"><\\/script>');
+    }
+    if (typeof axe === 'undefined') {
+      document.write('<script src="./vendor/axe.min.js"><\\/script>');
+    }
+  </script>
   <script src="./diagnostics.js"></script>
 
-  <!-- LÓGICA DEL EDITOR -->
-  <script src="./app.js"></script>
+  <!-- LÓGICA DEL EDITOR (MODULAR — v3.4) -->
+
+  <script type="module" src="./modules/main.js"></script>
 
   <!-- REGISTRO DE SERVICE WORKER (FASE 2) -->
   <script>
