@@ -18,6 +18,15 @@ import { showToast } from './toast.js';
 let activeSource = null;
 let currentWatchedPath = null;
 let reconnectTimer = null;
+let lastInternalSaveAt = 0;
+
+eventBus.subscribe(EDITOR_EVENTS.BEFORE_SAVE, () => {
+  lastInternalSaveAt = Date.now();
+});
+
+eventBus.subscribe(EDITOR_EVENTS.AFTER_SAVE, () => {
+  lastInternalSaveAt = Date.now();
+});
 
 /**
  * Inicia la conexión SSE con el servidor para monitorear el proyecto activo.
@@ -47,7 +56,12 @@ export function startFileWatcher(projectPath) {
           if (!editor) return;
 
           if (file.endsWith('.css')) {
-            // Actualizar reglas CSS en el canvas
+            // Ignorar eco de guardado interno del propio editor o CSS idéntico
+            if (Date.now() - lastInternalSaveAt < 2500) return;
+            const currentCss = typeof editor.getCss === 'function' ? editor.getCss().trim() : '';
+            if (currentCss && currentCss === (content || '').trim()) return;
+
+            // Actualizar reglas CSS en el canvas solo ante cambios externos reales
             editor.setStyle(content);
             eventBus.publish(EDITOR_EVENTS.EXTERNAL_CSS_CHANGED, { file, content });
             showToast(`🎨 CSS sincronizado desde disco: ${file}`);

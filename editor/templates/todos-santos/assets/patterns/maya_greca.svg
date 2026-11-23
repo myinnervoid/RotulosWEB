@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <style>
+      .m-greca { stroke: #D4AF37; stroke-width: 2; fill: none; opacity: 0.32; }
+      .m-block { fill: #006847; opacity: 0.15; }
+      .m-turq { stroke: #00A896; stroke-width: 1.5; fill: none; opacity: 0.25; }
+    </style>
+  </defs>
+  <!-- Grecas Escalonadas Mayas (Uxmal) -->
+  <path d="M 0,16 L 32,16 L 32,48 L 16,48 L 16,32 L 0,32 Z" class="m-block" />
+  <path d="M 0,16 L 32,16 L 32,48 L 16,48 L 16,32 L 0,32 Z" class="m-greca" />
+
+  <path d="M 64,16 L 96,16 L 96,48 L 80,48 L 80,32 L 64,32 Z" class="m-block" />
+  <path d="M 64,16 L 96,16 L 96,48 L 80,48 L 80,32 L 64,32 Z" class="m-greca" />
+
+  <path d="M 32,80 L 64,80 L 64,112 L 48,112 L 48,96 L 32,96 Z" class="m-block" />
+  <path d="M 32,80 L 64,80 L 64,112 L 48,112 L 48,96 L 32,96 Z" class="m-greca" />
+
+  <path d="M 96,80 L 128,80 L 128,112 L 112,112 L 112,96 L 96,96 Z" class="m-block" />
+  <path d="M 96,80 L 128,80 L 128,112 L 112,112 L 112,96 L 96,96 Z" class="m-greca" />
+
+  <!-- Celosías de Enlace -->
+  <line x1="0" y1="64" x2="128" y2="64" class="m-turq" />
+  <line x1="0" y1="0" x2="128" y2="0" class="m-turq" />
+  <line x1="0" y1="128" x2="128" y2="128" class="m-turq" />
+</svg>

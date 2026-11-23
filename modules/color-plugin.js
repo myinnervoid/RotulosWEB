@@ -36,7 +36,7 @@ export const SPANISH_COLOR_MAP = {
   'naranja pastor': '#f37420',
   'morado': '#652c77',
   'purpura': '#9333EA',
-  'bugambilia': '#b73f74',
+  'bugambilia': '#b71f57',
   'rosa': '#f27291',
   'rosado': '#f27291',
   'gris': '#7b8a84',
@@ -61,13 +61,25 @@ export const SPANISH_COLOR_MAP = {
   'amarillo rotulo': '#fff200',
   'amarillo feria': '#ffdd00',
   'verde jade': '#00b49b',
+  'jade': '#00b49b',
   'verde nopal': '#1a7444',
   'verde feria': '#004f46',
   'azul talavera': '#0093a5',
   'azul cobalto': '#006eb8',
   'azul mercado': '#1c4286',
-  'rosa mexicano': '#b73f74',
+  'azul maya': '#0093a5',
+  'azul cenote': '#007190',
+  'rosa mexicano': '#b71f57',
+  'rosa barragan': '#c53c69',
   'rosa alfenique': '#f27291',
+  'papel de china': '#f27291',
+  'rojo enchilada': '#dd4027',
+  'rojo tocino': '#eb5324',
+  'amarillo canario': '#ffdd00',
+  'tezontle': '#82241f',
+  'luto': '#1e0e3f',
+  'acero': '#34454c',
+  'ceniza': '#a1a39a',
   'transparente': 'transparent',
   'ninguno': 'transparent'
 };
@@ -75,24 +87,29 @@ export const SPANISH_COLOR_MAP = {
 /** Paleta rápida de 1 clic con Pigmentos Sanzo Wada × Identidad Mexicana (Combos #144, #154, #179, #190, #284) */
 export const QUICK_PALETTE = [
   { color: '#cc1236', label: 'Carmesí Wada (#154)' },
+  { color: '#dd4027', label: 'Rojo Enchilada Rótulo (#179)' },
+  { color: '#ffdd00', label: 'Amarillo Canario Rótulo (#284)' },
+  { color: '#fff200', label: 'Amarillo Solar (#154)' },
+  { color: '#006eb8', label: 'Azul Cobalto Rótulo (#154)' },
   { color: '#1a7444', label: 'Verde Nopal / Patria' },
   { color: '#00b49b', label: 'Jade Mesoamericano (#284)' },
+  { color: '#0093a5', label: 'Azul Maya / Talavera' },
+  { color: '#f37420', label: 'Naranja Cempasúchil (#144)' },
   { color: '#f99d1b', label: 'Oro Cempasúchil' },
   { color: '#e2b540', label: 'Ocre Charro' },
-  { color: '#fff200', label: 'Amarillo Rótulo (#154)' },
-  { color: '#f37420', label: 'Naranja Cempasúchil (#144)' },
   { color: '#d96629', label: 'Barro de Oaxaca (#190)' },
-  { color: '#b73f74', label: 'Rosa Mexicano (#144)' },
-  { color: '#006eb8', label: 'Azul Cobalto Rótulo (#154)' },
-  { color: '#0093a5', label: 'Azul Talavera' },
+  { color: '#c53c69', label: 'Rosa Barragán (Indian Lake)' },
+  { color: '#b71f57', label: 'Bugambilia (Pomegranate)' },
+  { color: '#f27291', label: 'Papel de China (Spinel Red)' },
   { color: '#f5ecc2', label: 'Blanco a la Cal (Wada)' },
   { color: '#ebd3a2', label: 'Cantera de Oaxaca (#190)' },
-  { color: '#111314', label: 'Negro Obsidiana (#190)' },
+  { color: '#12354e', label: 'Azul Tirio Nocturno' },
   { color: '#051230', label: 'Índigo Nocturno (#155)' },
+  { color: '#111314', label: 'Negro Obsidiana (#190)' },
   { color: 'transparent', label: 'Transparente' }
 ];
 
-let sessionRecentColors = ['#cc1236', '#f99d1b', '#00b49b', '#006eb8', '#f5ecc2', '#111314'];
+let sessionRecentColors = ['#CC1236', '#FFDD00', '#006EB8', '#F99D1B', '#00B49B', '#F5ECC2'];
 
 function normalizeColorName(str) {
   if (!str || typeof str !== 'string') return '';
@@ -118,19 +135,58 @@ export function resolveColorInput(raw) {
 }
 
 /**
+ * Verifica si una cadena representa un color CSS completo y válido para aplicar al estilo.
+ * @param {string} val
+ * @returns {boolean}
+ */
+export function isValidCssColor(val) {
+  if (!val || typeof val !== 'string') return false;
+  const trimmed = val.trim();
+  if (trimmed === 'transparent' || trimmed === 'inherit' || trimmed === 'initial' || trimmed === 'currentColor') return true;
+  if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(trimmed)) return true;
+  if (/^(rgba?|hsla?)\([^)]+\)$/i.test(trimmed)) return true;
+  if (/^var\(--[a-zA-Z0-9_-]+(?:\s*,\s*[^)]+)?\)$/.test(trimmed)) return true;
+  const normalized = normalizeColorName(trimmed);
+  return Boolean(SPANISH_COLOR_MAP[normalized]);
+}
+
+/**
  * Convierte un color CSS a formato hexadecimal.
  * @param {string} color
  * @returns {string}
  */
 export function colorToHex(color) {
   if (!color || color === 'transparent' || color === 'inherit' || color === 'initial' || color === 'none') return '#000000';
-  if (color.startsWith('#')) {
-    if (color.length === 4) {
-      return '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+  let target = color.trim();
+
+  // Resolver variable CSS var(--token, fallback) si estamos en el navegador
+  const varMatch = target.match(/^var\(\s*(--[a-zA-Z0-9_-]+)(?:\s*,\s*([^)]+))?\s*\)$/);
+  if (varMatch) {
+    let resolvedVar = '';
+    if (typeof window !== 'undefined' && typeof document !== 'undefined' && document.documentElement) {
+      try {
+        resolvedVar = window.getComputedStyle(document.documentElement).getPropertyValue(varMatch[1]).trim();
+      } catch {}
     }
-    return color.slice(0, 7);
+    target = resolvedVar || (varMatch[2] ? varMatch[2].trim() : '');
   }
-  const rgbMatch = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+
+  // Resolver nombre en español si aplica
+  const normalized = normalizeColorName(target);
+  if (SPANISH_COLOR_MAP[normalized] && SPANISH_COLOR_MAP[normalized] !== 'transparent') {
+    target = SPANISH_COLOR_MAP[normalized];
+  }
+
+  if (target.startsWith('#')) {
+    if (/^#[0-9a-fA-F]{3}$/.test(target)) {
+      return '#' + target[1] + target[1] + target[2] + target[2] + target[3] + target[3];
+    }
+    if (/^#[0-9a-fA-F]{6,8}$/.test(target)) {
+      return target.slice(0, 7);
+    }
+    return '#000000';
+  }
+  const rgbMatch = target.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
   if (rgbMatch) {
     const r = parseInt(rgbMatch[1], 10).toString(16).padStart(2, '0');
     const g = parseInt(rgbMatch[2], 10).toString(16).padStart(2, '0');
@@ -142,8 +198,8 @@ export function colorToHex(color) {
 
 function addRecentColor(hex) {
   if (!hex || hex === 'inherit' || hex === 'initial') return;
-  const clean = hex.toUpperCase();
-  sessionRecentColors = [clean, ...sessionRecentColors.filter(c => c !== clean)].slice(0, 6);
+  const clean = hex === 'transparent' ? 'transparent' : hex.toUpperCase();
+  sessionRecentColors = [clean, ...sessionRecentColors.filter(c => c.toUpperCase() !== clean.toUpperCase())].slice(0, 6);
   document.querySelectorAll('.talacha-recent-swatches').forEach(bar => {
     renderRecentSwatches(bar);
   });
@@ -196,7 +252,7 @@ export const talachaColorPlugin = (ed) => {
             <div class="talacha-color-preview-box"></div>
             <input type="color" class="talacha-color-picker-native" value="#ffffff">
           </div>
-          <input type="text" class="talacha-color-text-input" placeholder="ej. #D4AF37, azul, verde..." spellcheck="false">
+          <input type="text" class="talacha-color-text-input" placeholder="ej. #cc1236, cempasuchil, jade..." spellcheck="false">
           <button type="button" class="talacha-color-clear-btn" title="Restablecer (quitar color)">×</button>
         </div>
         <div class="talacha-color-palette-section">
@@ -277,13 +333,19 @@ export const talachaColorPlugin = (ed) => {
       textInput.addEventListener('input', (e) => {
         const raw = e.target.value;
         const resolved = resolveColorInput(raw);
-        if (resolved && resolved !== 'transparent') {
+        if (!resolved) {
+          previewBox.style.background = 'none';
+          updateStyle('', { partial: true });
+          return;
+        }
+        if (!isValidCssColor(resolved)) {
+          return;
+        }
+        if (resolved !== 'transparent') {
           previewBox.style.background = resolved;
           nativePicker.value = colorToHex(resolved);
-        } else if (resolved === 'transparent') {
-          previewBox.style.background = 'repeating-conic-gradient(#555 0% 25%, #222 0% 50%) 50% / 8px 8px';
         } else {
-          previewBox.style.background = 'none';
+          previewBox.style.background = 'repeating-conic-gradient(#555 0% 25%, #222 0% 50%) 50% / 8px 8px';
         }
         updateStyle(resolved, { partial: true });
       });

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rotulos-editor-v5.2.0';
+const CACHE_NAME = 'rotulos-editor-v5.2.1';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -42,30 +42,31 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Estrategia Stale-While-Revalidate para máxima velocidad y resiliencia offline
+// Estrategia Network-First con Fallback Offline para evitar servir módulos o estilos obsoletos
 self.addEventListener('fetch', event => {
-  // No interceptar llamadas a la API dinámica ni websockets
-  if (event.request.url.includes('/api/')) {
+  // No interceptar llamadas a la API dinámica, vista en vivo (/live) ni peticiones que no sean GET
+  if (
+    event.request.method !== 'GET' ||
+    event.request.url.includes('/api/') ||
+    event.request.url.includes('/live')
+  ) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        const fetchPromise = fetch(event.request)
-          .then(networkResponse => {
-            if (networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
-              const cloned = networkResponse.clone();
-              caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, cloned);
-              });
-            }
-            return networkResponse;
-          })
-          .catch(() => {
-            // Si la red falla por falta de internet, se usa la caché
+    fetch(event.request)
+      .then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          const cloned = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, cloned);
           });
-        return response || fetchPromise;
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        // Si la red falla por falta de conexión, servir desde caché
+        return caches.match(event.request);
       })
   );
 });

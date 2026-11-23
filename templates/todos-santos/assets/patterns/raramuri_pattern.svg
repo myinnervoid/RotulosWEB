@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <style>
+      .r-line { stroke: #D4AF37; stroke-width: 1.5; fill: none; opacity: 0.35; }
+      .r-dot { fill: #CE1126; opacity: 0.3; }
+      .r-fill { fill: #006847; opacity: 0.15; }
+    </style>
+  </defs>
+  <!-- Rarámuri Mountain Chevrons & Diamonds -->
+  <polygon points="64,0 128,64 64,128 0,64" class="r-line" />
+  <polygon points="64,16 112,64 64,112 16,64" class="r-fill" />
+  <polygon points="64,28 100,64 64,100 28,64" class="r-line" />
+  
+  <!-- Corner Triangles -->
+  <polygon points="0,0 32,0 0,32" class="r-line" />
+  <polygon points="128,0 96,0 128,32" class="r-line" />
+  <polygon points="0,128 32,128 0,96" class="r-line" />
+  <polygon points="128,128 96,128 128,96" class="r-line" />
+  
+  <!-- Central Spiritual Anchor -->
+  <circle cx="64" cy="64" r="4" class="r-dot" />
+  <circle cx="0" cy="64" r="3" class="r-dot" />
+  <circle cx="128" cy="64" r="3" class="r-dot" />
+  <circle cx="64" cy="0" r="3" class="r-dot" />
+  <circle cx="64" cy="128" r="3" class="r-dot" />
+</svg>

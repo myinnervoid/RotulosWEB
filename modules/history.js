@@ -19,6 +19,7 @@ export const STORAGE_KEY_PREFIX = 'rotulos_history_';
 let history = [];
 let currentIndex = -1;
 let isRestoring = false;
+let lastRestoreTime = 0;
 let editorInstance = null;
 let projectPath = '';
 let captureTimeout = null;
@@ -30,17 +31,23 @@ function getStorageKey() {
 
 function saveHistory() {
   if (typeof localStorage === 'undefined') return;
+  const key = getStorageKey();
   try {
-    const key = getStorageKey();
     localStorage.setItem(key, JSON.stringify(history));
   } catch (err) {
-    console.warn('[History] Error guardando historial en localStorage:', err);
+    // Si se excede la cuota de 5MB de localStorage en proyectos grandes, guardar solo los 10 más recientes en disco
+    try {
+      const compact = history.slice(-10);
+      localStorage.setItem(key, JSON.stringify(compact));
+    } catch {
+      console.warn('[History] Error guardando historial en localStorage:', err);
+    }
   }
 }
 
 export function updateUI() {
   if (typeof document === 'undefined') return;
-  const canUndo = currentIndex > 0;
+  const canUndo = currentIndex > 0 || Boolean(captureTimeout);
   const canRedo = currentIndex >= 0 && currentIndex < history.length - 1;
 
   const undoBtn = document.getElementById('btn-undo');
@@ -58,6 +65,10 @@ export function updateUI() {
 
 export function restoreSnapshot(snapshot) {
   if (!editorInstance || !snapshot) return;
+  if (captureTimeout) {
+    clearTimeout(captureTimeout);
+    captureTimeout = null;
+  }
   isRestoring = true;
   try {
     if (typeof editorInstance.setHtml === 'function') {
@@ -70,15 +81,27 @@ export function restoreSnapshot(snapshot) {
     } else if (typeof editorInstance.setStyle === 'function') {
       editorInstance.setStyle(snapshot.css || '');
     }
+    if (typeof editorInstance.getHtml === 'function') {
+      snapshot.html = editorInstance.getHtml();
+    }
+    if (typeof editorInstance.getCss === 'function') {
+      snapshot.css = editorInstance.getCss();
+    }
     eventBus.publish(EDITOR_EVENTS.HISTORY_RESTORED, { snapshot });
   } catch (e) {
     console.warn('[History] Error restaurando snapshot:', e);
   } finally {
     isRestoring = false;
+    lastRestoreTime = Date.now();
   }
 }
 
 export function undo() {
+  if (captureTimeout) {
+    clearTimeout(captureTimeout);
+    captureTimeout = null;
+    captureSnapshot('Cambio en curso');
+  }
   if (currentIndex > 0) {
     currentIndex--;
     restoreSnapshot(history[currentIndex]);
@@ -198,9 +221,22 @@ export function initHistory(editor, project = '') {
     }
   }
 
-  // Captura inicial si estaba vacío
-  if (history.length === 0 && editor) {
-    captureSnapshot('Estado Inicial');
+  // Captura inicial si estaba vacío o si el estado actual del proyecto difiere del último snapshot guardado
+  if (editor) {
+    const curHtml = typeof editor.getHtml === 'function' ? editor.getHtml() : '';
+    const curCss = typeof editor.getCss === 'function' ? editor.getCss() : '';
+    const lastSnap = history.length > 0 ? history[history.length - 1] : null;
+    if (history.length === 0 || (curHtml && lastSnap && (lastSnap.html !== curHtml || lastSnap.css !== curCss))) {
+      captureSnapshot('Estado Inicial');
+    } else {
+      updateUI();
+      eventBus.publish(EDITOR_EVENTS.HISTORY_CHANGED, {
+        canUndo: currentIndex > 0,
+        canRedo: currentIndex < history.length - 1,
+        currentIndex,
+        total: history.length
+      });
+    }
   } else {
     updateUI();
     eventBus.publish(EDITOR_EVENTS.HISTORY_CHANGED, {
@@ -211,13 +247,16 @@ export function initHistory(editor, project = '') {
     });
   }
 
-  // Debounced auto-capture
+  // Debounced auto-capture (700ms para respuesta ágil al editar sin perder Ctrl+Z ni truncar Redo tras restore)
   const debouncedCapture = () => {
+    if (isRestoring || (Date.now() - lastRestoreTime < 500)) return;
     if (captureTimeout) clearTimeout(captureTimeout);
     captureTimeout = setTimeout(() => {
-      // Usa un requestAnimationFrame para evitar bloquear el thread principal
+      captureTimeout = null;
+      if (isRestoring || (Date.now() - lastRestoreTime < 500)) return;
       requestAnimationFrame(() => captureSnapshot());
-    }, 3500);
+    }, 700);
+    updateUI();
   };
 
   if (editor && typeof editor.on === 'function') {

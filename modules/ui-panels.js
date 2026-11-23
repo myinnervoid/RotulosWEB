@@ -13,6 +13,7 @@ import { eventBus } from './event-bus.js';
 import { EDITOR_EVENTS } from './editor-events.js';
 import { showTemplateSelector } from './template-selector.js';
 import { showWelcomeHub } from './welcome-hub.js';
+import { applyTheme, getCurrentTheme } from './theme.js';
 
 const panelIds = ['noticias-news', 'perfiles', 'redes-sociales', 'nosotros-apoyo', 'creador-contacto'];
 
@@ -461,7 +462,7 @@ export function setupTabs(editor) {
         const btnWrap = document.createElement('div');
         btnWrap.style.padding = '10px 12px 6px';
         btnWrap.innerHTML = `
-          <button type="button" id="btn-trait-open-gallery" style="width:100%; background:linear-gradient(135deg,#FF7518,#E0115F); color:#FFF; border:1px solid #FFA000; border-radius:8px; padding:10px 14px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 12px rgba(255,117,24,0.35);">
+          <button type="button" id="btn-trait-open-gallery" style="width:100%; background:linear-gradient(135deg,#f37420,#b71f57); color:#f5ecc2; border:1px solid #f99d1b; border-radius:8px; padding:10px 14px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 12px rgba(243,116,32,0.35);">
             <i class="fas fa-images"></i> Elegir Imagen de la Galería
           </button>
         `;
@@ -501,6 +502,17 @@ export function setupTabs(editor) {
       }
     }, 150);
   });
+
+  // Limpiar referencias huérfanas de selección y reconstruir dock al cambiar plantilla, proyecto o restaurar historial
+  const resetSelectionAndPanels = () => {
+    updateBreadcrumbs(null, editor);
+    updateContextPanel(null, editor);
+    rebuildDockSections(editor);
+    setTimeout(updateLayerAttributes, 100);
+  };
+  eventBus.subscribe(EDITOR_EVENTS.TEMPLATE_LOADED, resetSelectionAndPanels);
+  eventBus.subscribe(EDITOR_EVENTS.PROJECT_LOADED, resetSelectionAndPanels);
+  eventBus.subscribe(EDITOR_EVENTS.HISTORY_RESTORED, resetSelectionAndPanels);
 
   return switchTab;
 }
@@ -615,7 +627,7 @@ function updateContextPanel(component, editor) {
   if (isImg) {
     html += `
       <div style="padding: 4px 0 6px;">
-        <button class="context-nav-btn" id="btn-context-change-img" style="width:100%; background:rgba(255,117,24,0.22); border:1px solid #FF7518; color:#FFD700; font-weight:700; font-size:0.82rem; padding:8px 12px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.15s ease;">
+        <button class="context-nav-btn" id="btn-context-change-img" style="width:100%; background:rgba(243,116,32,0.22); border:1px solid #f37420; color:#ffdd00; font-weight:700; font-size:0.82rem; padding:8px 12px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.15s ease;">
           <i class="fas fa-images"></i> 🖼️ Cambiar Imagen desde Galería
         </button>
       </div>
@@ -962,15 +974,15 @@ export function setupThemeSelector() {
   const themeSelector = document.getElementById('theme-selector');
   if (!themeSelector) return;
 
-  const savedTheme = localStorage.getItem('memex-theme') || 'patria';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  themeSelector.value = savedTheme;
+  const savedTheme = localStorage.getItem('rotulos_theme') || localStorage.getItem('memex-theme') || getCurrentTheme() || 'patria';
+  applyTheme(savedTheme);
 
-  themeSelector.addEventListener('change', (e) => {
-    const themeVal = e.target.value;
-    document.documentElement.setAttribute('data-theme', themeVal);
-    localStorage.setItem('memex-theme', themeVal);
-  });
+  if (!themeSelector.dataset.themeBound) {
+    themeSelector.dataset.themeBound = 'true';
+    themeSelector.addEventListener('change', (e) => {
+      applyTheme(e.target.value);
+    });
+  }
 }
 
 // ── BOTÓN APAGADO ─────────────────────────────────────────
@@ -997,12 +1009,12 @@ export function setupShutdownButton() {
     }
 
     document.body.innerHTML = `
-      <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#090D0B; color:#F8F9FA; font-family:'Space Grotesk',sans-serif; text-align:center; padding:20px;">
+      <div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#111314; color:#f5ecc2; font-family:'Space Grotesk',sans-serif; text-align:center; padding:20px;">
         <div style="font-size:3.5rem; margin-bottom:14px;">🛑</div>
-        <h2 style="color:#D4AF37; margin-bottom:8px; font-size:1.8rem;">Servidor Detenido Correctamente</h2>
-        <p style="color:#9CA3AF; max-width:480px; margin-bottom:24px; line-height:1.5;">El proceso local en el puerto 5050 se ha liberado. Puedes cerrar esta pestaña del navegador.</p>
-        <div style="font-family:'Space Mono',monospace; font-size:0.85rem; background:#141B17; border:1px solid rgba(212,175,55,0.3); padding:12px 24px; border-radius:8px; color:#55EBB2;">
-          Para reiniciar: ./"Talachas y Modulos Web/editor.sh" start
+        <h2 style="color:#e2b540; margin-bottom:8px; font-size:1.8rem;">Servidor Detenido Correctamente</h2>
+        <p style="color:#c2ae93; max-width:480px; margin-bottom:24px; line-height:1.5;">El proceso local en el puerto 5050 se ha liberado. Puedes cerrar esta pestaña del navegador.</p>
+        <div style="font-family:'Space Mono',monospace; font-size:0.85rem; background:#14221f; border:1px solid rgba(226,181,64,0.35); padding:12px 24px; border-radius:8px; color:#00b49b;">
+          Para reiniciar: ./editor.sh start
         </div>
       </div>
     `;
@@ -1065,12 +1077,12 @@ export function setupDocsModule() {
             <li><strong>👁️ Ojo:</strong> Oculta o muestra temporalmente cualquier bloque en el lienzo.</li>
             <li><strong>Arrastrar:</strong> Reordena bloques subiéndolos o bajándolos dentro de su contenedor.</li>
           </ul>
-          <p><strong>Código de Colores de Capas:</strong></p>
+          <p><strong>Código de Colores de Capas (Sanzo Wada):</strong></p>
           <ul>
-            <li style="color:#7AA2E7;">📦 <strong>Azul Claro:</strong> Contenedores estructurales (Section, Div, Header, Main).</li>
-            <li style="color:#55EBB2;">🔗 <strong>Verde Neón:</strong> Enlaces y Botones interactivos.</li>
-            <li style="color:#F5C542;">📝 <strong>Oro Charro:</strong> Textos, párrafos y títulos editables.</li>
-            <li style="color:#C792EA;">🖼️ <strong>Púrpura:</strong> Imágenes, iconos y videos.</li>
+            <li style="color:#0093a5;">📦 <strong>Azul Talavera:</strong> Contenedores estructurales (Section, Div, Header, Main).</li>
+            <li style="color:#00b49b;">🔗 <strong>Verde Jade:</strong> Enlaces y Botones interactivos.</li>
+            <li style="color:#e2b540;">📝 <strong>Oro Charro:</strong> Textos, párrafos y títulos editables.</li>
+            <li style="color:#f27291;">🖼️ <strong>Rosa Papel de China:</strong> Imágenes, iconos y videos.</li>
           </ul>
         `
       },

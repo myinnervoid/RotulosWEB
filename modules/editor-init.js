@@ -17,7 +17,7 @@ import {
 import {
   setupSaveButton, setupSaveShortcut, setupPublishButton,
   setupCodeInspector, setupStatsModal, setupScreenshotModal,
-  setupZipExport
+  setupZipExport, extractDocumentHeadAndBody
 } from './save-publish.js';
 import { loadRecentProjects, setupProjectSelector, setupProjectManagerButton } from './project-manager.js';
 import { setupLangSelector } from './i18n.js';
@@ -63,6 +63,7 @@ export async function initEditor() {
     let html = '';
     let css = '';
     let savedImportedName = null;
+    let activeProjectPath = null;
     window.isStaticMode = false;
 
     // Verificar si hay parámetro ?project= en la URL
@@ -79,6 +80,7 @@ export async function initEditor() {
         if (pageResponse.success && pageResponse.data) {
           html = pageResponse.data.html;
           css = pageResponse.data.css || '';
+          activeProjectPath = pageResponse.data.projectPath || queryProjectPath || null;
           // Limpiar cualquier residuo de importaciones previas para evitar bloqueos
           try {
             localStorage.removeItem('rotulos_active_imported_html');
@@ -116,8 +118,8 @@ export async function initEditor() {
           }
         } catch (eTemplate) {
           console.warn('Fallback a plantilla mínima:', eTemplate);
-          html = '<div style="padding:40px; text-align:center; color:#fff; font-family:sans-serif;"><h1>🇲🇽 ¡Bienvenido a Rótulos Web!</h1><p>Arrastra bloques desde el panel derecho para maquetar.</p></div>';
-          css = 'body { background: #0A0F0D; color: #F8F9FA; }';
+          html = '<div style="padding:40px; text-align:center; color:#f5ecc2; font-family:sans-serif;"><h1>🇲🇽 ¡Bienvenido a Rótulos Web!</h1><p>Arrastra bloques desde el panel derecho para maquetar.</p></div>';
+          css = 'body { background: #111314; color: #f5ecc2; }';
         }
       }
     }
@@ -235,8 +237,8 @@ export async function initEditor() {
               height: auto !important;
               min-height: 100vh !important;
             }
-            /* Ergonomía de diseño: Contenedores vacíos no colapsan a 0px */
-            [data-gjs-type]:empty:not(img):not(input):not(br):not(hr) {
+            /* Ergonomía de diseño: Contenedores estructurales vacíos no colapsan a 0px (sin inflar iconos <i> ni spans decorativos) */
+            section:empty, article:empty, main:empty, aside:empty, header:empty, footer:empty, nav:empty, div.gjs-cell:empty, div.gjs-row:empty {
               min-height: 48px !important;
               outline: 1.5px dashed rgba(212, 175, 55, 0.4) !important;
               outline-offset: -2px;
@@ -297,8 +299,9 @@ export async function initEditor() {
     // ── 4. Registrar bloques ──────────────────────────────
     registerBlocks(editor);
 
-    // ── 5. Cargar contenido en el lienzo ─────────────────
-    editor.setComponents(html);
+    // ── 5. Cargar contenido en el lienzo (preservando <head> fuera del wrapper <body>) ──
+    const { bodyHtml } = extractDocumentHeadAndBody(html);
+    editor.setComponents(bodyHtml);
     if (css) editor.setStyle(css);
 
     // ── 6. Configurar módulos de UI ───────────────────────
@@ -341,8 +344,8 @@ export async function initEditor() {
       if (activeNameEl) activeNameEl.textContent = savedImportedName;
     }
 
-    // Inicializar historial de versiones persistente
-    initHistory(editor, savedImportedName || queryProjectPath || 'default');
+    // Inicializar historial de versiones persistente por ruta real del proyecto
+    initHistory(editor, savedImportedName || activeProjectPath || queryProjectPath || 'default');
 
     // ── 10. Canvas load: fixes de scroll y sección activa ─
     editor.on('load', () => {
@@ -352,12 +355,17 @@ export async function initEditor() {
       const iframeDoc = editor.Canvas.getDocument();
       if (!iframeDoc) return;
 
-      // Inyectar fuentes externas y estilos del <head> original en el iframe del canvas
+      // Inyectar fuentes externas del <head> original en el iframe del canvas
+      // (excluyendo style.css local para no inyectar public/style.css del editor dentro del lienzo)
       try {
         const rawDoc = (new DOMParser()).parseFromString(html, 'text/html');
         if (rawDoc && rawDoc.head) {
           rawDoc.head.querySelectorAll('link[rel*="stylesheet"], link[href*="fonts"], style').forEach(el => {
             if (el.tagName.toLowerCase() === 'link') {
+              const hrefVal = (el.getAttribute('href') || '').trim();
+              if (/^(?:\.\/|\/)?style(?:\.min)?\.css(?:\?.*)?$/i.test(hrefVal)) {
+                return;
+              }
               const linkClone = iframeDoc.createElement('link');
               Array.from(el.attributes).forEach(attr => linkClone.setAttribute(attr.name, attr.value));
               iframeDoc.head.appendChild(linkClone);

@@ -13,12 +13,15 @@ import { eventBus } from './event-bus.js';
 import { EDITOR_EVENTS } from './editor-events.js';
 import { showToast } from './toast.js';
 import { rebuildDockSections } from './ui-panels.js';
+import { extractDocumentHeadAndBody } from './save-publish.js';
 
 const categoryIcons = {
   Negocios: '💼',
   Editorial: '📰',
   Personal: '🎨',
   Oficial: '🇲🇽',
+  Temporada: '🕯️',
+  'Rótulos Mexicanos': '🇲🇽',
   General: '📄'
 };
 
@@ -103,44 +106,44 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
           to { opacity: 1; transform: scale(1); }
         }
         .template-modal-container {
-          background: #141B17;
-          border: 1px solid rgba(212, 175, 55, 0.3);
+          background: var(--bg-surface, #14221f);
+          border: 1px solid var(--border-highlight, rgba(226, 181, 64, 0.35));
           border-radius: 16px;
           width: 100%;
           max-width: 960px;
           max-height: 85vh;
           display: flex;
           flex-direction: column;
-          box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+          box-shadow: 0 24px 48px rgba(17, 19, 20, 0.75);
           overflow: hidden;
         }
         .template-modal-header {
           padding: 20px 24px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid var(--border-color, rgba(226, 181, 64, 0.2));
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
         .template-modal-header h2 {
-          color: #F8F9FA;
+          color: var(--blanco-hueso, #f5ecc2);
           font-size: 1.4rem;
           margin: 0 0 4px;
         }
         .template-modal-header p {
-          color: #9CA3AF;
+          color: var(--texto-sec, #c2ae93);
           font-size: 0.9rem;
           margin: 0;
         }
         .template-modal-close {
           background: none;
           border: none;
-          color: #9CA3AF;
+          color: var(--texto-sec, #c2ae93);
           font-size: 1.8rem;
           cursor: pointer;
           line-height: 1;
         }
         .template-modal-close:hover {
-          color: #F8F9FA;
+          color: var(--blanco-hueso, #f5ecc2);
         }
         .template-cards-grid {
           padding: 24px;
@@ -148,23 +151,28 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
           grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
           gap: 20px;
           overflow-y: auto;
+          flex: 1;
+          min-height: 0;
         }
         .template-card {
-          background: #1A231F;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--bg-elevated, #1b2e2a);
+          border: 1px solid var(--border-color, rgba(226, 181, 64, 0.2));
           border-radius: 12px;
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          min-height: 275px;
+          cursor: pointer;
           transition: transform 0.2s, border-color 0.2s;
         }
         .template-card:hover {
           transform: translateY(-4px);
-          border-color: #D4AF37;
+          border-color: var(--oro-charro, #e2b540);
         }
         .template-card-preview {
-          height: 130px;
-          background: linear-gradient(135deg, #1E2923, #111714);
+          height: 120px;
+          flex-shrink: 0;
+          background: linear-gradient(135deg, var(--bg-secondary, #112f2c), var(--bg-primary, #111314));
           position: relative;
           display: flex;
           align-items: center;
@@ -177,9 +185,9 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
           position: absolute;
           top: 10px;
           right: 10px;
-          background: rgba(0, 104, 71, 0.7);
-          border: 1px solid #006847;
-          color: #55EBB2;
+          background: var(--verde-patrio, #1a7444);
+          border: 1px solid var(--verde-neon, #00b49b);
+          color: #f5ecc2;
           font-size: 0.75rem;
           font-weight: 700;
           padding: 2px 8px;
@@ -192,21 +200,21 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
           flex: 1;
         }
         .template-card-body h3 {
-          color: #F8F9FA;
+          color: var(--blanco-hueso, #f5ecc2);
           font-size: 1.15rem;
           margin-bottom: 6px;
         }
         .template-card-body p {
-          color: #9CA3AF;
+          color: var(--texto-sec, #c2ae93);
           font-size: 0.85rem;
           line-height: 1.4;
           margin-bottom: 16px;
           flex: 1;
         }
         .btn-select-template {
-          background: #006847;
-          border: 1px solid #55EBB2;
-          color: #F8F9FA;
+          background: var(--verde-patrio, #1a7444);
+          border: 1px solid var(--verde-neon, #00b49b);
+          color: #f5ecc2;
           padding: 8px 16px;
           border-radius: 6px;
           font-weight: 700;
@@ -215,17 +223,18 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
           transition: background 0.2s;
         }
         .btn-select-template:hover {
-          background: #00875A;
+          background: var(--verde-neon, #00b49b);
+          color: #111314;
         }
         .template-modal-footer {
           padding: 16px 24px;
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          border-top: 1px solid var(--border-color, rgba(226, 181, 64, 0.2));
           text-align: right;
         }
         .template-btn-cancel {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          color: #F8F9FA;
+          background: var(--bg-elevated, #1b2e2a);
+          border: 1px solid var(--border-color, rgba(226, 181, 64, 0.25));
+          color: var(--blanco-hueso, #f5ecc2);
           padding: 8px 20px;
           border-radius: 6px;
           cursor: pointer;
@@ -281,10 +290,12 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
                   editor.setStyle('');
                 }
 
+                const { bodyHtml } = extractDocumentHeadAndBody(html);
+
                 if (typeof editor.setComponents === 'function') {
-                  editor.setComponents(html);
+                  editor.setComponents(bodyHtml);
                 } else if (typeof editor.setHtml === 'function') {
-                  editor.setHtml(html);
+                  editor.setHtml(bodyHtml);
                 }
                 if (css) {
                   if (typeof editor.setStyle === 'function') {
@@ -294,7 +305,7 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
                   }
                 }
 
-                // Inyectar fuentes y hojas de estilo de la nueva plantilla en el iframe del canvas
+                // Inyectar fuentes externas de la nueva plantilla en el iframe del canvas (excluyendo style.css local)
                 const iframeDoc = editor.Canvas ? editor.Canvas.getDocument() : null;
                 if (iframeDoc && iframeDoc.head) {
                   iframeDoc.querySelectorAll('.injected-template-head').forEach(el => el.remove());
@@ -302,6 +313,12 @@ export async function showTemplateSelector(editor, { applyToEditor = true } = {}
                     const rawDoc = (new DOMParser()).parseFromString(html, 'text/html');
                     if (rawDoc && rawDoc.head) {
                       rawDoc.head.querySelectorAll('link[rel*="stylesheet"], link[href*="fonts"], style').forEach(el => {
+                        if (el.tagName.toLowerCase() === 'link') {
+                          const hrefVal = (el.getAttribute('href') || '').trim();
+                          if (/^(?:\.\/|\/)?style(?:\.min)?\.css(?:\?.*)?$/i.test(hrefVal)) {
+                            return;
+                          }
+                        }
                         const clone = el.cloneNode(true);
                         clone.classList.add('injected-template-head');
                         iframeDoc.head.appendChild(clone);

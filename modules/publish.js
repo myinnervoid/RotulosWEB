@@ -186,25 +186,25 @@ export function showPublishDialog(currentProjectPath = '') {
         to { opacity: 1; transform: scale(1); }
       }
       .publish-modal-card {
-        background: #141B17;
-        border: 1px solid rgba(212, 175, 55, 0.35);
+        background: var(--bg-surface, #14221f);
+        border: 1px solid var(--border-highlight, rgba(226, 181, 64, 0.35));
         border-radius: 16px;
         width: 100%;
         max-width: 580px;
-        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.8);
+        box-shadow: 0 24px 50px rgba(17, 19, 20, 0.85);
         overflow: hidden;
         display: flex;
         flex-direction: column;
       }
       .publish-modal-header {
         padding: 20px 24px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid var(--border-color, rgba(226, 181, 64, 0.2));
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
       .publish-modal-header h2 {
-        color: #F8F9FA;
+        color: var(--blanco-hueso, #f5ecc2);
         font-size: 1.3rem;
         margin: 0 0 4px;
         display: flex;
@@ -212,19 +212,19 @@ export function showPublishDialog(currentProjectPath = '') {
         gap: 8px;
       }
       .publish-subtitle {
-        color: #9CA3AF;
+        color: var(--texto-sec, #c2ae93);
         font-size: 0.85rem;
         margin: 0;
       }
       .publish-close-btn {
         background: none;
         border: none;
-        color: #9CA3AF;
+        color: var(--texto-sec, #c2ae93);
         font-size: 1.8rem;
         cursor: pointer;
         line-height: 1;
       }
-      .publish-close-btn:hover { color: #fff; }
+      .publish-close-btn:hover { color: var(--blanco-hueso, #f5ecc2); }
       .publish-modal-body {
         padding: 20px 24px;
         display: flex;
@@ -232,8 +232,8 @@ export function showPublishDialog(currentProjectPath = '') {
         gap: 16px;
       }
       .publish-auth-banner {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-elevated, #1b2e2a);
+        border: 1px solid var(--border-color, rgba(226, 181, 64, 0.2));
         border-radius: 8px;
         padding: 10px 14px;
       }
@@ -242,69 +242,69 @@ export function showPublishDialog(currentProjectPath = '') {
         justify-content: space-between;
         align-items: center;
         font-size: 0.88rem;
-        color: #E5E7EB;
+        color: var(--blanco-hueso, #f5ecc2);
       }
       .publish-btn-login {
-        background: #238636;
-        color: #fff;
-        border: none;
+        background: var(--verde-patrio, #1a7444);
+        color: #f5ecc2;
+        border: 1px solid var(--verde-neon, #00b49b);
         padding: 6px 12px;
         border-radius: 6px;
         cursor: pointer;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 0.82rem;
       }
-      .publish-btn-login:hover { background: #2ea043; }
+      .publish-btn-login:hover { background: var(--verde-neon, #00b49b); color: #111314; }
       .publish-btn-logout {
         background: none;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #9CA3AF;
+        border: 1px solid var(--border-color, rgba(226, 181, 64, 0.25));
+        color: var(--texto-sec, #c2ae93);
         padding: 4px 8px;
         border-radius: 4px;
         cursor: pointer;
         font-size: 0.75rem;
       }
-      .publish-btn-logout:hover { color: #EF4444; border-color: #EF4444; }
+      .publish-btn-logout:hover { color: var(--danger, #cc1236); border-color: var(--danger, #cc1236); }
       .publish-field-group {
         display: flex;
         flex-direction: column;
         gap: 6px;
       }
       .publish-field-group label {
-        color: #E5E7EB;
+        color: var(--blanco-hueso, #f5ecc2);
         font-size: 0.85rem;
         font-weight: 600;
       }
       .pub-input-wrap {
         display: flex;
         align-items: center;
-        background: #0A0F0D;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: var(--bg-dark, #111314);
+        border: 1px solid var(--border-color, rgba(226, 181, 64, 0.25));
         border-radius: 8px;
         overflow: hidden;
       }
       .pub-input-wrap:focus-within {
-        border-color: var(--oro-charro, #D4AF37);
+        border-color: var(--oro-charro, #e2b540);
       }
       .pub-prefix {
         padding: 8px 10px 8px 12px;
-        color: #6B7280;
+        color: var(--texto-sec, #c2ae93);
         font-size: 0.82rem;
-        background: rgba(255, 255, 255, 0.03);
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-elevated, #1b2e2a);
+        border-right: 1px solid var(--border-color, rgba(226, 181, 64, 0.2));
         user-select: none;
       }
       .pub-input {
         flex: 1;
         background: transparent;
         border: none;
-        color: #F8F9FA;
+        color: var(--blanco-hueso, #f5ecc2);
         padding: 8px 12px;
         font-size: 0.9rem;
       }
       .pub-input:focus { outline: none; }
       .pub-hint {
-        color: #6B7280;
+        color: var(--texto-sec, #c2ae93);
         font-size: 0.75rem;
       }
       .publish-platforms-grid {
@@ -317,8 +317,8 @@ export function showPublishDialog(currentProjectPath = '') {
         align-items: center;
         gap: 14px;
         padding: 12px 14px;
-        background: #1A231F;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-elevated, #1b2e2a);
+        border: 1px solid var(--border-color, rgba(226, 181, 64, 0.2));
         border-radius: 10px;
         cursor: pointer;
         text-align: left;
@@ -326,11 +326,11 @@ export function showPublishDialog(currentProjectPath = '') {
         position: relative;
       }
       .pub-platform-card:hover {
-        background: #212E29;
+        background: var(--bg-hover, #243d37);
       }
       .pub-platform-card.active {
-        border-color: var(--oro-charro, #D4AF37);
-        background: #212E29;
+        border-color: var(--oro-charro, #e2b540);
+        background: var(--bg-hover, #243d37);
       }
       .pub-card-icon {
         font-size: 1.6rem;
@@ -339,64 +339,64 @@ export function showPublishDialog(currentProjectPath = '') {
         justify-content: center;
         width: 36px;
       }
-      .pub-card-icon.github-icon { color: #F8F9FA; }
-      .pub-card-icon.netlify-icon { color: #00C7B7; }
+      .pub-card-icon.github-icon { color: var(--blanco-hueso, #f5ecc2); }
+      .pub-card-icon.netlify-icon { color: var(--verde-neon, #00b49b); }
       .pub-card-info { flex: 1; }
       .pub-card-info h3 {
-        color: #F8F9FA;
+        color: var(--blanco-hueso, #f5ecc2);
         font-size: 0.95rem;
         margin: 0 0 2px;
       }
       .pub-card-info p {
-        color: #9CA3AF;
+        color: var(--texto-sec, #c2ae93);
         font-size: 0.78rem;
         margin: 0;
       }
       .pub-badge-recommended {
-        background: rgba(212, 175, 55, 0.2);
-        color: var(--oro-charro, #D4AF37);
+        background: rgba(226, 181, 64, 0.2);
+        color: var(--oro-charro, #e2b540);
         font-size: 0.7rem;
         padding: 3px 8px;
         border-radius: 4px;
         font-weight: 600;
       }
       .pub-badge-alt {
-        background: rgba(0, 199, 183, 0.15);
-        color: #00C7B7;
+        background: rgba(0, 180, 155, 0.15);
+        color: var(--verde-neon, #00b49b);
         font-size: 0.7rem;
         padding: 3px 8px;
         border-radius: 4px;
       }
       .publish-modal-footer {
         padding: 16px 24px;
-        background: rgba(0, 0, 0, 0.2);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--bg-dark, #111314);
+        border-top: 1px solid var(--border-color, rgba(226, 181, 64, 0.2));
         display: flex;
         justify-content: flex-end;
         gap: 12px;
       }
       .pub-btn-cancel {
         background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #9CA3AF;
+        border: 1px solid var(--border-color, rgba(226, 181, 64, 0.25));
+        color: var(--texto-sec, #c2ae93);
         padding: 8px 16px;
         border-radius: 8px;
         cursor: pointer;
       }
-      .pub-btn-cancel:hover { color: #fff; }
+      .pub-btn-cancel:hover { color: var(--blanco-hueso, #f5ecc2); }
       .pub-btn-confirm {
-        background: var(--oro-charro, #D4AF37);
-        color: #0A0F0D;
+        background: var(--oro-charro, #e2b540);
+        color: #111314;
         border: none;
         padding: 8px 18px;
         border-radius: 8px;
-        font-weight: 600;
+        font-weight: 700;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 8px;
       }
-      .pub-btn-confirm:hover { background: #E5C158; }
+      .pub-btn-confirm:hover { background: var(--oro-brillante, #f99d1b); }
     `;
     document.head.appendChild(style);
   }

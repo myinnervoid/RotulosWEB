@@ -391,7 +391,7 @@ export function registerBlocks(editor) {
             <span style="font-size:0.72rem; color:#55EBB2; font-family:'Space Mono',monospace;">CREATIVO · SENIOR</span>
           </div>
           <div style="background:#141B17; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:20px; text-align:center;">
-            <div style="font-size:2rem; color:#C792EA; margin-bottom:10px;">🎙️</div>
+            <div style="font-size:2rem; color:#f27291; margin-bottom:10px;">🎙️</div>
             <h3 style="font-size:1.05rem; font-weight:700; color:#F8F9FA; margin-bottom:6px;">Streaming & Producción</h3>
             <p style="font-size:0.8rem; color:#9CA3AF; margin-bottom:10px;">OBS Studio, V4L2, sincronización de cámaras y MASV.</p>
             <span style="font-size:0.72rem; color:#55EBB2; font-family:'Space Mono',monospace;">PRODUCCIÓN EN VIVO</span>
@@ -403,7 +403,7 @@ export function registerBlocks(editor) {
 
   bm.add('portfolio-perfil-cv', {
     label: 'Ficha de Perfil CV', category: catPortfolio, select: true, activate: true,
-    media: '<i class="fas fa-id-card" style="font-size:20px; color:#C792EA;"></i>',
+    media: '<i class="fas fa-id-card" style="font-size:20px; color:#f27291;"></i>',
     content: `
       <section style="max-width:820px; margin:30px auto; padding:28px; background:#141B17; border:1px solid rgba(212,175,55,0.3); border-radius:16px; font-family:'Space Grotesk',sans-serif;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">

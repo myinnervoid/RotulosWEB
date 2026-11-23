@@ -31,6 +31,12 @@ describe('resolveColorInput()', () => {
     expect(resolveColorInput('AZUL')).toBe('#2563EB');
     expect(resolveColorInput('Verde Bandera')).toBe('#006847');
   });
+
+  it('resuelve pigmentos canónicos Sanzo Wada × México (cempasúchil, obsidiana, jade)', () => {
+    expect(resolveColorInput('cempasuchil').toLowerCase()).toBe('#f37420');
+    expect(resolveColorInput('obsidiana').toLowerCase()).toBe('#111314');
+    expect(resolveColorInput('jade').toLowerCase()).toBe('#00b49b');
+  });
 });
 
 describe('colorToHex()', () => {

@@ -211,6 +211,18 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
+// Cuando se navega en /live, priorizar style.css del proyecto activo sobre public/style.css del editor
+app.use((req, res, next) => {
+  const referer = req.headers.referer || '';
+  if (req.path === '/style.css' && /\/live(\b|\/|\?|$)/.test(referer)) {
+    const activeStyle = getActiveStylePath();
+    if (fs.existsSync(activeStyle)) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return res.sendFile(activeStyle);
+    }
+  }
+  next();
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/locales', express.static(path.join(__dirname, 'locales')));
 app.use('/vendor/grapesjs', express.static(path.join(__dirname, 'node_modules/grapesjs/dist')));
@@ -245,27 +257,50 @@ app.use((req, res, next) => {
   next();
 });
 
+// Servir la hoja de estilos del proyecto activo bajo /live/style.css sin colisionar con la caché de public/style.css
+app.get('/live/style.css', (req, res) => {
+  const activeStyle = getActiveStylePath();
+  if (fs.existsSync(activeStyle)) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    return res.sendFile(activeStyle);
+  }
+  res.status(404).type('text/css').send('/* style.css no encontrado */');
+});
+
 // Servir la página del proyecto activo tal cual, como un sitio web publicado real
 app.get('/live', (req, res) => {
   const indexPath = getActiveIndexPath();
   if (fs.existsSync(indexPath)) {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    return res.sendFile(indexPath);
+    try {
+      const rawHtml = fs.readFileSync(indexPath, 'utf8');
+      const liveHtml = rawHtml.replace(
+        /(<link[^>]+href=["'])(?:\.\/|\/)?style\.css(["'][^>]*>)/gi,
+        `$1/live/style.css?t=${Date.now()}$2`
+      );
+      return res.type('html').send(liveHtml);
+    } catch {
+      return res.sendFile(indexPath);
+    }
   }
   res.status(404).json(createApiResponse(false, null, ERROR_CODES.FILE_NOT_FOUND.code, 'No se encontró index.html en el proyecto activo'));
 });
 
-// Servir assets dinámicos del proyecto actual con fallback al workspace
+// Servir assets dinámicos del proyecto actual con fallback a las plantillas oficiales y al workspace
 app.use('/assets', (req, res, next) => {
-  const projectAsset = path.join(projectPath, 'assets', req.path);
-  if (fs.existsSync(projectAsset)) {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    return res.sendFile(projectAsset);
-  }
-  const defaultAsset = path.join(path.resolve(__dirname, '../../assets'), req.path);
-  if (fs.existsSync(defaultAsset)) {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    return res.sendFile(defaultAsset);
+  const candidateAssets = [
+    path.join(projectPath, 'assets', req.path),
+    path.join(__dirname, 'templates/memexicanisimos/assets', req.path),
+    path.join(__dirname, 'templates/todos-santos/assets', req.path),
+    path.join(__dirname, 'templates/portfolio/assets', req.path),
+    path.join(__dirname, 'templates/blog/assets', req.path),
+    path.join(path.resolve(__dirname, '../assets'), req.path)
+  ];
+  for (const candidate of candidateAssets) {
+    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return res.sendFile(candidate);
+    }
   }
   next();
 });
@@ -274,6 +309,7 @@ app.use('/assets', (req, res, next) => {
 let sseClients = [];
 let activeWatcher = null;
 let watcherDebounceTimer = null;
+let lastInternalSaveTimestamp = 0;
 
 function notifySSEClients(targetProject, file, content) {
   const payload = JSON.stringify({
@@ -304,7 +340,8 @@ function startProjectWatcher(targetPath) {
       const normalized = filename.replace(/\\/g, '/');
       if (normalized.includes('node_modules') || normalized.includes('.git') || normalized.includes('backups')) return;
       const ext = path.extname(filename).toLowerCase();
-      if (!['.css', '.js'].includes(ext)) return;
+      if ( !['.css', '.js'].includes(ext)) return;
+      if (Date.now() - lastInternalSaveTimestamp < 1200) return;
 
       const fullPath = path.join(targetPath, filename);
       if (!fs.existsSync(fullPath)) return;
@@ -585,6 +622,7 @@ app.post('/api/save', (req, res) => {
 
   // Serialización estricta para evitar colisiones en rotación FIFO y escritura atómica
   const saveOperation = async () => {
+    lastInternalSaveTimestamp = Date.now();
     const result = coreEngine.saveAtomicWithFIFO({
       projectDir: projectPath,
       html,

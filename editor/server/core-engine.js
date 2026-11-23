@@ -150,7 +150,10 @@ function sanitizeGrapesHtml(rawHtml, rawCss = '') {
     return { html: '', removedIdsCount: 0 };
   }
 
+  const isFullDoc = /<!DOCTYPE|<html/i.test(rawHtml);
+  const hasMisplacedHeadInBody = isFullDoc && /<body[^>]*>[\s\S]*?<(meta|title|link)\b/i.test(rawHtml);
   const hasGjsArtifacts =
+    hasMisplacedHeadInBody ||
     /data-gjs-|data-highlightable|gjs-selected|gjs-hovered|gjs-canvas-scroll-fixes|editor-show-all|\bid=["']i[a-z0-9]{3,6}["']/.test(rawHtml);
 
   if (!hasGjsArtifacts) {
@@ -158,13 +161,18 @@ function sanitizeGrapesHtml(rawHtml, rawCss = '') {
   }
 
   const JSDOM = getJSDOM();
-  const isFullDoc = /<!DOCTYPE|<html/i.test(rawHtml);
   const dom = new JSDOM(rawHtml);
   const doc = dom.window.document;
 
   if (doc.body) {
     doc.body.classList.remove('editor-show-all');
     if (doc.body.className === '') doc.body.removeAttribute('class');
+    if (isFullDoc && doc.head) {
+      const misplacedHeadNodes = doc.body.querySelectorAll('meta, title, link[rel="stylesheet"], link[rel="preconnect"], link[rel="manifest"], link[rel="icon"]');
+      misplacedHeadNodes.forEach(node => {
+        doc.head.appendChild(node);
+      });
+    }
   }
 
   const inlineStyles = Array.from(doc.querySelectorAll('style'))

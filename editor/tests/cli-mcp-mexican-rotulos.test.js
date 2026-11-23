@@ -134,6 +134,29 @@ describe('Suite v5.2 — Rótulos Mexicanos, Core Engine, CLI y Servidor MCP (Lo
       expect(frontendClean).toContain('id="i3c4d"');
       expect(frontendClean).toContain('id="hero-main"');
     });
+
+    it('restaura etiquetas <meta>, <title> y <link> volcadas dentro de <body> hacia <head>', () => {
+      const corruptedFullDoc = `<!DOCTYPE html><html lang="es"><head></head><body id="i3s5"><meta charset="UTF-8"><title>Rótulo Soberano</title><link rel="stylesheet" href="style.css"><main><h1>Contenido</h1></main></body></html>`;
+      const backendRepaired = coreEngine.sanitizeGrapesHtml(corruptedFullDoc, '');
+      expect(backendRepaired.html).toContain('<head><meta charset="UTF-8"><title>Rótulo Soberano</title><link rel="stylesheet" href="style.css"></head>');
+      expect(backendRepaired.html).not.toContain('id="i3s5"');
+      expect(backendRepaired.html).toContain('<body><main><h1>Contenido</h1></main></body>');
+    });
+
+    it('verifica ausencia de morados sintéticos prohibidos (#7B1FA2, #8A2BE2, #C792EA) en hojas de estilo y plantillas', () => {
+      const forbiddenRegex = /#7B1FA2|#8A2BE2|#9B51E0|#C792EA|#BCAACF/i;
+      const filesToAudit = [
+        path.resolve(currentDir, '../public/style.css'),
+        path.resolve(currentDir, '../templates/memexicanisimos/style.css'),
+        path.resolve(currentDir, '../templates/todos-santos/style.css'),
+        path.resolve(currentDir, '../templates/rotulo-ferreteria/style.css'),
+        path.resolve(currentDir, '../templates/landing/style.css')
+      ];
+      for (const filePath of filesToAudit) {
+        const content = fs.readFileSync(filePath, 'utf8');
+        expect(forbiddenRegex.test(content)).toBe(false);
+      }
+    });
   });
 
   describe('Lote 3 (V5-A1 & V5-A2): Ejecución E2E de rotulos-cli y rotulos-mcp sobre stdio', () => {

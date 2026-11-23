@@ -16,7 +16,46 @@ import { workerManager } from './worker-manager.js';
 import { showPublishDialog, publishToGitHub } from './publish.js';
 
 /**
- * Limpia el HTML del editor de atributos internos y IDs basura de GrapesJS.
+ * Extrae y preserva las etiquetas legítimas del <head> de un documento HTML completo,
+ * evitando que GrapesJS las convierta en componentes dentro del <body>.
+ * @param {string} rawHtml
+ * @returns {{ bodyHtml: string, headHtml: string }}
+ */
+export function extractDocumentHeadAndBody(rawHtml) {
+  if (!rawHtml || typeof rawHtml !== 'string') {
+    return { bodyHtml: '', headHtml: '' };
+  }
+  const hasFullStructure = /<!DOCTYPE|<html|<head|<body/i.test(rawHtml);
+  if (!hasFullStructure) {
+    return { bodyHtml: rawHtml, headHtml: '' };
+  }
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(rawHtml, 'text/html');
+
+    // Reubicar etiquetas de metadatos que hayan caído accidentalmente en <body> hacia <head>
+    if (doc.body && doc.head) {
+      doc.body.querySelectorAll('meta, title, link[rel="stylesheet"], link[rel="preconnect"], link[rel="manifest"], link[rel="icon"]').forEach(el => {
+        doc.head.appendChild(el);
+      });
+    }
+
+    const headHtml = doc.head ? doc.head.innerHTML.trim() : '';
+    const bodyHtml = doc.body ? doc.body.innerHTML : rawHtml;
+
+    if (headHtml && typeof window !== 'undefined') {
+      window.__activeDocumentHead = headHtml;
+    }
+
+    return { bodyHtml, headHtml };
+  } catch {
+    return { bodyHtml: rawHtml, headHtml: '' };
+  }
+}
+
+/**
+ * Limpia el HTML del editor de atributos internos y IDs basura de GrapesJS,
+ * preservando y restaurando la estructura del <head>.
  * @param {string} rawHtml
  * @param {string} [rawCss='']
  * @returns {string}
@@ -28,6 +67,18 @@ export function getSanitizedHtml(rawHtml, rawCss = '') {
 
   if (doc.body) {
     doc.body.classList.remove('editor-show-all');
+  }
+
+  // Reubicar etiquetas de <head> que GrapesJS haya serializado dentro del <body>
+  if (doc.body && doc.head) {
+    doc.body.querySelectorAll('meta, title, link[rel="stylesheet"], link[rel="preconnect"], link[rel="manifest"], link[rel="icon"]').forEach(el => {
+      doc.head.appendChild(el);
+    });
+  }
+
+  // Restaurar <head> preservado del documento activo si el <head> quedó vacío
+  if (doc.head && !doc.head.innerHTML.trim() && typeof window !== 'undefined' && window.__activeDocumentHead) {
+    doc.head.innerHTML = window.__activeDocumentHead;
   }
 
   const sections = doc.querySelectorAll('.product-section');
@@ -77,6 +128,39 @@ export function getSanitizedHtml(rawHtml, rawCss = '') {
 }
 
 /**
+ * Inyecta una etiqueta de estilo o link dentro del <head> de un documento HTML sanitizado
+ * sin duplicar <!DOCTYPE html> ni anidar <html>/<body>.
+ * @param {string} sanitizedHtml
+ * @param {string} styleTagHtml
+ * @param {string} [defaultTitle='Memexicanisimos — Rediseño Popular']
+ * @returns {string}
+ */
+function buildStandaloneDocument(sanitizedHtml, styleTagHtml, defaultTitle = 'Memexicanisimos — Rediseño Popular') {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(sanitizedHtml || '<!DOCTYPE html><html lang="es"><head></head><body></body></html>', 'text/html');
+  if (!doc.head.querySelector('meta[charset]')) {
+    const metaCharset = doc.createElement('meta');
+    metaCharset.setAttribute('charset', 'UTF-8');
+    doc.head.prepend(metaCharset);
+  }
+  if (!doc.head.querySelector('meta[name="viewport"]')) {
+    const metaVp = doc.createElement('meta');
+    metaVp.setAttribute('name', 'viewport');
+    metaVp.setAttribute('content', 'width=device-width, initial-scale=1.0');
+    doc.head.appendChild(metaVp);
+  }
+  if (!doc.head.querySelector('title')) {
+    const titleEl = doc.createElement('title');
+    titleEl.textContent = defaultTitle;
+    doc.head.appendChild(titleEl);
+  }
+  if (styleTagHtml) {
+    doc.head.insertAdjacentHTML('beforeend', `\n  ${styleTagHtml}\n`);
+  }
+  return `<!DOCTYPE html>\n<html lang="es">\n${doc.documentElement.innerHTML}\n</html>`;
+}
+
+/**
  * Configura el atajo Ctrl+S para guardar.
  * @param {object} editor - Instancia de GrapesJS
  */
@@ -116,7 +200,7 @@ async function triggerSave(editor, btnSave) {
     eventBus.publish(EDITOR_EVENTS.BEFORE_SAVE, { html: cleanHtml, css: cssContent });
 
     if (window.isStaticMode) {
-      const fullHtml = `<!DOCTYPE html>\n<html lang="es">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Memexicanisimos — Rediseño Popular</title>\n  <style>\n${cssContent}\n  </style>\n</head>\n<body>\n${cleanHtml}\n</body>\n</html>`;
+      const fullHtml = buildStandaloneDocument(cleanHtml, `<style>\n${cssContent}\n  </style>`, 'Memexicanisimos — Rediseño Popular');
       const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -509,10 +593,9 @@ export async function downloadProjectAsZip(_projectPath = '', customFiles = null
 
     if (!files || !files.length) {
       const ed = getEditorInstance();
-      const cleanHtml = ed ? getSanitizedHtml(ed.getHtml()) : '<!DOCTYPE html><html><body></body></html>';
       const cssContent = ed ? ed.getCss() : '';
-
-      const fullHtml = `<!DOCTYPE html>\n<html lang="es">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Memexicanisimos Export</title>\n  <link rel="stylesheet" href="css/styles.css">\n</head>\n<body>\n${cleanHtml}\n</body>\n</html>`;
+      const cleanHtml = ed ? getSanitizedHtml(ed.getHtml(), cssContent) : '<!DOCTYPE html><html lang="es"><head></head><body></body></html>';
+      const fullHtml = buildStandaloneDocument(cleanHtml, '<link rel="stylesheet" href="css/styles.css">', 'Memexicanisimos Export');
 
       files = [
         { path: 'index.html', content: fullHtml },

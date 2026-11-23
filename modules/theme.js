@@ -101,9 +101,7 @@ export function initTheme() {
   } catch {}
 
   if (!theme) {
-    theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'patria';
+    theme = 'patria';
   }
 
   applyTheme(theme);

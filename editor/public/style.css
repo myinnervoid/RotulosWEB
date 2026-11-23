@@ -41,7 +41,8 @@
   /* Acentos de Identidad Mexicana y Semáforo Armonizado (10% — Ley 1, Ley 4 y Ley 5) */
   --wada-carmine: #cc1236;        /* Carmine — Rojo Bandera / Grana Cochinilla */
   --wada-jasper-red: #eb5324;     /* Jasper Red — Chile Guajillo */
-  --wada-rosolanc: #b73f74;       /* Rosolanc Purple — Rosa Mexicano / Bugambilia */
+  --wada-pomegranate: #b71f57;    /* Pomegranate Purple — Bugambilia y Amaranto */
+  --wada-rosolanc: #b71f57;       /* Alias canónico hacia Pomegranate Purple */
   --wada-spinel-red: #f27291;     /* Spinel Red — Rosa Alfeñique */
   --wada-english-red: #d96629;    /* English Red — Barro Rojo de Oaxaca */
   --wada-cempasuchil: #f37420;    /* Orange — Flor de Cempasúchil */
@@ -59,6 +60,7 @@
 
 /* ── TEMA 1: PATRIA (Por defecto — Combos Wada #127, #190 y #284: Obsidiana, Jade y Oro Ocre) ── */
 :root, [data-theme="patria"] {
+  color-scheme: dark;
   --bg-primary: #111314;          /* 60% Wada Black (Obsidiana) */
   --bg-secondary: #112f2c;        /* 30% Wada Deep Slate Green */
   --bg-dark: #0c1210;
@@ -89,6 +91,7 @@
 
 /* ── TEMA 2: OSCURO (Combos Wada #155 y #141: Deep Indigo, Dark Tyrian Blue y Cempasúchil) ── */
 [data-theme="dark"], [data-theme="oscuro"] {
+  color-scheme: dark;
   --bg-primary: #051230;          /* 60% Wada Deep Indigo */
   --bg-secondary: #12354e;        /* 30% Wada Dark Tyrian Blue */
   --bg-dark: #040d24;
@@ -116,6 +119,7 @@
 
 /* ── TEMA 3: CLARO (Combos Wada #190, #154 y #243: Blanco a la Cal, Papel Amate, Cantera y Barro) ── */
 [data-theme="light"], [data-theme="claro"] {
+  color-scheme: light;
   --bg-primary: #f5ecc2;          /* 60% Wada Sulpher Yellow (Blanco a la Cal, cero #FFF puro) */
   --bg-secondary: #ebd3a2;        /* 30% Wada Ivory Buff (Cantera) */
   --bg-dark: #e2c792;             /* Cantera sombreada para barras estructurales */
@@ -335,21 +339,24 @@ body {
 .toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .btn-action {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--blanco-hueso);
-  padding: 7px 13px;
+  padding: 6px 11px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.2s ease;
   font-family: inherit;
 }
@@ -1215,32 +1222,32 @@ body {
   width: 100% !important;
 }
 
-/* Colores semánticos por tipo de elemento */
+/* Colores semánticos por tipo de elemento (Pigmentos Sanzo Wada) */
 .gjs-layer[data-type="section"] .gjs-layer-name,
 .gjs-layer[data-type="div"] .gjs-layer-name,
 .gjs-layer[data-type="header"] .gjs-layer-name,
 .gjs-layer[data-type="main"] .gjs-layer-name,
 .gjs-layer[data-type="footer"] .gjs-layer-name {
-  color: #7AA2E7 !important; /* Azul claro contenedores */
+  color: var(--wada-cerulian, #0093a5) !important; /* Wada Cerulian Blue contenedores */
   font-weight: 600 !important;
 }
 
 .gjs-layer[data-type="link"] .gjs-layer-name,
 .gjs-layer[data-type="button"] .gjs-layer-name {
-  color: #55EBB2 !important; /* Verde neón enlaces/botones */
+  color: var(--verde-neon, #00b49b) !important; /* Wada Sea Green enlaces/botones */
   font-weight: 700 !important;
 }
 
 .gjs-layer[data-type="text"] .gjs-layer-name,
 .gjs-layer[data-type="paragraph"] .gjs-layer-name,
 .gjs-layer[data-type="heading"] .gjs-layer-name {
-  color: #F5C542 !important; /* Oro textos */
+  color: var(--oro-charro, #e2b540) !important; /* Wada Yellow Ocher textos */
   font-weight: 700 !important;
 }
 
 .gjs-layer[data-type="image"] .gjs-layer-name,
 .gjs-layer[data-type="video"] .gjs-layer-name {
-  color: #C792EA !important; /* Púrpura multimedia */
+  color: var(--wada-spinel-red, #f27291) !important; /* Wada Spinel Red multimedia */
   font-weight: 600 !important;
 }
 
@@ -2199,13 +2206,22 @@ body {
 }
 
 /* Valores numéricos y unidades */
+.gjs-field-integer input,
+.gjs-field-number input {
+  padding-right: 40px !important;
+}
+
 .gjs-sm-field .gjs-sm-unit,
 .gjs-field-unit .gjs-field-unit-select,
 .gjs-field-unit,
-.gjs-field-units {
+.gjs-field-units,
+.gjs-field-units select.gjs-input-unit {
   color: var(--oro-charro) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 2px 4px !important;
   font-weight: 700 !important;
-  font-size: 0.85rem !important;
+  font-size: 0.76rem !important;
   opacity: 1 !important;
 }
 

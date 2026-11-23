@@ -255,7 +255,7 @@ Rótulos Web organiza sus bloques en dos categorías principales accesibles desd
 
 ### 4.3. `portfolio-perfil-cv` — Ficha de Perfil CV
 - **ID:** `portfolio-perfil-cv`
-- **Icono:** `fa-id-card` (Púrpura `#C792EA`)
+- **Icono:** `fa-id-card` (Rosa Alfeñique Wada Spinel Red `#f27291`)
 - **Propósito:** Resumen profesional con métricas clave (Ubicación, Años de experiencia, Modalidad) y botón de descarga de CV en PDF.
 
 ### 4.4. `portfolio-galeria-3d` — Galería de Arte 3D

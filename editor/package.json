@@ -58,7 +58,11 @@
   "pkg": {
     "assets": [
       "public/**/*",
-      "locales/**/*"
+      "locales/**/*",
+      "bin/**/*",
+      "mcp/**/*",
+      "server/**/*",
+      "templates/**/*"
     ]
   },
   "allowScripts": {

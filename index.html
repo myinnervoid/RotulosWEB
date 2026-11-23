@@ -16,7 +16,8 @@
   <link rel="stylesheet" href="./style.css">
 
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#006847">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#1a7444">
 </head>
 <body>
 
@@ -128,28 +129,28 @@
           <div class="active-project-name" id="active-project-name">Cargando...</div>
         </div>
         <button class="drawer-tool-btn btn-welcome-hub" id="btn-welcome-hub" title="Abrir Pantalla de Bienvenida (Start Screen)">
-          <i class="fas fa-house-chimney" style="color: #F5C542;"></i>
+          <i class="fas fa-house-chimney" style="color: var(--oro-charro);"></i>
           <div class="tool-btn-info">
             <strong>Pantalla de Inicio...</strong>
             <small>Abrir o crear proyecto (Start Screen)</small>
           </div>
         </button>
         <button class="drawer-tool-btn btn-projects" id="btn-projects" title="Administrar proyectos locales (crear, duplicar, renombrar, favoritos)">
-          <i class="fas fa-boxes-stacked" style="color: #F5C542;"></i>
+          <i class="fas fa-boxes-stacked" style="color: var(--oro-charro);"></i>
           <div class="tool-btn-info">
             <strong>Mis Proyectos...</strong>
             <small>Crear, duplicar, renombrar y favoritos</small>
           </div>
         </button>
         <button class="drawer-tool-btn btn-import-html" id="btn-import-html" title="Subir y editar tu propio archivo index.html (desde tu PC o celular)">
-          <i class="fas fa-file-code" style="color: #55EBB2;"></i>
+          <i class="fas fa-file-code" style="color: var(--verde-neon);"></i>
           <div class="tool-btn-info">
             <strong>Cargar Archivo index.html...</strong>
             <small>Edita tu propia página web</small>
           </div>
         </button>
         <button class="drawer-tool-btn btn-open-project" id="btn-open-project" title="Seleccionar una carpeta completa del disco">
-          <i class="fas fa-folder-open" style="color: #F5C542;"></i>
+          <i class="fas fa-folder-open" style="color: var(--oro-charro);"></i>
           <div class="tool-btn-info">
             <strong>Abrir Carpeta Local...</strong>
             <small>Cargar carpeta con respaldo</small>
@@ -163,14 +164,14 @@
           </div>
         </button>
         <button class="drawer-tool-btn btn-new-template" id="btn-new-template" title="Explorar y cargar plantillas prediseñadas (Landing, Blog, Portafolio)">
-          <i class="fas fa-layer-group" style="color: #38BDF8;"></i>
+          <i class="fas fa-layer-group" style="color: var(--wada-cerulian, #0093a5);"></i>
           <div class="tool-btn-info">
             <strong>Galería de Plantillas...</strong>
             <small>Landing, Blog, Portafolio</small>
           </div>
         </button>
         <button class="drawer-tool-btn btn-export-zip" id="btn-export-zip" title="Descargar el proyecto completo en un archivo ZIP sin congelar la UI">
-          <i class="fas fa-file-zipper" style="color: #55EBB2;"></i>
+          <i class="fas fa-file-zipper" style="color: var(--verde-neon);"></i>
           <div class="tool-btn-info">
             <strong>Descargar Proyecto .ZIP</strong>
             <small>Compresión rápida Web Worker</small>
@@ -191,21 +192,21 @@
         </div>
         <div class="drawer-tools-grid">
           <button class="drawer-tool-btn" id="btn-diagnostics" title="Ejecutar autodiagnóstico E2E, SEO y Accesibilidad WCAG">
-            <i class="fas fa-heartbeat" style="color: #55EBB2;"></i>
+            <i class="fas fa-heartbeat" style="color: var(--verde-neon);"></i>
             <div class="tool-btn-info">
               <strong>Autodiagnóstico</strong>
               <small>E2E & WCAG 2.2</small>
             </div>
           </button>
           <button class="drawer-tool-btn" id="btn-screenshot" title="Generar captura de pantalla HD en Chrome local">
-            <i class="fas fa-camera" style="color: #64B5F6;"></i>
+            <i class="fas fa-camera" style="color: var(--wada-cerulian, #0093a5);"></i>
             <div class="tool-btn-info">
               <strong>Captura HD</strong>
               <small>Render Chrome</small>
             </div>
           </button>
           <button class="drawer-tool-btn" id="btn-stats" title="Ver Estadísticas del Servidor y Respaldos">
-            <i class="fas fa-chart-pie" style="color: #F5C542;"></i>
+            <i class="fas fa-chart-pie" style="color: var(--oro-charro);"></i>
             <div class="tool-btn-info">
               <strong>Estadísticas</strong>
               <small>Stats & Backups</small>
@@ -246,28 +247,28 @@
         </div>
         <div class="drawer-tools-grid">
           <button class="drawer-tool-btn" id="btn-open-assets" title="Abrir Galería de Imágenes">
-            <i class="fas fa-images" style="color: #D4AF37;"></i>
+            <i class="fas fa-images" style="color: var(--oro-charro);"></i>
             <div class="tool-btn-info">
               <strong>Galería Assets</strong>
               <small>Imágenes locales</small>
             </div>
           </button>
           <button class="drawer-tool-btn" id="btn-view-code" title="Ver Código Fuente Limpio">
-            <i class="fas fa-file-code" style="color: #A7B8B0;"></i>
+            <i class="fas fa-file-code" style="color: var(--texto-sec);"></i>
             <div class="tool-btn-info">
               <strong>Código Fuente</strong>
               <small>HTML sanitizado</small>
             </div>
           </button>
           <button class="drawer-tool-btn" id="btn-open-docs" title="Abrir Guía de Uso, Atajos y Documentación">
-            <i class="fas fa-book-open" style="color: #55EBB2;"></i>
+            <i class="fas fa-book-open" style="color: var(--verde-neon);"></i>
             <div class="tool-btn-info">
               <strong>Guía de Uso & DOCS</strong>
               <small>Tutorial interactivo</small>
             </div>
           </button>
           <a class="drawer-tool-btn" id="drawer-btn-open-live" href="/live" target="_blank" rel="noopener" title="Ver el Sitio Web Publicado (En Vivo)" style="text-decoration: none;">
-            <i class="fas fa-globe" style="color: #F59E0B;"></i>
+            <i class="fas fa-globe" style="color: var(--oro-brillante);"></i>
             <div class="tool-btn-info">
               <strong>Ver Sitio en Vivo</strong>
               <small>Como publicado (100% funcional)</small>

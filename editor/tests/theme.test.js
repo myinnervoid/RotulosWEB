@@ -71,6 +71,12 @@ describe('Theme & Accessibility Suite — Modo Oscuro y Accesibilidad (Fase 3)',
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
 
+  it('initTheme() aplica el tema canónico "patria" por defecto cuando localStorage está vacío', () => {
+    localStorage.removeItem(THEME_STORAGE_KEY);
+    initTheme();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('patria');
+  });
+
   it('clic en #btn-theme-toggle alterna entre modo oscuro y claro', () => {
     initTheme();
     applyTheme('dark');

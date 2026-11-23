@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
   <defs>
     <style>
-      .pp-almena { fill: none; stroke: #FF7518; stroke-width: 1.5; opacity: 0.35; }
-      .pp-morado { fill: #8A2BE2; opacity: 0.22; }
-      .pp-naranja { fill: #FF7518; opacity: 0.28; }
-      .pp-rosa { fill: #E0115F; opacity: 0.25; }
-      .pp-oro { fill: #FFD700; opacity: 0.3; }
-      .pp-hueso { fill: #FFF8F0; opacity: 0.2; }
+      .pp-almena { fill: none; stroke: #f37420; stroke-width: 1.5; opacity: 0.35; }
+      .pp-morado { fill: #7d133a; opacity: 0.26; }
+      .pp-naranja { fill: #f37420; opacity: 0.28; }
+      .pp-rosa { fill: #b71f57; opacity: 0.25; }
+      .pp-oro { fill: #ffdd00; opacity: 0.3; }
+      .pp-hueso { fill: #f5ecc2; opacity: 0.22; }
     </style>
   </defs>
 
@@ -23,10 +23,10 @@
   <!-- Nariz triangular invertida -->
   <polygon points="80,64 77,69 83,69" class="pp-rosa" />
   <!-- Dientes sonrientes -->
-  <line x1="75" y1="80" x2="85" y2="80" stroke="#FF7518" stroke-width="1.2" opacity="0.6" />
-  <line x1="77" y1="77" x2="77" y2="83" stroke="#FF7518" stroke-width="1" opacity="0.6" />
-  <line x1="80" y1="77" x2="80" y2="83" stroke="#FF7518" stroke-width="1" opacity="0.6" />
-  <line x1="83" y1="77" x2="83" y2="83" stroke="#FF7518" stroke-width="1" opacity="0.6" />
+  <line x1="75" y1="80" x2="85" y2="80" stroke="#f37420" stroke-width="1.2" opacity="0.6" />
+  <line x1="77" y1="77" x2="77" y2="83" stroke="#f37420" stroke-width="1" opacity="0.6" />
+  <line x1="80" y1="77" x2="80" y2="83" stroke="#f37420" stroke-width="1" opacity="0.6" />
+  <line x1="83" y1="77" x2="83" y2="83" stroke="#f37420" stroke-width="1" opacity="0.6" />
 
   <!-- Flor de Cempasúchil (Rosas/Naranjas caladas laterales) -->
   <circle cx="28" cy="80" r="14" class="pp-naranja" />

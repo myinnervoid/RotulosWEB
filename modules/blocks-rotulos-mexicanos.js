@@ -23,12 +23,12 @@ export const MEXICAN_ROTULOS_CATALOG = [
     id: 'rotulo-sonidero-baile',
     label: 'Cartel Baile Sonidero (Wada #144)',
     category: CAT_ROTULOS_MEXICANOS,
-    description: 'Cartel callejero estilo barda sonidera con Combinación Sanzo Wada #144 (Rosolanc Purple #b73f74, Orange #f37420 y Black #111314) y sombra sólida.',
-    media: '<i class="fas fa-compact-disc" style="font-size:20px; color:#b73f74;"></i>',
+    description: 'Cartel callejero estilo barda sonidera con Combinación Sanzo Wada #144 (Pomegranate Purple #b71f57, Orange #f37420 y Black #111314) y sombra sólida.',
+    media: '<i class="fas fa-compact-disc" style="font-size:20px; color:#b71f57;"></i>',
     content: `
-      <section class="rotulo-mex-sonidero" style="max-width:920px; margin:28px auto; padding:8px; background:#b73f74; border:4px solid #111314; border-radius:18px; box-shadow:8px 8px 0 #111314; font-family:'Space Grotesk',sans-serif;">
+      <section class="rotulo-mex-sonidero" style="max-width:920px; margin:28px auto; padding:8px; background:#b71f57; border:4px solid #111314; border-radius:18px; box-shadow:8px 8px 0 #111314; font-family:'Space Grotesk',sans-serif;">
         <div style="background:#111314; border:3px solid #f37420; border-radius:12px; padding:32px 24px; text-align:center; position:relative; overflow:hidden;">
-          <div style="display:inline-block; background:#b73f74; color:#f5ecc2; font-family:'Space Mono',monospace; font-weight:700; font-size:0.82rem; padding:5px 16px; border-radius:999px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:14px; border:2px solid #f5ecc2; box-shadow:3px 3px 0 #f37420;">
+          <div style="display:inline-block; background:#b71f57; color:#f5ecc2; font-family:'Space Mono',monospace; font-weight:700; font-size:0.82rem; padding:5px 16px; border-radius:999px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:14px; border:2px solid #f5ecc2; box-shadow:3px 3px 0 #f37420;">
             ★ GRAN CAÑONAZO SONIDERO ESTELAR · WADA #144 ★
           </div>
           <h2 style="font-size:2.85rem; font-weight:900; color:#fff200; text-transform:uppercase; line-height:1.06; margin:0 0 10px; text-shadow:4px 4px 0 #cc1236; letter-spacing:0.02em;">
@@ -38,7 +38,7 @@ export const MEXICAN_ROTULOS_CATALOG = [
             Sabor, Cumbia Rebajada y Tradición Popular en Vivo
           </p>
           <div style="display:flex; flex-wrap:wrap; gap:16px; justify-content:center; margin-bottom:24px;">
-            <div style="flex:1 1 220px; background:#12354e; border:2px solid #b73f74; border-radius:12px; padding:14px; box-shadow:4px 4px 0 #b73f74;">
+            <div style="flex:1 1 220px; background:#12354e; border:2px solid #b71f57; border-radius:12px; padding:14px; box-shadow:4px 4px 0 #b71f57;">
               <div style="font-size:0.75rem; color:#ffefae; font-family:'Space Mono',monospace; font-weight:700;">MANO A MANO MUSICAL</div>
               <div style="font-size:1.25rem; font-weight:800; color:#f5ecc2; margin-top:4px;">Sonido Fantasma vs La Changa</div>
             </div>
@@ -47,7 +47,7 @@ export const MEXICAN_ROTULOS_CATALOG = [
               <div style="font-size:1.25rem; font-weight:800; color:#f5ecc2; margin-top:4px;">Sábado · 20:00 Hrs · Entrada Libre</div>
             </div>
           </div>
-          <a href="#" style="display:inline-block; background:#f37420; color:#111314; font-weight:900; font-size:1rem; text-transform:uppercase; padding:12px 30px; border-radius:999px; text-decoration:none; border:2px solid #f5ecc2; box-shadow:4px 4px 0 #b73f74;">
+          <a href="#" style="display:inline-block; background:#f37420; color:#111314; font-weight:900; font-size:1rem; text-transform:uppercase; padding:12px 30px; border-radius:999px; text-decoration:none; border:2px solid #f5ecc2; box-shadow:4px 4px 0 #b71f57;">
             🔊 ¡Aparta tu Lugar en la Pista!
           </a>
         </div>
@@ -106,7 +106,7 @@ export const MEXICAN_ROTULOS_CATALOG = [
             <div style="display:inline-block; background:#cc1236; color:#f5ecc2; font-family:'Space Mono',monospace; font-weight:800; font-size:0.8rem; padding:4px 12px; border-radius:6px; text-transform:uppercase; margin-bottom:10px; border:2px solid #111314;">
               🛠️ EL SEGUNDO PISO DE LA FERRETERÍA · BARRA 09:00 AM
             </div>
-            <h2 style="font-size:2.35rem; font-weight:900; color:#111314; line-height:1.1; margin:0 0 10px; text-transform:uppercase;">
+            <h2 style="font-size:2.35rem; font-weight:900; color:#cc1236; text-shadow:2px 2px 0 #f5ecc2; line-height:1.1; margin:0 0 10px; text-transform:uppercase;">
               ¡HERRAMIENTAS DIGITALES QUE SÍ CHAMBEAN DURO!
             </h2>
             <p style="font-size:1rem; font-weight:700; color:#111314; line-height:1.5; margin:0;">
@@ -139,7 +139,7 @@ export const MEXICAN_ROTULOS_CATALOG = [
           <span style="flex:1; height:18px; background:#cc1236; clip-path:polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);"></span>
           <span style="flex:1; height:18px; background:#f99d1b; clip-path:polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);"></span>
           <span style="flex:1; height:18px; background:#006eb8; clip-path:polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);"></span>
-          <span style="flex:1; height:18px; background:#b73f74; clip-path:polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);"></span>
+          <span style="flex:1; height:18px; background:#b71f57; clip-path:polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);"></span>
           <span style="flex:1; height:18px; background:#00b49b; clip-path:polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);"></span>
           <span style="flex:1; height:18px; background:#e2b540; clip-path:polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);"></span>
         </div>

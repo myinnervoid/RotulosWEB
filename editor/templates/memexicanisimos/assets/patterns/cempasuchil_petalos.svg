@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
   <defs>
     <style>
-      .petalo-naranja { fill: #FF7518; opacity: 0.25; }
-      .petalo-oro { fill: #FFD700; opacity: 0.3; }
-      .petalo-rosa { fill: #E0115F; opacity: 0.18; }
-      .destello-vela { fill: #FFF8F0; opacity: 0.35; }
+      .petalo-naranja { fill: #f37420; opacity: 0.25; }
+      .petalo-oro { fill: #ffdd00; opacity: 0.3; }
+      .petalo-rosa { fill: #b71f57; opacity: 0.2; }
+      .destello-vela { fill: #f5ecc2; opacity: 0.35; }
     </style>
   </defs>
 

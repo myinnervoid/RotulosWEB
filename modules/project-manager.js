@@ -15,6 +15,7 @@ import { getEditorInstance } from './editor-init.js';
 import { eventBus } from './event-bus.js';
 import { EDITOR_EVENTS } from './editor-events.js';
 import { showTemplateSelector } from './template-selector.js';
+import { extractDocumentHeadAndBody } from './save-publish.js';
 
 const FAVORITES_KEY = 'rotulos_favorites';
 
@@ -234,26 +235,26 @@ export async function showProjectSelector(editor) {
         to { opacity: 1; transform: scale(1); }
       }
       .project-selector-modal {
-        background: #141B17;
-        border: 1px solid rgba(212, 175, 55, 0.35);
+        background: var(--bg-surface, #14221f);
+        border: 1px solid var(--border-highlight, rgba(226, 181, 64, 0.35));
         border-radius: 16px;
         width: 100%;
         max-width: 820px;
         max-height: 85vh;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.75);
+        box-shadow: 0 24px 50px rgba(17, 19, 20, 0.75);
         overflow: hidden;
       }
       .project-selector-header {
         padding: 20px 24px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid var(--border-color, rgba(226, 181, 64, 0.2));
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
       .project-selector-header h2 {
-        color: #F8F9FA;
+        color: var(--blanco-hueso, #f5ecc2);
         font-size: 1.35rem;
         margin: 0 0 4px;
         display: flex;
@@ -261,32 +262,32 @@ export async function showProjectSelector(editor) {
         gap: 10px;
       }
       .pm-subtitle {
-        color: #9CA3AF;
+        color: var(--texto-sec, #c2ae93);
         font-size: 0.85rem;
         margin: 0;
       }
       .pm-subtitle code {
-        color: var(--oro-charro, #D4AF37);
-        background: rgba(212, 175, 55, 0.12);
+        color: var(--oro-charro, #e2b540);
+        background: rgba(226, 181, 64, 0.12);
         padding: 2px 6px;
         border-radius: 4px;
       }
       .project-selector-close {
         background: none;
         border: none;
-        color: #9CA3AF;
+        color: var(--texto-sec, #c2ae93);
         font-size: 1.8rem;
         cursor: pointer;
         line-height: 1;
         transition: color 0.15s;
       }
-      .project-selector-close:hover { color: #fff; }
+      .project-selector-close:hover { color: var(--blanco-hueso, #f5ecc2); }
       .project-selector-toolbar {
         padding: 14px 24px;
         display: flex;
         gap: 12px;
-        background: rgba(0, 0, 0, 0.2);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--bg-dark, #111314);
+        border-bottom: 1px solid var(--border-color, rgba(226, 181, 64, 0.15));
         align-items: center;
       }
       .pm-search-wrap {
@@ -298,30 +299,30 @@ export async function showProjectSelector(editor) {
         left: 12px;
         top: 50%;
         transform: translateY(-50%);
-        color: #6B7280;
+        color: var(--texto-sec, #c2ae93);
         font-size: 0.85rem;
       }
       .pm-search-input {
         width: 100%;
         box-sizing: border-box;
         padding: 8px 12px 8px 34px;
-        background: #0D1210;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: var(--bg-elevated, #1b2e2a);
+        border: 1px solid var(--border-color, rgba(226, 181, 64, 0.25));
         border-radius: 8px;
-        color: #F8F9FA;
+        color: var(--blanco-hueso, #f5ecc2);
         font-size: 0.9rem;
       }
       .pm-search-input:focus {
         outline: none;
-        border-color: var(--oro-charro, #D4AF37);
+        border-color: var(--oro-charro, #e2b540);
       }
       .btn-pm-primary {
-        background: var(--oro-charro, #D4AF37);
-        color: #0A0F0D;
+        background: var(--oro-charro, #e2b540);
+        color: #111314;
         border: none;
         padding: 8px 16px;
         border-radius: 8px;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 0.88rem;
         cursor: pointer;
         display: inline-flex;
@@ -330,7 +331,8 @@ export async function showProjectSelector(editor) {
         transition: background 0.15s, transform 0.1s;
       }
       .btn-pm-primary:hover {
-        background: #E5C158;
+        background: var(--oro-brillante, #f99d1b);
+        color: #111314;
         transform: translateY(-1px);
       }
       .project-list {
@@ -344,11 +346,11 @@ export async function showProjectSelector(editor) {
       .pm-empty-state {
         text-align: center;
         padding: 40px 20px;
-        color: #9CA3AF;
+        color: var(--texto-sec, #c2ae93);
       }
       .pm-empty-state i {
         font-size: 2.5rem;
-        color: var(--oro-charro, #D4AF37);
+        color: var(--oro-charro, #e2b540);
         margin-bottom: 12px;
         opacity: 0.8;
       }
@@ -357,29 +359,29 @@ export async function showProjectSelector(editor) {
         align-items: center;
         gap: 12px;
         padding: 12px 14px;
-        background: #1A231F;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--bg-elevated, #1b2e2a);
+        border: 1px solid var(--border-color, rgba(226, 181, 64, 0.18));
         border-radius: 10px;
         transition: border-color 0.15s, background 0.15s;
       }
       .project-item:hover {
-        background: #202C27;
-        border-color: rgba(212, 175, 55, 0.35);
+        background: var(--bg-hover, #243d37);
+        border-color: var(--oro-charro, #e2b540);
       }
       .project-item.is-favorite {
-        border-left: 3px solid var(--oro-charro, #D4AF37);
+        border-left: 3px solid var(--oro-charro, #e2b540);
       }
       .pm-fav-btn {
         background: none;
         border: none;
         cursor: pointer;
         font-size: 1.15rem;
-        color: #6B7280;
+        color: var(--texto-sec, #c2ae93);
         padding: 4px;
         transition: transform 0.1s, color 0.15s;
       }
       .pm-fav-btn.active {
-        color: var(--oro-charro, #D4AF37);
+        color: var(--oro-charro, #e2b540);
       }
       .pm-fav-btn:hover {
         transform: scale(1.15);
@@ -396,8 +398,8 @@ export async function showProjectSelector(editor) {
         margin-bottom: 4px;
       }
       .project-name {
-        font-weight: 600;
-        color: #F8F9FA;
+        font-weight: 700;
+        color: var(--blanco-hueso, #f5ecc2);
         font-size: 0.95rem;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -405,13 +407,13 @@ export async function showProjectSelector(editor) {
       }
       .pm-tag-assets {
         font-size: 0.7rem;
-        background: rgba(56, 189, 248, 0.15);
-        color: #38BDF8;
+        background: rgba(0, 147, 165, 0.18);
+        color: var(--wada-cerulian, #0093a5);
         padding: 2px 6px;
         border-radius: 4px;
       }
       .project-meta {
-        color: #9CA3AF;
+        color: var(--texto-sec, #c2ae93);
         font-size: 0.78rem;
         display: flex;
         gap: 10px;
@@ -422,9 +424,9 @@ export async function showProjectSelector(editor) {
         gap: 6px;
       }
       .pm-btn-action {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: #D1D5DB;
+        background: var(--bg-surface, #14221f);
+        border: 1px solid var(--border-color, rgba(226, 181, 64, 0.22));
+        color: var(--blanco-hueso, #f5ecc2);
         border-radius: 6px;
         padding: 6px 10px;
         font-size: 0.8rem;
@@ -435,26 +437,26 @@ export async function showProjectSelector(editor) {
         transition: background 0.15s, color 0.15s;
       }
       .pm-btn-action:hover {
-        background: rgba(255, 255, 255, 0.12);
-        color: #fff;
+        background: var(--bg-hover, #243d37);
+        border-color: var(--oro-charro, #e2b540);
       }
       .pm-btn-open {
-        background: rgba(212, 175, 55, 0.15);
-        border-color: rgba(212, 175, 55, 0.4);
-        color: var(--oro-charro, #D4AF37);
-        font-weight: 600;
+        background: rgba(226, 181, 64, 0.18);
+        border-color: var(--oro-charro, #e2b540);
+        color: var(--oro-charro, #e2b540);
+        font-weight: 700;
       }
       .pm-btn-open:hover {
-        background: var(--oro-charro, #D4AF37);
-        color: #0A0F0D;
+        background: var(--oro-charro, #e2b540);
+        color: #111314;
       }
       .pm-btn-delete {
-        color: #EF4444;
+        color: var(--danger, #cc1236);
       }
       .pm-btn-delete:hover {
-        background: rgba(239, 68, 68, 0.15);
-        color: #F87171;
-        border-color: rgba(239, 68, 68, 0.4);
+        background: rgba(204, 18, 54, 0.18);
+        color: var(--wada-spinel-red, #f27291);
+        border-color: var(--danger, #cc1236);
       }
     `;
     document.head.appendChild(style);
@@ -805,7 +807,7 @@ export function setupProjectSelector(editor) {
               extractedCss += s.textContent + '\n';
             });
 
-            const bodyContent = doc.body ? doc.body.innerHTML : rawContent;
+            const { bodyHtml: bodyContent } = extractDocumentHeadAndBody(rawContent);
             const ed = editor || getEditorInstance();
 
             if (ed) {
@@ -873,15 +875,16 @@ export function setupProjectSelector(editor) {
         if (tHtmlRes.ok && tCssRes.ok) {
           const h = await tHtmlRes.text();
           const c = await tCssRes.text();
+          const { bodyHtml } = extractDocumentHeadAndBody(h);
           const ed = editor || getEditorInstance();
           if (ed) {
-            ed.setComponents(h);
+            ed.setComponents(bodyHtml);
             ed.setStyle(c);
             ed.refresh();
             rebuildDockSections(ed);
             eventBus.publish(EDITOR_EVENTS.PROJECT_LOADED, {
               name: 'Memexicanísimos (Plantilla Oficial)',
-              html: h,
+              html: bodyHtml,
               css: c
             });
           }
@@ -923,7 +926,7 @@ export function setupProjectSelector(editor) {
               extractedCss += s.textContent + '\n';
             });
 
-            const bodyContent = doc.body ? doc.body.innerHTML : rawContent;
+            const { bodyHtml: bodyContent } = extractDocumentHeadAndBody(rawContent);
             const ed = editor || getEditorInstance();
 
             if (ed) {

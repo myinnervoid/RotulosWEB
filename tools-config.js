@@ -10,45 +10,54 @@ export const toolsConfig = [
   {
     id: 'diagnostics',
     icon: 'fa-heartbeat',
-    iconColor: '#55EBB2',
+    iconColor: '#00b49b',
     label: 'Autodiagnóstico',
     subtitle: 'E2E & WCAG 2.2',
     category: 'diagnostics',
     drawer: true,
     action: () => {
-      const modal = document.getElementById('diag-modal');
-      if (modal && window.runWebsiteDiagnostics) {
-        modal.classList.add('open');
-        window.runWebsiteDiagnostics();
+      const btn = document.getElementById('btn-diagnostics');
+      if (btn) {
+        btn.click();
+      } else {
+        const modal = document.getElementById('diag-modal');
+        if (modal) modal.classList.add('open');
       }
     }
   },
   {
     id: 'screenshot',
     icon: 'fa-camera',
-    iconColor: '#64B5F6',
+    iconColor: '#0093a5',
     label: 'Captura HD',
     subtitle: 'Render Chrome',
     category: 'diagnostics',
     drawer: true,
     action: () => {
-      const modal = document.getElementById('screenshot-modal');
-      if (modal) modal.classList.add('open');
+      const btn = document.getElementById('btn-screenshot');
+      if (btn) {
+        btn.click();
+      } else {
+        const modal = document.getElementById('screenshot-modal');
+        if (modal) modal.classList.add('open');
+      }
     }
   },
   {
     id: 'stats',
     icon: 'fa-chart-pie',
-    iconColor: '#F5C542',
+    iconColor: '#e2b540',
     label: 'Estadísticas',
     subtitle: 'Stats & Backups',
     category: 'diagnostics',
     drawer: true,
     action: () => {
-      const modal = document.getElementById('stats-modal');
-      if (modal && window.fetchAndShowStats) {
-        modal.classList.add('open');
-        window.fetchAndShowStats();
+      const btn = document.getElementById('btn-stats');
+      if (btn) {
+        btn.click();
+      } else {
+        const modal = document.getElementById('stats-modal');
+        if (modal) modal.classList.add('open');
       }
     }
   },
@@ -57,7 +66,7 @@ export const toolsConfig = [
   {
     id: 'assets',
     icon: 'fa-images',
-    iconColor: '#D4AF37',
+    iconColor: '#e2b540',
     label: 'Galería Assets',
     subtitle: 'Imágenes locales',
     category: 'resources',
@@ -69,15 +78,18 @@ export const toolsConfig = [
   {
     id: 'clean-code',
     icon: 'fa-file-code',
-    iconColor: '#A7B8B0',
+    iconColor: '#c2ae93',
     label: 'Código Fuente',
     subtitle: 'HTML sanitizado',
     category: 'resources',
     drawer: true,
     action: () => {
-      const codeModal = document.getElementById('code-modal');
-      if (codeModal && window.openCodeInspector) {
-        window.openCodeInspector();
+      const btn = document.getElementById('btn-view-code');
+      if (btn) {
+        btn.click();
+      } else {
+        const codeModal = document.getElementById('code-modal');
+        if (codeModal) codeModal.classList.add('open');
       }
     }
   }

@@ -4,7 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as toastModule from '../public/modules/toast.js';
-import { getSanitizedHtml, downloadProjectAsZip } from '../public/modules/save-publish.js';
+import { getSanitizedHtml, extractDocumentHeadAndBody, downloadProjectAsZip } from '../public/modules/save-publish.js';
 import { workerManager } from '../public/modules/worker-manager.js';
 import { eventBus } from '../public/modules/event-bus.js';
 
@@ -74,6 +74,15 @@ describe('save-publish.js', () => {
       expect(result).toBe('');
       const result2 = getSanitizedHtml('');
       expect(result2).toBe('');
+    });
+
+    it('extractDocumentHeadAndBody() preserva metadatos de <head> y repara etiquetas volcadas en <body>', () => {
+      const brokenDoc = `<!DOCTYPE html><html lang="es"><head></head><body><meta charset="UTF-8"><title>Prueba Wada</title><link rel="stylesheet" href="style.css"><section><h2>Rótulo</h2></section></body></html>`;
+      const extracted = extractDocumentHeadAndBody(brokenDoc);
+      expect(extracted.headHtml).toContain('<title>Prueba Wada</title>');
+      expect(extracted.headHtml).toContain('<link rel="stylesheet" href="style.css">');
+      expect(extracted.bodyHtml).not.toContain('<meta charset="UTF-8">');
+      expect(extracted.bodyHtml).toContain('<section><h2>Rótulo</h2></section>');
     });
   });
 
